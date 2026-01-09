@@ -12,11 +12,11 @@
             theme: {
                 extend: {
                     colors: {
-                        'pano-bg': '#050505',      /* Sfondo quasi nero */
-                        'pano-card': '#0F0F0F',    /* Sfondo card */
-                        'pano-lime': '#DCEE6A',    /* IL TUO COLORE ACCENTO */
-                        'pano-grey': '#A0A0A0',    /* Testo secondario */
-                        'pano-border': '#262626',  /* Bordi sottili */
+                        'pano-bg': '#050505',
+                        'pano-card': '#0F0F0F',
+                        'pano-lime': '#DCEE6A',
+                        'pano-grey': '#A0A0A0',
+                        'pano-border': '#262626',
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -30,21 +30,18 @@
     </script>
     <style>
         body { background-color: #050505; color: white; }
-        /* Effetto di luce sfumata */
-        .glow-text {
-            text-shadow: 0 0 20px rgba(220, 238, 106, 0.3);
-        }
+        .glow-text { text-shadow: 0 0 20px rgba(220, 238, 106, 0.3); }
     </style>
 </head>
 <body class="antialiased selection:bg-pano-lime selection:text-black">
-<nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-pano-border">
+
+    <nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-pano-border">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            
             <div class="flex items-center gap-2">
                 <img src="LogoJPG-SfondoScuro.jpg" alt="Panoramica Solutions" class="h-10 w-auto">
                 <span class="font-bold text-xl tracking-wide uppercase">Panoramica</span>
             </div>
-            <div class="hidden md:flex gap-8 text-sm font-medium text-pano-grey">    
+            
             <div class="hidden md:flex gap-8 text-sm font-medium text-pano-grey">
                 <a href="#problem" class="hover:text-white transition">Il Problema</a>
                 <a href="#solution" class="hover:text-white transition">Soluzione</a>
@@ -86,7 +83,6 @@
     <section id="problem" class="py-24 border-t border-pano-border bg-[#0a0a0a]">
         <div class="max-w-7xl mx-auto px-6">
             <h2 class="text-3xl font-bold mb-12">La crescita rompe i processi manuali.</h2>
-            
             <div class="grid md:grid-cols-3 gap-6">
                 <div class="p-8 border border-pano-border bg-pano-card hover:border-pano-lime/50 transition duration-300 group">
                     <div class="w-10 h-10 mb-6 border border-pano-border rounded flex items-center justify-center text-pano-lime group-hover:bg-pano-lime group-hover:text-black transition">
@@ -95,7 +91,6 @@
                     <h3 class="text-xl font-bold text-white mb-3">Silos Dipartimentali</h3>
                     <p class="text-pano-grey text-sm leading-relaxed">Marketing, Sales e CS lavorano con obiettivi diversi. Il risultato? Esperienza cliente frammentata e revenue perse.</p>
                 </div>
-
                 <div class="p-8 border border-pano-border bg-pano-card hover:border-pano-lime/50 transition duration-300 group">
                     <div class="w-10 h-10 mb-6 border border-pano-border rounded flex items-center justify-center text-pano-lime group-hover:bg-pano-lime group-hover:text-black transition">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
@@ -103,7 +98,6 @@
                     <h3 class="text-xl font-bold text-white mb-3">Tech Stack Caotico</h3>
                     <p class="text-pano-grey text-sm leading-relaxed">Strumenti costosi che non comunicano. I dati sono bloccati in piattaforme diverse rendendo impossibile una visione unica.</p>
                 </div>
-
                 <div class="p-8 border border-pano-border bg-pano-card hover:border-pano-lime/50 transition duration-300 group">
                     <div class="w-10 h-10 mb-6 border border-pano-border rounded flex items-center justify-center text-pano-lime group-hover:bg-pano-lime group-hover:text-black transition">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
@@ -150,7 +144,6 @@
                 <h2 class="text-3xl font-bold">Panoramica Services</h2>
                 <p class="text-pano-grey mt-4">Interventi chirurgici per la tua infrastruttura di vendita.</p>
             </div>
-
             <div class="space-y-4">
                 <div class="group border border-pano-border p-6 rounded hover:border-pano-lime transition duration-300 flex flex-col md:flex-row justify-between items-start md:items-center bg-pano-card">
                     <div>
@@ -160,7 +153,6 @@
                     <p class="text-pano-grey text-sm md:max-w-md mt-2 md:mt-0">Analisi profonda del tech stack e dei processi. Il progetto esecutivo per la crescita.</p>
                     <span class="text-pano-lime text-2xl group-hover:translate-x-2 transition">→</span>
                 </div>
-
                 <div class="group border border-pano-border p-6 rounded hover:border-pano-lime transition duration-300 flex flex-col md:flex-row justify-between items-start md:items-center bg-pano-card">
                     <div>
                         <h4 class="text-pano-lime text-sm font-mono mb-1">02</h4>
@@ -169,7 +161,6 @@
                     <p class="text-pano-grey text-sm md:max-w-md mt-2 md:mt-0">Configurazione CRM (HubSpot/Salesforce) e integrazioni. Facciamo parlare i sistemi.</p>
                     <span class="text-pano-lime text-2xl group-hover:translate-x-2 transition">→</span>
                 </div>
-
                 <div class="group border border-pano-border p-6 rounded hover:border-pano-lime transition duration-300 flex flex-col md:flex-row justify-between items-start md:items-center bg-pano-card">
                     <div>
                         <h4 class="text-pano-lime text-sm font-mono mb-1">03</h4>
@@ -184,7 +175,6 @@
 
     <section id="contact" class="py-32 border-t border-pano-border text-center relative overflow-hidden">
         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-lime-glow pointer-events-none opacity-50"></div>
-        
         <div class="relative z-10 max-w-3xl mx-auto px-6">
             <h2 class="text-4xl md:text-5xl font-bold mb-6">Pronto a scalare?</h2>
             <p class="text-pano-grey mb-10 text-lg">Smetti di indovinare. Inizia a ingegnerizzare i tuoi ricavi con Panoramica Solutions.</p>
@@ -204,12 +194,8 @@
                 <a href="#" class="hover:text-pano-lime transition">LinkedIn</a>
                 <a href="#" class="hover:text-pano-lime transition">Privacy Policy</a>
             </div>
-            <div class="mt-4 md:mt-0">
-                &copy; 2024 Panoramica Solutions.
-            </div>
+            <div class="mt-4 md:mt-0">&copy; 2024 Panoramica Solutions.</div>
         </div>
     </footer>
-
 </body>
 </html>
-
