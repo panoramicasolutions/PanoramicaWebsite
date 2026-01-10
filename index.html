@@ -29,7 +29,16 @@
         }
     </script>
 <style>
-        body { background-color: #050505; color: white; overflow-x: hidden; width: 100%; }
+        body { 
+            background-color: #050505; color: white; overflow-x: hidden; width: 100%; 
+            /* NASCONDE IL CURSORE STANDARD SU PC */
+            cursor: none; 
+        }
+
+        /* Riabilita il cursore normale sui dispositivi touch (dove non c'è mouse) */
+        @media (hover: none) {
+            body { cursor: auto; }
+        }
 
         /* --- ANIMAZIONI INTRODUTTIVE (WIPE) --- */
         @keyframes logo-wipe-reveal {
@@ -62,6 +71,33 @@
         .hero-content-delayed {
             opacity: 0;
             animation: fade-in-delayed 1.0s ease-out 2.0s forwards, slide-up 1s ease-out 2.0s forwards;
+        }
+
+        /* --- STILE DEL CURSORE PERSONALIZZATO --- */
+        #custom-cursor {
+            position: fixed;
+            top: 0; left: 0;
+            width: 30px; /* Grandezza del cursore */
+            height: auto;
+            pointer-events: none; /* FONDAMENTALE: permette di cliccare attraverso l'immagine */
+            z-index: 10000; /* Sopra a tutto */
+            transform: translate(-50%, -50%); /* Centra il logo sulla punta del mouse */
+            transition: transform 0.1s ease-out; /* Movimento fluido */
+            display: none; /* Nascosto di default (appare via JS) */
+            
+            /* Filtro per renderlo luminoso e visibile sul nero */
+            filter: drop-shadow(0 0 5px rgba(220, 238, 106, 0.5));
+        }
+
+        /* Sui link, ingrandiamo leggermente il cursore per feedback */
+        body:has(a:hover) #custom-cursor, 
+        body:has(button:hover) #custom-cursor {
+            transform: translate(-50%, -50%) scale(1.3);
+        }
+        
+        /* Non mostrare il cursore custom su mobile */
+        @media (hover: none) {
+            #custom-cursor { display: none !important; }
         }
     </style>
 </head>
@@ -235,8 +271,38 @@
             <div class="mt-4 md:mt-0">&copy; 2024 Panoramica Solutions.</div>
         </div>
     </footer>
+    <div id="custom-cursor">
+        <img src="hero-logo.png" alt="" class="w-full h-full object-contain">
+    </div>
+
+    <script>
+        const cursor = document.getElementById('custom-cursor');
+        
+        // Controlla se siamo su un dispositivo con mouse (non touch)
+        if (window.matchMedia("(pointer: fine)").matches) {
+            
+            // Mostra il cursore custom
+            cursor.style.display = 'block';
+
+            // Aggiorna la posizione al movimento
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+
+            // Gestisce quando il mouse esce dalla finestra
+            document.addEventListener('mouseleave', () => {
+                cursor.style.opacity = '0';
+            });
+            document.addEventListener('mouseenter', () => {
+                cursor.style.opacity = '1';
+            });
+        }
+    </script>
+</body> ```
 </body>
 </html>
+
 
 
 
