@@ -45,15 +45,17 @@
             0% { opacity: 0; }
             100% { opacity: 1; }
         }
-        @keyframes slide-up { 
-            from { transform: translateY(20px); } 
-            to { transform: translateY(0); } 
-        }
+        @keyframes slide-up { from { transform: translateY(20px); } to { transform: translateY(0); } }
 
-        /* --- ORBITA PAZZA (Veloce) --- */
+        /* --- ORBITA PAZZA --- */
         @keyframes spin-360 {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
+        }
+        /* Rotazione della scintilla su se stessa per sembrare viva */
+        @keyframes spark-pulse {
+            0%, 100% { transform: scale(1) rotate(45deg); }
+            50% { transform: scale(1.5) rotate(45deg); }
         }
 
         /* --- CLASSI INTRO --- */
@@ -71,39 +73,39 @@
             animation: fade-in-delayed 1.0s ease-out 2.0s forwards, slide-up 1s ease-out 2.0s forwards;
         }
 
-        /* --- CLASSI ORBITA SCINTILLA --- */
+        /* --- STRUTTURA LOGO ORBITANTE --- */
         .header-logo-container {
             position: relative;
             display: flex;
             align-items: center;
-            /* Assicura che la scintilla non venga tagliata */
-            overflow: visible; 
+            overflow: visible; /* FONDAMENTALE: Permette alla scintilla di uscire dai bordi */
         }
 
-        /* Il perno centrale */
+        /* Perno invisibile al centro */
         .orbit-spinner {
             position: absolute;
             left: 50%; top: 50%;
             width: 0; height: 0;
-            z-index: 50; /* Sopra alla scritta */
-            /* Parte dopo 2.5s e gira veloce (3s) */
+            z-index: 50; 
+            /* Parte dopo 2.5s e gira veloce (3s per un giro completo) */
             animation: fade-in-delayed 0.5s ease-out 2.5s forwards, spin-360 3s linear infinite 2.5s;
         }
 
-        /* La scintilla che gira */
-        .orbit-spark-img {
+        /* --- LA SCINTILLA GENERATA DA CODICE (Nessuna immagine necessaria) --- */
+        .css-spark {
             position: absolute;
-            top: -20px; left: -20px; /* Centrata sul perno */
-            width: 40px; height: auto; /* Più grande */
-            opacity: 1; /* Massima visibilità */
+            top: -5px; left: -5px;
+            width: 10px; height: 10px; /* Piccolo rombo */
+            background-color: #DCEE6A; /* Colore Pano Lime */
             
-            /* RAGGIO DELL'ORBITA: 80px dal centro */
-            transform: translateX(80px); 
+            /* Posizionamento Orbita: 85px dal centro */
+            margin-left: 85px; 
             
-            /* Effetti di luce */
-            filter: drop-shadow(0 0 8px rgba(220,238,106, 1)) brightness(1.5);
-            /* mix-blend-mode: screen; toglie il nero di sfondo se l'immagine ce l'ha */
-            mix-blend-mode: screen; 
+            /* Forma a rombo */
+            transform: rotate(45deg);
+            
+            /* Effetti Luce */
+            box-shadow: 0 0 10px #DCEE6A, 0 0 20px #DCEE6A;
         }
     </style>
 </head>
@@ -112,14 +114,14 @@
     <div class="intro-overlay">
         <img src="hero-logo.png" alt="" class="intro-logo-wipe">
     </div>
- <nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-pano-border hero-content-delayed">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative">
+<nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-pano-border hero-content-delayed">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative overflow-visible">
             
             <div class="header-logo-container">
                 <img src="PanoramicaChiaro.png" alt="Panoramica Solutions" class="h-6 md:h-7 w-auto object-contain relative z-10">
                 
                 <div class="orbit-spinner">
-                    <img src="hero-logo.png" alt="" class="orbit-spark-img">
+                    <div class="css-spark"></div>
                 </div>
             </div>
             
@@ -280,6 +282,7 @@
     </footer>
 </body>
 </html>
+
 
 
 
