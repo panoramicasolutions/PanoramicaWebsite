@@ -31,62 +31,75 @@
 <style>
         body { background-color: #050505; color: white; overflow-x: hidden; }
 
-        /* --- ANIMAZIONI INTRODUTTIVE (VELOCIZZATE) --- */
-
-        /* 1. L'effetto "Wipe" */
+        /* --- ANIMAZIONI INTRODUTTIVE --- */
         @keyframes logo-wipe-reveal {
             0% { clip-path: inset(0 100% 0 0); -webkit-clip-path: inset(0 100% 0 0); }
             100% { clip-path: inset(0 0 0 0); -webkit-clip-path: inset(0 0 0 0); }
         }
-
-        /* 2. Fa sparire la schermata nera */
         @keyframes fade-out-overlay {
             0% { opacity: 1; visibility: visible; }
             90% { opacity: 0; visibility: visible; }
             100% { opacity: 0; visibility: hidden; }
         }
-
-        /* 3. Fa apparire il contenuto principale */
         @keyframes fade-in-delayed {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
+            0% { opacity: 0; }
+            100% { opacity: 1; }
         }
 
-        /* --- CLASSI DA APPLICARE (TIMING AGGIORNATO) --- */
+        /* --- NUOVA ANIMAZIONE: ORBITA 360 --- */
+        @keyframes spin-360 {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
 
-        /* CONTENITORE NERO */
+        /* --- CLASSI INTRO --- */
         .intro-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #050505;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 9999;
-            /* MODIFICA: Inizia a sparire dopo 1.8s (appena finito il logo) */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #050505; display: flex; align-items: center; justify-content: center; z-index: 9999;
             animation: fade-out-overlay 0.8s ease-out 1.8s forwards;
         }
-
-        /* LOGO CHE SI SVELA */
         .intro-logo-wipe {
             height: 30vh;
-            /* MODIFICA: Velocità aumentata! Da 2.5s a 1.5s */
             animation: logo-wipe-reveal 1.5s ease-in-out forwards;
         }
-
-        /* CONTENUTO PRINCIPALE (Testi e Menu) */
         .hero-content-delayed {
             opacity: 0;
-            /* MODIFICA: Appare dopo 2.0s (sincronizzato col nuovo tempo) */
-            animation: fade-in-delayed 1.0s ease-out 2.0s forwards;
+            /* Aggiunto un leggero movimento verticale all'entrata */
+            animation: fade-in-delayed 1.0s ease-out 2.0s forwards, slide-up 1s ease-out 2.0s forwards;
+        }
+        @keyframes slide-up { from { transform: translateY(20px); } to { transform: translateY(0); } }
+
+
+        /* --- CLASSI PER LA SCINTILLA ORBITANTE (HEADER) --- */
+        /* Il contenitore del logo principale deve essere relativo per fare da punto di riferimento */
+        .header-logo-container {
+            position: relative;
+            display: flex;
+            align-items: center;
         }
 
-        /* --- ANIMAZIONE SFONDO CONTINUA (Resta uguale) --- */
-        @keyframes hero-float {
-            0%, 100% { transform: translateY(0px) scale(1); }
-            50% { transform: translateY(-15px) scale(1.05); }
+        /* Il "perno" invisibile che ruota al centro del logo */
+        .orbit-spinner {
+            position: absolute;
+            left: 50%; top: 50%; /* Posizionato al centro esatto del logo Panoramica */
+            width: 0; height: 0; /* Dimensione zero, è solo un punto di rotazione */
+            opacity: 0; /* Parte invisibile */
+            /* Appare dopo 2.5s (dopo l'intro) e gira all'infinito in 8 secondi */
+            animation: fade-in-delayed 1s ease-out 2.5s forwards, spin-360 8s linear infinite 2.5s;
         }
-        .animate-float-infinite {
-            animation: hero-float 6s ease-in-out infinite;
+
+        /* L'immagine della scintilla vera e propria */
+        .orbit-spark-img {
+            position: absolute;
+            top: -15px; left: -15px; /* Centra l'immagine sul perno */
+            width: 30px; height: auto; /* Dimensione della scintilla */
+            opacity: 0.7; /* Leggermente trasparente */
+            /* IL TRUCCO: Spostiamo la scintilla fuori dal centro di 50px.
+               Quando il perno gira, la scintilla orbita a quella distanza. */
+            transform: translateX(50px); 
+            filter: drop-shadow(0 0 5px rgba(220,238,106,0.8)); /* Un po' di bagliore */
         }
+
     </style>
 </head>
 <body class="antialiased selection:bg-pano-lime selection:text-black">
@@ -94,16 +107,23 @@
     <div class="intro-overlay">
         <img src="hero-logo.png" alt="" class="intro-logo-wipe">
     </div>
-    <nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-pano-border hero-content-delayed">
+  <nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-pano-border hero-content-delayed">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative">
-            <div class="flex items-center">
-                <img src="PanoramicaChiaro.png" alt="Panoramica Solutions" class="h-6 md:h-7 w-auto object-contain">
+            
+            <div class="header-logo-container">
+                <img src="PanoramicaChiaro.png" alt="Panoramica Solutions" class="h-6 md:h-7 w-auto object-contain relative z-10">
+                
+                <div class="orbit-spinner">
+                    <img src="hero-logo.png" alt="" class="orbit-spark-img">
+                </div>
             </div>
+            
             <div class="hidden md:flex gap-8 text-sm font-medium text-pano-grey absolute left-1/2 -translate-x-1/2">
                 <a href="#problem" class="hover:text-white transition">The Gap</a>
                 <a href="#solution" class="hover:text-white transition">Approach</a>
                 <a href="#services" class="hover:text-white transition">Services</a>
             </div>
+
             <a href="#contact" class="px-5 py-2 bg-pano-lime text-black font-bold text-sm rounded hover:bg-white transition shadow-[0_0_15px_rgba(220,238,106,0.4)]">
                 Book an Audit
             </a>
@@ -255,6 +275,7 @@
     </footer>
 </body>
 </html>
+
 
 
 
