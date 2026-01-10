@@ -28,76 +28,104 @@
             }
         }
     </script>
-   <style>
-        body { background-color: #050505; color: white; }
-        
-        /* Animazione di Entrata (Appare dal basso e si mette a fuoco) */
-        @keyframes hero-entrance {
-            from { opacity: 0; transform: scale(0.8) translateY(30px); filter: blur(10px); }
-            to { opacity: 0.6; transform: scale(1) translateY(0); filter: blur(0); }
+<style>
+        body { background-color: #050505; color: white; overflow-x: hidden; }
+
+        /* --- ANIMAZIONI INTRODUTTIVE --- */
+
+        /* 1. L'effetto "Wipe" che svela il logo da sinistra a destra */
+        @keyframes logo-wipe-reveal {
+            0% { clip-path: inset(0 100% 0 0); -webkit-clip-path: inset(0 100% 0 0); } /* Nascosto a sinistra */
+            100% { clip-path: inset(0 0 0 0); -webkit-clip-path: inset(0 0 0 0); }    /* Completamente visibile */
         }
 
-        /* Animazione Continua (Respiro/Fluttuazione lenta) */
+        /* 2. Fa sparire l'intera schermata nera iniziale */
+        @keyframes fade-out-overlay {
+            0% { opacity: 1; visibility: visible; }
+            90% { opacity: 0; visibility: visible; }
+            100% { opacity: 0; visibility: hidden; } /* Importante: lo nasconde per non bloccare i click */
+        }
+
+        /* 3. Fa apparire il contenuto principale DOPO che l'intro è finita */
+        @keyframes fade-in-delayed {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- CLASSI DA APPLICARE --- */
+
+        /* Classe per il contenitore nero iniziale */
+        .intro-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #050505;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; /* Sopra tutto */
+            /* Aspetta 2.5s (tempo del wipe) + 0.5s di pausa, poi sparisce in 1s */
+            animation: fade-out-overlay 1s ease-out 3s forwards;
+        }
+
+        /* Classe per il logo che si svela */
+        .intro-logo-wipe {
+            height: 30vh; /* Grandezza logo intro */
+            /* Esegue il wipe in 2.5 secondi */
+            animation: logo-wipe-reveal 2.5s ease-in-out forwards;
+        }
+
+        /* Classe per il ritardo del contenuto principale */
+        .hero-content-delayed {
+            opacity: 0; /* Parte invisibile */
+            /* Aspetta 3.2 secondi (che finisca l'intro) poi appare */
+            animation: fade-in-delayed 1.5s ease-out 3.2s forwards;
+        }
+
+        /* --- ANIMAZIONE SFONDO CONTINUA (Resta uguale) --- */
         @keyframes hero-float {
-            0% { transform: translateY(0px) scale(1); }
-            50% { transform: translateY(-15px) scale(1.05); } /* Si alza e ingrandisce leggermente */
-            100% { transform: translateY(0px) scale(1); }
-        }
-
-        /* Classi da applicare */
-        .animate-bg-enter {
-            animation: hero-entrance 2.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-15px) scale(1.05); }
         }
         .animate-float-infinite {
-            animation: hero-float 6s ease-in-out infinite; /* Dura 6 secondi e si ripete per sempre */
-        }
-        
-        /* Ritardo per il testo */
-        .animate-text-enter {
-            opacity: 0;
-            animation: hero-entrance 1.5s ease-out forwards 0.5s; /* Parte dopo mezzo secondo */
+            animation: hero-float 6s ease-in-out infinite;
         }
     </style>
 </head>
 <body class="antialiased selection:bg-pano-lime selection:text-black">
 
-<nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-pano-border">
+    <div class="intro-overlay">
+        <img src="hero-logo.png" alt="" class="intro-logo-wipe">
+    </div>
+    <nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-pano-border hero-content-delayed">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative">
-            
             <div class="flex items-center">
                 <img src="PanoramicaChiaro.png" alt="Panoramica Solutions" class="h-6 md:h-7 w-auto object-contain">
             </div>
-            
             <div class="hidden md:flex gap-8 text-sm font-medium text-pano-grey absolute left-1/2 -translate-x-1/2">
                 <a href="#problem" class="hover:text-white transition">The Gap</a>
                 <a href="#solution" class="hover:text-white transition">Approach</a>
                 <a href="#services" class="hover:text-white transition">Services</a>
             </div>
-
             <a href="#contact" class="px-5 py-2 bg-pano-lime text-black font-bold text-sm rounded hover:bg-white transition shadow-[0_0_15px_rgba(220,238,106,0.4)]">
                 Book an Audit
             </a>
         </div>
     </nav>
 
-<header class="relative pt-32 pb-20 overflow-hidden min-h-[85vh] flex items-center justify-center">
+    <header class="relative pt-32 pb-20 overflow-hidden min-h-[85vh] flex items-center justify-center">
         
-        <div class="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+        <div class="absolute inset-0 z-0 flex items-center justify-center pointer-events-none hero-content-delayed">
             <img src="hero-logo.png" alt="" class="h-[60vh] md:h-[80vh] w-auto object-contain opacity-60 animate-float-infinite">
         </div>
         
         <div class="absolute inset-0 bg-gradient-to-b from-black/90 via-black/20 to-black/90 z-1 pointer-events-none"></div>
 
-        <div class="relative max-w-4xl mx-auto px-6 text-center z-10 animate-text-enter">
+        <div class="relative max-w-4xl mx-auto px-6 text-center z-10 hero-content-delayed">
             <div class="inline-block px-3 py-1 mb-6 border border-pano-border rounded-full text-xs text-pano-lime tracking-widest uppercase bg-pano-card/50 backdrop-blur-sm">
                 Tailored RevOps for Scalable Growth
             </div>
-            
             <h1 class="text-5xl md:text-8xl font-bold leading-tight tracking-tight mb-8 text-white drop-shadow-2xl">
                 Align Teams, Data, <br />
                 and Strategy.
             </h1>
-            
             <p class="text-xl md:text-2xl text-pano-grey mb-12 max-w-2xl mx-auto leading-relaxed font-light">
                 We turn data chaos into a predictable revenue engine. 
                 The operating infrastructure for startups ready to scale.
@@ -231,6 +259,7 @@
     </footer>
 </body>
 </html>
+
 
 
 
