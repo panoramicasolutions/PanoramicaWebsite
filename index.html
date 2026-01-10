@@ -31,52 +31,52 @@
 <style>
         body { background-color: #050505; color: white; overflow-x: hidden; }
 
-        /* --- ANIMAZIONI INTRODUTTIVE --- */
+        /* --- ANIMAZIONI INTRODUTTIVE (VELOCIZZATE) --- */
 
-        /* 1. L'effetto "Wipe" che svela il logo da sinistra a destra */
+        /* 1. L'effetto "Wipe" */
         @keyframes logo-wipe-reveal {
-            0% { clip-path: inset(0 100% 0 0); -webkit-clip-path: inset(0 100% 0 0); } /* Nascosto a sinistra */
-            100% { clip-path: inset(0 0 0 0); -webkit-clip-path: inset(0 0 0 0); }    /* Completamente visibile */
+            0% { clip-path: inset(0 100% 0 0); -webkit-clip-path: inset(0 100% 0 0); }
+            100% { clip-path: inset(0 0 0 0); -webkit-clip-path: inset(0 0 0 0); }
         }
 
-        /* 2. Fa sparire l'intera schermata nera iniziale */
+        /* 2. Fa sparire la schermata nera */
         @keyframes fade-out-overlay {
             0% { opacity: 1; visibility: visible; }
             90% { opacity: 0; visibility: visible; }
-            100% { opacity: 0; visibility: hidden; } /* Importante: lo nasconde per non bloccare i click */
+            100% { opacity: 0; visibility: hidden; }
         }
 
-        /* 3. Fa apparire il contenuto principale DOPO che l'intro è finita */
+        /* 3. Fa apparire il contenuto principale */
         @keyframes fade-in-delayed {
             0% { opacity: 0; transform: translateY(20px); }
             100% { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- CLASSI DA APPLICARE --- */
+        /* --- CLASSI DA APPLICARE (TIMING AGGIORNATO) --- */
 
-        /* Classe per il contenitore nero iniziale */
+        /* CONTENITORE NERO */
         .intro-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background-color: #050505;
             display: flex; align-items: center; justify-content: center;
-            z-index: 9999; /* Sopra tutto */
-            /* Aspetta 2.5s (tempo del wipe) + 0.5s di pausa, poi sparisce in 1s */
-            animation: fade-out-overlay 1s ease-out 3s forwards;
+            z-index: 9999;
+            /* MODIFICA: Inizia a sparire dopo 1.8s (appena finito il logo) */
+            animation: fade-out-overlay 0.8s ease-out 1.8s forwards;
         }
 
-        /* Classe per il logo che si svela */
+        /* LOGO CHE SI SVELA */
         .intro-logo-wipe {
-            height: 30vh; /* Grandezza logo intro */
-            /* Esegue il wipe in 2.5 secondi */
-            animation: logo-wipe-reveal 2.5s ease-in-out forwards;
+            height: 30vh;
+            /* MODIFICA: Velocità aumentata! Da 2.5s a 1.5s */
+            animation: logo-wipe-reveal 1.5s ease-in-out forwards;
         }
 
-        /* Classe per il ritardo del contenuto principale */
+        /* CONTENUTO PRINCIPALE (Testi e Menu) */
         .hero-content-delayed {
-            opacity: 0; /* Parte invisibile */
-            /* Aspetta 3.2 secondi (che finisca l'intro) poi appare */
-            animation: fade-in-delayed 1.5s ease-out 3.2s forwards;
+            opacity: 0;
+            /* MODIFICA: Appare dopo 2.0s (sincronizzato col nuovo tempo) */
+            animation: fade-in-delayed 1.0s ease-out 2.0s forwards;
         }
 
         /* --- ANIMAZIONE SFONDO CONTINUA (Resta uguale) --- */
@@ -259,6 +259,7 @@
     </footer>
 </body>
 </html>
+
 
 
 
