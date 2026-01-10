@@ -28,9 +28,35 @@
             }
         }
     </script>
-    <style>
+   <style>
         body { background-color: #050505; color: white; }
-        .glow-text { text-shadow: 0 0 20px rgba(220, 238, 106, 0.3); }
+        
+        /* Animazione di Entrata (Appare dal basso e si mette a fuoco) */
+        @keyframes hero-entrance {
+            from { opacity: 0; transform: scale(0.8) translateY(30px); filter: blur(10px); }
+            to { opacity: 0.6; transform: scale(1) translateY(0); filter: blur(0); }
+        }
+
+        /* Animazione Continua (Respiro/Fluttuazione lenta) */
+        @keyframes hero-float {
+            0% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-15px) scale(1.05); } /* Si alza e ingrandisce leggermente */
+            100% { transform: translateY(0px) scale(1); }
+        }
+
+        /* Classi da applicare */
+        .animate-bg-enter {
+            animation: hero-entrance 2.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        .animate-float-infinite {
+            animation: hero-float 6s ease-in-out infinite; /* Dura 6 secondi e si ripete per sempre */
+        }
+        
+        /* Ritardo per il testo */
+        .animate-text-enter {
+            opacity: 0;
+            animation: hero-entrance 1.5s ease-out forwards 0.5s; /* Parte dopo mezzo secondo */
+        }
     </style>
 </head>
 <body class="antialiased selection:bg-pano-lime selection:text-black">
@@ -54,26 +80,31 @@
         </div>
     </nav>
 
-    <header class="relative pt-40 pb-32 overflow-hidden">
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-lime-glow pointer-events-none"></div>
+   <header class="relative pt-32 pb-20 overflow-hidden min-h-[85vh] flex items-center justify-center">
+        
+        <div class="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+            <img src="hero-logo.png" alt="" class="h-[60vh] md:h-[80vh] w-auto object-contain opacity-60 animate-bg-enter animate-float-infinite">
+        </div>
+        
+        <div class="absolute inset-0 bg-gradient-to-b from-[#050505]/90 via-transparent to-[#050505] z-0"></div>
 
-        <div class="relative max-w-4xl mx-auto px-6 text-center z-10">
-            <div class="inline-block px-3 py-1 mb-6 border border-pano-border rounded-full text-xs text-pano-lime tracking-widest uppercase bg-pano-card/50">
+        <div class="relative max-w-4xl mx-auto px-6 text-center z-10 animate-text-enter">
+            <div class="inline-block px-3 py-1 mb-6 border border-pano-border rounded-full text-xs text-pano-lime tracking-widest uppercase bg-pano-card/50 backdrop-blur-sm">
                 Tailored RevOps for Scalable Growth
             </div>
-            <h1 class="text-5xl md:text-7xl font-bold leading-tight tracking-tight mb-8 text-white">
+            <h1 class="text-5xl md:text-8xl font-bold leading-tight tracking-tight mb-8 text-white drop-shadow-2xl">
                 Align Teams, Data, <br />
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-pano-grey">and Strategy.</span>
             </h1>
-            <p class="text-xl text-pano-grey mb-10 max-w-2xl mx-auto leading-relaxed">
+            <p class="text-xl md:text-2xl text-pano-grey mb-12 max-w-2xl mx-auto leading-relaxed font-light">
                 We turn data chaos into a predictable revenue engine. 
                 The operating infrastructure for startups ready to scale.
             </p>
-            <div class="flex flex-col md:flex-row gap-4 justify-center">
-                <a href="#contact" class="px-8 py-4 bg-pano-lime text-black font-bold rounded text-lg hover:scale-105 transition duration-300">
+            <div class="flex flex-col md:flex-row gap-5 justify-center">
+                <a href="#contact" class="px-8 py-4 bg-pano-lime text-black font-bold rounded text-lg hover:scale-105 transition duration-300 shadow-[0_0_30px_rgba(220,238,106,0.25)]">
                     Start Transformation
                 </a>
-                <a href="#services" class="px-8 py-4 border border-pano-border text-white font-medium rounded text-lg hover:bg-pano-border transition">
+                <a href="#services" class="px-8 py-4 border border-pano-border text-white font-medium rounded text-lg hover:bg-pano-border hover:text-pano-lime transition backdrop-blur-sm bg-black/40">
                     Explore Services
                 </a>
             </div>
@@ -198,6 +229,7 @@
     </footer>
 </body>
 </html>
+
 
 
 
