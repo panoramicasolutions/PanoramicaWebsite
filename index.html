@@ -74,35 +74,33 @@
         .header-logo-container {
             position: relative; display: flex; align-items: center; overflow: visible;
         }
-
         .orbit-spinner {
             position: absolute; left: 50%; top: 50%; width: 0; height: 0; z-index: 50;
             animation: fade-in-delayed 0.5s ease-out 2.5s forwards, spin-360 3s linear infinite 2.5s;
         }
 
-        /* --- NUOVA CLASSE PER L'IMMAGINE ORBITANTE --- */
-        .orbiting-spark-image {
-            position: absolute;
-            /* MOBILE DEFAULT */
-            /* Posizionamento per centrarla sul perno */
-            top: -15px; left: -15px; 
-            width: 30px; height: auto; /* Grandezza su mobile */
-            margin-left: 55px; /* Raggio orbita stretto su mobile */
+        /* --- LA SCINTILLA "CSS" (Rombo Luminoso) --- */
+        .css-spark {
+            position: absolute; top: -5px; left: -5px;
             
-            /* EFFETTI DI LUCE */
-            /* drop-shadow crea l'alone luminoso attorno alla forma dell'immagine */
-            filter: drop-shadow(0 0 8px rgba(220,238,106, 0.9)) brightness(1.3);
-            /* mix-blend-mode aiuta a fondere l'immagine con lo sfondo scuro */
-            mix-blend-mode: screen;
+            /* FORMA: Rombo Giallo/Verde */
+            width: 8px; height: 8px;
+            background-color: #DCEE6A;
+            transform: rotate(45deg); /* Ruota per fare il rombo */
+            
+            /* GLOW / SCIA LUMINOSA */
+            /* Questo crea l'effetto "energia" attorno al rombo */
+            box-shadow: 0 0 10px 2px rgba(220, 238, 106, 0.8), 0 0 20px 5px rgba(220, 238, 106, 0.3);
+            
+            /* Posizione Responsive */
+            margin-left: 55px; /* Mobile */
         }
 
-        /* DESKTOP */
         @media (min-width: 768px) {
-            .orbiting-spark-image {
-                /* Ricentriamo perché l'immagine è più grande */
-                top: -22.5px; left: -22.5px;
-                width: 45px; height: auto; /* Più grande su desktop */
-                margin-left: 85px; /* Raggio orbita largo su desktop */
+            .css-spark {
+                width: 12px; height: 12px;
+                top: -6px; left: -6px;
+                margin-left: 85px; /* Desktop */
             }
         }
     </style>
@@ -118,7 +116,7 @@
             <div class="header-logo-container flex-shrink-0">
                 <img src="PanoramicaChiaro.png" alt="Panoramica Solutions" class="h-5 md:h-7 w-auto object-contain relative z-10">
                 <div class="orbit-spinner">
-                    <img src="hero-logo.png" alt="" class="orbiting-spark-image">
+                    <div class="css-spark"></div>
                 </div>
             </div>
             
@@ -282,6 +280,7 @@
     </footer>
 </body>
 </html>
+
 
 
 
