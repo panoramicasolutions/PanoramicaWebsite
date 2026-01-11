@@ -17,7 +17,6 @@
                     },
                     animation: {
                         'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     },
                     keyframes: {
                         fadeInUp: {
@@ -31,16 +30,8 @@
     </script>
     <style>
         body { background-color: #050505; color: white; font-family: sans-serif; }
-        
-        /* Nascondi scrollbar ma permetti scroll */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Effetto cursore che lampeggia */
-        .typing-cursor::after { content: '|'; animation: blink 1s step-start infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-
-        /* Stile Input */
         .chat-input:focus { outline: none; box-shadow: 0 0 0 2px #DCEE6A; }
     </style>
 </head>
@@ -62,22 +53,19 @@
         </div>
     </main>
 
-    <footer class="flex-none p-4 md:p-6 bg-[#050505] border-t border-pano-border">
+    <footer id="input-area" class="flex-none p-4 md:p-6 bg-[#050505] border-t border-pano-border transition-all duration-500">
         <div class="max-w-3xl mx-auto relative">
             <form id="chat-form" class="flex gap-4">
                 <input type="text" id="user-input" 
                     class="w-full bg-[#111] border border-pano-border rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:border-pano-lime transition outline-none shadow-lg"
                     placeholder="Type your answer here..." autocomplete="off">
                 
-                <button type="submit" class="bg-pano-lime text-black p-4 rounded-xl hover:bg-white transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+                <button type="submit" id="send-btn" class="bg-pano-lime text-black p-4 rounded-xl hover:bg-white transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                     </svg>
                 </button>
             </form>
-            <div class="text-center mt-2">
-                <p class="text-[10px] text-pano-grey uppercase tracking-widest">Powered by RevOps Logic</p>
-            </div>
         </div>
     </footer>
 
@@ -85,23 +73,30 @@
         const chatContainer = document.getElementById('chat-container');
         const chatForm = document.getElementById('chat-form');
         const userInput = document.getElementById('user-input');
-        
-        // DATI UTENTE RACCOLTI
-        let userData = {
+        const inputArea = document.getElementById('input-area');
+
+        // MEMORIA DEL BOT
+        let state = {
+            step: 'INIT', // INIT, NAME, COMPANY, DISCOVERY, CLOSING
             name: '',
             company: '',
-            painPoint: ''
+            painPoints: [],
+            interactionCount: 0,
+            score: 0 // Punteggio per decidere quando vendere
         };
 
-        // STATO DELLA CONVERSAZIONE
-        let step = 0;
+        // KEYWORDS INTELLIGENTI
+        const knowledgeBase = {
+            tech: ['crm', 'hubspot', 'salesforce', 'software', 'tool', 'tech', 'excel', 'sheets', 'manual'],
+            team: ['team', 'people', 'staff', 'misalignment', 'communication', 'silos', 'sales', 'marketing'],
+            data: ['data', 'analytics', 'report', 'KPI', 'tracking', 'blind', 'guess'],
+            growth: ['scale', 'grow', 'revenue', 'fast', 'startup', 'series a', 'investors']
+        };
 
-        // FUNZIONE: Aggiunge messaggio BOT
+        // 1. GESTIONE MESSAGGI BASE
         function addBotMessage(text, isHTML = false) {
             const msgDiv = document.createElement('div');
             msgDiv.className = 'flex gap-4 max-w-3xl mx-auto animate-fade-in-up';
-            
-            // Icona Bot
             msgDiv.innerHTML = `
                 <div class="w-8 h-8 flex-shrink-0 rounded bg-pano-lime flex items-center justify-center mt-1">
                     <div class="w-2 h-2 bg-black rotate-45"></div>
@@ -114,11 +109,9 @@
             scrollToBottom();
         }
 
-        // FUNZIONE: Aggiunge messaggio UTENTE
         function addUserMessage(text) {
             const msgDiv = document.createElement('div');
             msgDiv.className = 'flex gap-4 max-w-3xl mx-auto justify-end animate-fade-in-up';
-            
             msgDiv.innerHTML = `
                 <div class="bg-pano-lime/10 text-pano-lime border border-pano-lime/20 p-4 rounded-2xl rounded-tr-none shadow-[0_0_15px_rgba(220,238,106,0.1)] text-sm md:text-base">
                     <p>${text}</p>
@@ -128,7 +121,7 @@
             scrollToBottom();
         }
 
-        // FUNZIONE: Indicatore "Sta scrivendo..."
+        // 2. INDICATORE "STA SCRIVENDO" (Delay variabile per sembrare umano)
         function showTypingIndicator() {
             const id = 'typing-' + Date.now();
             const msgDiv = document.createElement('div');
@@ -149,91 +142,148 @@
             return id;
         }
 
-        function removeTypingIndicator(id) {
-            const el = document.getElementById(id);
-            if (el) el.remove();
+        async function botReply(text, isHTML = false) {
+            // Tempo di attesa dinamico: più lungo è il testo, più il bot "pensa"
+            const thinkTime = Math.min(1000 + (text.length * 10), 2500); 
+            
+            const typingId = showTypingIndicator();
+            userInput.disabled = true;
+            document.getElementById('send-btn').style.opacity = "0.5";
+
+            await new Promise(r => setTimeout(r, thinkTime));
+            
+            document.getElementById(typingId).remove();
+            addBotMessage(text, isHTML);
+            userInput.disabled = false;
+            document.getElementById('send-btn').style.opacity = "1";
+            userInput.focus();
         }
 
         function scrollToBottom() {
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-        // SIMULATORE AI
-        async function botReply(text, delay = 1000, isHTML = false) {
-            const typingId = showTypingIndicator();
-            userInput.disabled = true; // Blocca input mentre bot scrive
-            
-            await new Promise(r => setTimeout(r, delay));
-            
-            removeTypingIndicator(typingId);
-            addBotMessage(text, isHTML);
-            userInput.disabled = false;
-            userInput.focus();
+        // 3. IL CERVELLO (NLP SIMULATA)
+        function analyzeSentiment(text) {
+            const lower = text.toLowerCase();
+            let context = 'general';
+
+            if (lower.length < 3) return 'too_short';
+
+            // Cerca match nelle categorie
+            if (knowledgeBase.tech.some(k => lower.includes(k))) context = 'tech';
+            else if (knowledgeBase.team.some(k => lower.includes(k))) context = 'team';
+            else if (knowledgeBase.data.some(k => lower.includes(k))) context = 'data';
+            else if (knowledgeBase.growth.some(k => lower.includes(k))) context = 'growth';
+
+            return context;
         }
 
-        // FLUSSO DELLA CHAT
-        async function handleFlow(input) {
-            input = input.trim();
-            if (!input && step !== 4) return; // Impedisce messaggi vuoti tranne alla fine
+        // 4. GESTIONE DEL FLUSSO
+        async function processInput(input) {
+            if (!input.trim()) return;
+            
+            addUserMessage(input);
+            state.interactionCount++;
 
-            // STEP 0: Richiesta Nome
-            if (step === 0) {
-                userData.name = input;
-                addUserMessage(input);
-                step++;
-                await botReply(`Nice to meet you, ${userData.name}. <br><br>To give you the best advice, what company are you representing today?`);
-            } 
-            // STEP 1: Richiesta Azienda
-            else if (step === 1) {
-                userData.company = input;
-                addUserMessage(input);
-                step++;
-                await botReply(`Got it. We've helped many companies scale their revenue operations.<br><br>In one sentence, <strong>what is the biggest friction point</strong> preventing ${userData.company} from growing right now? (e.g., messy data, misaligned teams, manual tasks)`);
+            // --- FASE 1: RACCOLTA DATI BASE ---
+            if (state.step === 'INIT') {
+                state.name = input;
+                state.step = 'COMPANY';
+                await botReply(`Nice to meet you, ${state.name}. To tailor my analysis, what company do you represent?`);
+                return;
             }
-            // STEP 2: Pain Points (La parte "Vendita")
-            else if (step === 2) {
-                userData.painPoint = input;
-                addUserMessage(input);
-                step++;
-                
-                // Risposta "Intelligente" generica
-                await botReply(`I see. "${userData.painPoint}" is a very common scalability killer.`);
-                await botReply(`At Panoramica, we don't just patch these issues. We build a <strong>Revenue Engine</strong> that eliminates manual work and aligns your data perfectly.<br><br>Based on what you told me, you need an architectural fix, not just a band-aid.`);
-                
-                // Bottone finale
-                setTimeout(() => {
-                    addBotMessage(`
-                        <p class="mb-4 text-white">I've prepared a preliminary audit slot for you tailored to discuss "${userData.painPoint}".</p>
-                        <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" 
-                           class="block w-full text-center bg-pano-lime text-black font-bold py-4 rounded hover:bg-white hover:scale-105 transition shadow-[0_0_20px_rgba(220,238,106,0.4)]">
-                           Book Priority Strategy Call
-                        </a>
-                        <p class="mt-4 text-xs text-pano-grey text-center">Clicking opens our calendar in a new tab.</p>
-                    `, true);
-                    
-                    // Nascondi input bar alla fine
-                    document.querySelector('footer').style.display = 'none';
-                }, 1500);
+
+            if (state.step === 'COMPANY') {
+                state.company = input;
+                state.step = 'DISCOVERY';
+                await botReply(`Got it. We work often with growing companies.<br><br>Tell me, ${state.name}, if you had a magic wand, what is the <strong>one thing</strong> you would fix immediately in ${state.company}'s revenue process?`);
+                return;
+            }
+
+            // --- FASE 2: DISCOVERY INTELLIGENTE (Loop) ---
+            if (state.step === 'DISCOVERY') {
+                const context = analyzeSentiment(input);
+
+                // FALLBACK: Risposta troppo breve o senza senso
+                if (context === 'too_short') {
+                    const fallbacks = [
+                        "Could you elaborate a bit more on that?",
+                        "I want to make sure I understand correctly. Can you add some detail?",
+                        "Interesting. Tell me more."
+                    ];
+                    await botReply(fallbacks[Math.floor(Math.random() * fallbacks.length)]);
+                    return; // Non aumentiamo il punteggio
+                }
+
+                // ANALISI CONTESTUALE
+                state.score += 25; // Aumenta punteggio per risposta valida
+
+                if (context === 'tech') {
+                    await botReply(`I see a technical bottleneck. Often, tools like Salesforce or HubSpot are powerful but poorly implemented, creating "data silos". Is your team actually using the CRM correctly?`);
+                    state.painPoints.push("Tech Stack");
+                } 
+                else if (context === 'team') {
+                    await botReply(`Alignment issues are critical. When Sales and Marketing don't speak the same language, revenue leaks. How big is your RevOps or Sales team currently?`);
+                    state.painPoints.push("Team Alignment");
+                }
+                else if (context === 'data') {
+                    await botReply(`Blind spots in data are dangerous. You can't scale what you can't measure. Are you currently tracking your Customer Acquisition Cost (CAC) accurately?`);
+                    state.painPoints.push("Data Integrity");
+                }
+                else {
+                    // Risposta generica intelligente
+                    await botReply(`That sounds like a scalability friction point. Ideally, that process should be automated to run in the background.`);
+                }
+
+                // DECISIONE: PRENOTIAMO ORA?
+                // Se abbiamo scambiato almeno 3 messaggi E il punteggio è alto
+                if (state.interactionCount >= 5 || state.score > 60) {
+                    state.step = 'CLOSING';
+                    setTimeout(() => triggerClosing(), 1500);
+                }
+                return;
             }
         }
 
-        // INIZIO: Messaggio di benvenuto
+        // 5. FASE FINALE: CLOSING
+        async function triggerClosing() {
+            await botReply(`Based on our conversation, ${state.name}, it seems like you have a solid product but the **operational engine** needs tuning to scale without chaos.`);
+            
+            await botReply(`I've analyzed your inputs. We can definitely help ${state.company} fix these bottlenecks.`);
+
+            // Mostra il pulsante finale
+            addBotMessage(`
+                <p class="mb-4 text-white font-medium">I recommend a strategic deep-dive. I've enabled priority access to our calendar.</p>
+                <div class="bg-pano-lime/5 border border-pano-lime/20 p-4 rounded-xl mb-4 text-xs text-pano-grey">
+                    <strong>ANALYSIS SUMMARY:</strong><br>
+                    • Focus: ${state.company}<br>
+                    • Detected Pains: ${state.painPoints.length > 0 ? state.painPoints.join(', ') : 'Process Optimization'}
+                </div>
+                <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" 
+                   class="block w-full text-center bg-pano-lime text-black font-bold py-4 rounded hover:bg-white hover:scale-105 transition shadow-[0_0_20px_rgba(220,238,106,0.4)]">
+                   Book Priority Consultation
+                </a>
+            `, true);
+
+            // Nascondi input bar
+            inputArea.style.opacity = '0';
+            setTimeout(() => inputArea.style.display = 'none', 500);
+        }
+
+        // START
         window.onload = async () => {
-            await new Promise(r => setTimeout(r, 500));
+            await new Promise(r => setTimeout(r, 800));
             addBotMessage("Hello. I am the Panoramica Revenue Architect AI.");
-            await botReply("I'm here to analyze if your infrastructure is ready for scale.<br>First, may I know your name?");
+            await botReply("I'm here to analyze your infrastructure's scalability.<br>Let's start simply: <strong>What is your name?</strong>", true);
         };
 
-        // GESTIONE INVIO MESSAGGI
         chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const text = userInput.value;
-            if (text) {
-                userInput.value = '';
-                handleFlow(text);
-            }
+            userInput.value = '';
+            processInput(text);
         });
-
     </script>
 </body>
 </html>
