@@ -33,6 +33,11 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .chat-input:focus { outline: none; box-shadow: 0 0 0 2px #DCEE6A; }
+        
+        /* Markdown rendering basic */
+        .bot-msg ul { list-style-type: disc; margin-left: 20px; margin-top: 5px; }
+        .bot-msg strong { color: #DCEE6A; font-weight: bold; }
+        .bot-msg a { color: #DCEE6A; text-decoration: underline; }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
@@ -53,7 +58,7 @@
         </div>
     </main>
 
-    <footer id="input-area" class="flex-none p-4 md:p-6 bg-[#050505] border-t border-pano-border transition-all duration-500">
+    <footer id="input-area" class="flex-none p-4 md:p-6 bg-[#050505] border-t border-pano-border">
         <div class="max-w-3xl mx-auto relative">
             <form id="chat-form" class="flex gap-4">
                 <input type="text" id="user-input" 
@@ -66,66 +71,66 @@
                     </svg>
                 </button>
             </form>
+            <div class="text-center mt-2">
+                <p class="text-[10px] text-pano-grey uppercase tracking-widest">Powered by OpenAI GPT-4o</p>
+            </div>
         </div>
     </footer>
 
     <script>
+        // --- CONFIGURAZIONE ---
+        // INCOLLA QUI IL LINK DEL TUO CLOUDFLARE WORKER (es. https://panoramica-bot.tuonome.workers.dev)
+        const WORKER_URL = "https://odd-field-8d9b.giulioricciutipriv.workers.dev"; 
+        // ---------------------
+
         const chatContainer = document.getElementById('chat-container');
         const chatForm = document.getElementById('chat-form');
         const userInput = document.getElementById('user-input');
-        const inputArea = document.getElementById('input-area');
+        const sendBtn = document.getElementById('send-btn');
 
-        // MEMORIA DEL BOT
-        let state = {
-            step: 'INIT', // INIT, NAME, COMPANY, DISCOVERY, CLOSING
-            name: '',
-            company: '',
-            painPoints: [],
-            interactionCount: 0,
-            score: 0 // Punteggio per decidere quando vendere
-        };
+        // Storico della conversazione (per dare memoria al bot)
+        let conversationHistory = [];
 
-        // KEYWORDS INTELLIGENTI
-        const knowledgeBase = {
-            tech: ['crm', 'hubspot', 'salesforce', 'software', 'tool', 'tech', 'excel', 'sheets', 'manual'],
-            team: ['team', 'people', 'staff', 'misalignment', 'communication', 'silos', 'sales', 'marketing'],
-            data: ['data', 'analytics', 'report', 'KPI', 'tracking', 'blind', 'guess'],
-            growth: ['scale', 'grow', 'revenue', 'fast', 'startup', 'series a', 'investors']
-        };
-
-        // 1. GESTIONE MESSAGGI BASE
-        function addBotMessage(text, isHTML = false) {
+        // Funzione per aggiungere messaggi
+        function addMessage(text, sender) {
             const msgDiv = document.createElement('div');
-            msgDiv.className = 'flex gap-4 max-w-3xl mx-auto animate-fade-in-up';
-            msgDiv.innerHTML = `
-                <div class="w-8 h-8 flex-shrink-0 rounded bg-pano-lime flex items-center justify-center mt-1">
-                    <div class="w-2 h-2 bg-black rotate-45"></div>
-                </div>
-                <div class="bg-[#1a1a1a] text-gray-200 p-4 rounded-2xl rounded-tl-none border border-pano-border/50 shadow-md leading-relaxed text-sm md:text-base">
-                    ${isHTML ? text : `<p>${text}</p>`}
-                </div>
-            `;
+            const isBot = sender === 'bot';
+            
+            msgDiv.className = isBot 
+                ? 'flex gap-4 max-w-3xl mx-auto animate-fade-in-up' 
+                : 'flex gap-4 max-w-3xl mx-auto justify-end animate-fade-in-up';
+
+            // Formattazione base del testo (converte a capo in <br>)
+            let formattedText = text.replace(/\n/g, '<br>');
+            // Rende cliccabili i link
+            formattedText = formattedText.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+
+            if (isBot) {
+                msgDiv.innerHTML = `
+                    <div class="w-8 h-8 flex-shrink-0 rounded bg-pano-lime flex items-center justify-center mt-1">
+                        <div class="w-2 h-2 bg-black rotate-45"></div>
+                    </div>
+                    <div class="bot-msg bg-[#1a1a1a] text-gray-200 p-4 rounded-2xl rounded-tl-none border border-pano-border/50 shadow-md leading-relaxed text-sm md:text-base">
+                        ${formattedText}
+                    </div>
+                `;
+            } else {
+                msgDiv.innerHTML = `
+                    <div class="bg-pano-lime/10 text-pano-lime border border-pano-lime/20 p-4 rounded-2xl rounded-tr-none shadow-[0_0_15px_rgba(220,238,106,0.1)] text-sm md:text-base">
+                        ${formattedText}
+                    </div>
+                `;
+            }
             chatContainer.appendChild(msgDiv);
             scrollToBottom();
         }
 
-        function addUserMessage(text) {
+        // Indicatore di caricamento
+        let typingDivId = null;
+        function showTyping() {
+            typingDivId = 'typing-' + Date.now();
             const msgDiv = document.createElement('div');
-            msgDiv.className = 'flex gap-4 max-w-3xl mx-auto justify-end animate-fade-in-up';
-            msgDiv.innerHTML = `
-                <div class="bg-pano-lime/10 text-pano-lime border border-pano-lime/20 p-4 rounded-2xl rounded-tr-none shadow-[0_0_15px_rgba(220,238,106,0.1)] text-sm md:text-base">
-                    <p>${text}</p>
-                </div>
-            `;
-            chatContainer.appendChild(msgDiv);
-            scrollToBottom();
-        }
-
-        // 2. INDICATORE "STA SCRIVENDO" (Delay variabile per sembrare umano)
-        function showTypingIndicator() {
-            const id = 'typing-' + Date.now();
-            const msgDiv = document.createElement('div');
-            msgDiv.id = id;
+            msgDiv.id = typingDivId;
             msgDiv.className = 'flex gap-4 max-w-3xl mx-auto animate-fade-in-up';
             msgDiv.innerHTML = `
                 <div class="w-8 h-8 flex-shrink-0 rounded bg-pano-lime/50 flex items-center justify-center mt-1">
@@ -139,151 +144,79 @@
             `;
             chatContainer.appendChild(msgDiv);
             scrollToBottom();
-            return id;
         }
 
-        async function botReply(text, isHTML = false) {
-            // Tempo di attesa dinamico: più lungo è il testo, più il bot "pensa"
-            const thinkTime = Math.min(1000 + (text.length * 10), 2500); 
-            
-            const typingId = showTypingIndicator();
-            userInput.disabled = true;
-            document.getElementById('send-btn').style.opacity = "0.5";
-
-            await new Promise(r => setTimeout(r, thinkTime));
-            
-            document.getElementById(typingId).remove();
-            addBotMessage(text, isHTML);
-            userInput.disabled = false;
-            document.getElementById('send-btn').style.opacity = "1";
-            userInput.focus();
+        function removeTyping() {
+            if (typingDivId) {
+                document.getElementById(typingDivId).remove();
+                typingDivId = null;
+            }
         }
 
         function scrollToBottom() {
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-        // 3. IL CERVELLO (NLP SIMULATA)
-        function analyzeSentiment(text) {
-            const lower = text.toLowerCase();
-            let context = 'general';
+        // --- INTEGRAZIONE API REALE ---
+        async function handleUserMessage(text) {
+            if (!text.trim()) return;
 
-            if (lower.length < 3) return 'too_short';
+            // 1. Mostra messaggio utente
+            addMessage(text, 'user');
+            userInput.value = '';
+            userInput.disabled = true;
+            sendBtn.disabled = true;
 
-            // Cerca match nelle categorie
-            if (knowledgeBase.tech.some(k => lower.includes(k))) context = 'tech';
-            else if (knowledgeBase.team.some(k => lower.includes(k))) context = 'team';
-            else if (knowledgeBase.data.some(k => lower.includes(k))) context = 'data';
-            else if (knowledgeBase.growth.some(k => lower.includes(k))) context = 'growth';
+            // 2. Aggiungi alla memoria
+            conversationHistory.push({ role: "user", content: text });
 
-            return context;
-        }
+            // 3. Mostra "sta scrivendo..."
+            showTyping();
 
-        // 4. GESTIONE DEL FLUSSO
-        async function processInput(input) {
-            if (!input.trim()) return;
-            
-            addUserMessage(input);
-            state.interactionCount++;
+            try {
+                // 4. Chiama il Backend
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: conversationHistory })
+                });
 
-            // --- FASE 1: RACCOLTA DATI BASE ---
-            if (state.step === 'INIT') {
-                state.name = input;
-                state.step = 'COMPANY';
-                await botReply(`Nice to meet you, ${state.name}. To tailor my analysis, what company do you represent?`);
-                return;
+                if (!response.ok) throw new Error("Server error");
+
+                const data = await response.json();
+                const aiReply = data.choices[0].message.content;
+
+                // 5. Mostra risposta AI
+                removeTyping();
+                addMessage(aiReply, 'bot');
+                
+                // Aggiungi risposta AI alla memoria
+                conversationHistory.push({ role: "assistant", content: aiReply });
+
+            } catch (error) {
+                removeTyping();
+                addMessage("I'm having trouble connecting to the neural network. Please try again.", 'bot');
+                console.error(error);
             }
 
-            if (state.step === 'COMPANY') {
-                state.company = input;
-                state.step = 'DISCOVERY';
-                await botReply(`Got it. We work often with growing companies.<br><br>Tell me, ${state.name}, if you had a magic wand, what is the <strong>one thing</strong> you would fix immediately in ${state.company}'s revenue process?`);
-                return;
-            }
-
-            // --- FASE 2: DISCOVERY INTELLIGENTE (Loop) ---
-            if (state.step === 'DISCOVERY') {
-                const context = analyzeSentiment(input);
-
-                // FALLBACK: Risposta troppo breve o senza senso
-                if (context === 'too_short') {
-                    const fallbacks = [
-                        "Could you elaborate a bit more on that?",
-                        "I want to make sure I understand correctly. Can you add some detail?",
-                        "Interesting. Tell me more."
-                    ];
-                    await botReply(fallbacks[Math.floor(Math.random() * fallbacks.length)]);
-                    return; // Non aumentiamo il punteggio
-                }
-
-                // ANALISI CONTESTUALE
-                state.score += 25; // Aumenta punteggio per risposta valida
-
-                if (context === 'tech') {
-                    await botReply(`I see a technical bottleneck. Often, tools like Salesforce or HubSpot are powerful but poorly implemented, creating "data silos". Is your team actually using the CRM correctly?`);
-                    state.painPoints.push("Tech Stack");
-                } 
-                else if (context === 'team') {
-                    await botReply(`Alignment issues are critical. When Sales and Marketing don't speak the same language, revenue leaks. How big is your RevOps or Sales team currently?`);
-                    state.painPoints.push("Team Alignment");
-                }
-                else if (context === 'data') {
-                    await botReply(`Blind spots in data are dangerous. You can't scale what you can't measure. Are you currently tracking your Customer Acquisition Cost (CAC) accurately?`);
-                    state.painPoints.push("Data Integrity");
-                }
-                else {
-                    // Risposta generica intelligente
-                    await botReply(`That sounds like a scalability friction point. Ideally, that process should be automated to run in the background.`);
-                }
-
-                // DECISIONE: PRENOTIAMO ORA?
-                // Se abbiamo scambiato almeno 3 messaggi E il punteggio è alto
-                if (state.interactionCount >= 5 || state.score > 60) {
-                    state.step = 'CLOSING';
-                    setTimeout(() => triggerClosing(), 1500);
-                }
-                return;
-            }
+            userInput.disabled = false;
+            sendBtn.disabled = false;
+            userInput.focus();
         }
 
-        // 5. FASE FINALE: CLOSING
-        async function triggerClosing() {
-            await botReply(`Based on our conversation, ${state.name}, it seems like you have a solid product but the **operational engine** needs tuning to scale without chaos.`);
-            
-            await botReply(`I've analyzed your inputs. We can definitely help ${state.company} fix these bottlenecks.`);
-
-            // Mostra il pulsante finale
-            addBotMessage(`
-                <p class="mb-4 text-white font-medium">I recommend a strategic deep-dive. I've enabled priority access to our calendar.</p>
-                <div class="bg-pano-lime/5 border border-pano-lime/20 p-4 rounded-xl mb-4 text-xs text-pano-grey">
-                    <strong>ANALYSIS SUMMARY:</strong><br>
-                    • Focus: ${state.company}<br>
-                    • Detected Pains: ${state.painPoints.length > 0 ? state.painPoints.join(', ') : 'Process Optimization'}
-                </div>
-                <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" 
-                   class="block w-full text-center bg-pano-lime text-black font-bold py-4 rounded hover:bg-white hover:scale-105 transition shadow-[0_0_20px_rgba(220,238,106,0.4)]">
-                   Book Priority Consultation
-                </a>
-            `, true);
-
-            // Nascondi input bar
-            inputArea.style.opacity = '0';
-            setTimeout(() => inputArea.style.display = 'none', 500);
-        }
-
-        // START
-        window.onload = async () => {
-            await new Promise(r => setTimeout(r, 800));
-            addBotMessage("Hello. I am the Panoramica Revenue Architect AI.");
-            await botReply("I'm here to analyze your infrastructure's scalability.<br>Let's start simply: <strong>What is your name?</strong>", true);
+        // --- AVVIO ---
+        window.onload = () => {
+            setTimeout(() => {
+                addMessage("Hello. I am the Panoramica Revenue Architect AI. I'm here to analyze your infrastructure scalability.", 'bot');
+                addMessage("To start, what is your name and which company are you representing?", 'bot');
+            }, 800);
         };
 
         chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const text = userInput.value;
-            userInput.value = '';
-            processInput(text);
+            handleUserMessage(userInput.value);
         });
     </script>
 </body>
+</html>
 </html>
