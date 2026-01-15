@@ -141,22 +141,52 @@
     <div class="intro-overlay">
         <img src="hero-logo.png" alt="" class="intro-logo-wipe">
     </div>
-<nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-pano-border hero-content-delayed">
-        <div class="max-w-7xl mx-auto px-4 md:px-6 h-20 flex items-center justify-between relative">
+<nav class="fixed w-full z-50 bg-black/90 backdrop-blur-md border-b border-[#222]">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             
-            <div class="flex-shrink-0">
-                <img src="PanoramicaChiaro.png" alt="Panoramica Solutions" class="h-5 md:h-7 w-auto object-contain">
-            </div>
-            
-            <div class="hidden md:flex gap-8 text-sm font-medium text-pano-grey absolute left-1/2 -translate-x-1/2">
-                <a href="#problem" class="hover:text-white transition">The Gap</a>
-                <a href="#solution" class="hover:text-white transition">Approach</a>
-                <a href="#services" class="hover:text-white transition">Services</a>
+            <div class="flex-shrink-0 cursor-pointer">
+                <a href="#">
+                    <img src="PanoramicaChiaro.png" alt="Panoramica" class="h-6 md:h-8 w-auto object-contain">
+                </a>
             </div>
 
-            <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" class="px-3 py-2 md:px-5 bg-pano-lime text-black font-bold text-xs md:text-sm rounded hover:bg-white transition shadow-[0_0_15px_rgba(220,238,106,0.4)] whitespace-nowrap">
-                Book an Audit
-            </a>
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
+                <a href="#" class="hover:text-white transition">Home</a>
+                <a href="#" class="hover:text-white transition">Marketplace</a>
+                <a href="#" class="hover:text-white transition">Insights</a>
+            </div>
+
+            <div class="hidden md:flex items-center gap-4">
+                <a href="#contact" class="text-sm font-medium text-white px-4 py-2 hover:bg-[#222] rounded-full transition">
+                    Contact
+                </a>
+                <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" 
+                   class="text-sm font-bold bg-white text-black px-5 py-2.5 rounded-full hover:bg-gray-200 transition shadow-lg">
+                    Book Audit
+                </a>
+            </div>
+
+            <div class="flex items-center gap-4 md:hidden">
+                <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" 
+                   class="text-xs font-bold bg-white text-black px-4 py-2 rounded-full hover:bg-gray-200 transition">
+                    Book Audit
+                </a>
+
+                <button id="mobile-menu-btn" class="text-white focus:outline-none p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden bg-black border-b border-[#222] absolute w-full left-0 top-20">
+            <div class="flex flex-col p-6 space-y-4 text-center">
+                <a href="#" class="text-gray-300 hover:text-white text-lg py-2 border-b border-[#222]">Home</a>
+                <a href="#" class="text-gray-300 hover:text-white text-lg py-2 border-b border-[#222]">Marketplace</a>
+                <a href="#" class="text-gray-300 hover:text-white text-lg py-2 border-b border-[#222]">Insights</a>
+                <a href="#contact" class="text-gray-300 hover:text-white text-lg py-2">Contact</a>
+            </div>
         </div>
     </nav>
 <header class="relative pt-32 pb-20 overflow-hidden min-h-[85vh] flex items-center justify-center">
@@ -587,9 +617,26 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
         }, 1000);
     });
 </script>
+<script>
+    // Script per aprire/chiudere il menu mobile
+    const mobileBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    mobileBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    // Chiude il menu se si clicca su un link
+    mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            mobileMenu.classList.add('hidden');
+        });
+    });
+</script>
 </body> 
 </body>
 </html>
+
 
 
 
