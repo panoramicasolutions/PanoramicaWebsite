@@ -369,7 +369,63 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
             </a>
         </div>
     </section>
+<section id="clarity-coach" class="py-24 border-t border-pano-border bg-[#050505] relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-[300px] h-[300px] bg-pano-lime/10 blur-[100px] rounded-full pointer-events-none"></div>
 
+    <div class="max-w-3xl mx-auto px-6 relative z-10">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-bold mb-4">Engineering Clarity Coach</h2>
+            <p class="text-pano-grey">Un agente AI guidato per strutturare il tuo piano di crescita in 60 minuti.</p>
+        </div>
+
+        <div id="ai-widget" class="bg-pano-card border border-pano-border rounded-xl shadow-2xl overflow-hidden flex flex-col min-h-[500px]">
+            
+            <div class="w-full bg-[#222] h-1">
+                <div id="ai-progress" class="bg-pano-lime h-1 transition-all duration-500" style="width: 0%"></div>
+            </div>
+
+            <div id="chat-history" class="flex-1 p-6 overflow-y-auto space-y-4 flex flex-col">
+                <div class="self-start bg-[#1a1a1a] border border-[#333] p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl max-w-[85%]">
+                    <p class="text-white text-sm leading-relaxed">
+                        Benvenuto. Sono il tuo Revenue Architect AI. 
+                        Genererò un report 30/60/90 giorni basato sui tuoi dati.
+                        <br><br>
+                        Per iniziare, ho bisogno di analizzare la tua struttura attuale. Sei pronto?
+                    </p>
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-pano-border bg-[#0a0a0a]">
+                
+                <div id="ai-options" class="grid gap-3 mb-4">
+                    <button onclick="handleOption('start')" class="w-full p-4 text-left border border-pano-border rounded hover:border-pano-lime hover:bg-pano-lime/5 transition group flex justify-between items-center">
+                        <span class="font-bold text-white group-hover:text-pano-lime">Inizia Sessione (Demo)</span>
+                        <svg class="w-4 h-4 text-pano-grey group-hover:text-pano-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                    <button onclick="handleOption('info')" class="w-full p-4 text-left border border-pano-border rounded hover:border-white/20 transition text-pano-grey hover:text-white">
+                        Come funziona il report?
+                    </button>
+                </div>
+
+                <div id="ai-text-input-container" class="hidden">
+                    <label class="text-xs text-pano-grey mb-2 block uppercase tracking-widest">Add Context (Optional)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="ai-text-input" placeholder="Scrivi qui ulteriori dettagli..." 
+                               class="flex-1 bg-[#111] border border-[#333] text-white px-4 py-3 rounded focus:outline-none focus:border-pano-lime transition text-sm">
+                        <button onclick="handleTextSubmit()" class="bg-pano-lime text-black px-6 py-3 rounded font-bold hover:bg-white transition">
+                            Invia
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex justify-between items-center">
+                    <span class="text-[10px] text-[#444] uppercase tracking-wider">AI Powered • Secure Context</span>
+                    <span id="token-count" class="text-[10px] text-[#444]">Tokens: 0/1500</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 <div class="faq-section">
         <div class="faq-container">
             <div class="faq-header">
@@ -617,9 +673,136 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
         }, 1000);
     });
 </script>
+<script>
+    // CONFIGURAZIONE SIMULATA (Finite State Machine)
+    // Nel PDF [cite: 22, 69] questo arriverebbe dal Backend (API)
+    const sessionFlow = {
+        'start': {
+            message: "Perfetto. Analizziamo il collo di bottiglia principale. Dove senti maggior attrito oggi?",
+            mode: 'buttons', // Blocca il testo, obbliga i bottoni [cite: 67]
+            progress: 10,
+            options: [
+                { key: 'leads', label: 'Lead Generation (Qualità/Volume)' },
+                { key: 'sales', label: 'Processo di Vendita & Handoff' },
+                { key: 'retention', label: 'Churn & Retention' }
+            ]
+        },
+        'info': {
+            message: "Il sistema analizza le tue risposte, le confronta con benchmark di settore e genera un PDF con un piano tattico. Vuoi iniziare?",
+            mode: 'buttons',
+            progress: 0,
+            options: [
+                { key: 'start', label: 'Sì, iniziamo' }
+            ]
+        },
+        'sales': {
+            message: "Capito. Spesso il problema è nel passaggio tra Sales e CS. Hai uno strumento unificato per tracciare questo passaggio?",
+            mode: 'mixed', // Permette sia bottoni che testo opzionale [cite: 16]
+            progress: 35,
+            options: [
+                { key: 'yes_crm', label: 'Sì, usiamo HubSpot/Salesforce' },
+                { key: 'no_sheets', label: 'No, usiamo Excel/Fogli sparsi' }
+            ]
+        },
+        'leads': {
+            message: "Qualità o Volume? Definisci meglio il problema.",
+            mode: 'buttons',
+            progress: 20,
+            options: [
+                { key: 'quality', label: 'Tanti lead, bassa conversione' },
+                { key: 'volume', label: 'Pochi lead in ingresso' }
+            ]
+        },
+        // Fallback per la demo
+        'default': {
+            message: "Grazie. Ho raccolto questo dato. Nella versione completa, qui l'AI genererebbe la prossima domanda specifica o il Report PDF[cite: 24].",
+            mode: 'buttons',
+            progress: 100,
+            options: [
+                { key: 'start', label: 'Ricomincia Demo' }
+            ]
+        }
+    };
+
+    // ELEMENTI DOM
+    const chatHistory = document.getElementById('chat-history');
+    const optionsContainer = document.getElementById('ai-options');
+    const textInputContainer = document.getElementById('ai-text-input-container');
+    const progressBar = document.getElementById('ai-progress');
+
+    // FUNZIONE PRINCIPALE: Gestisce la scelta dell'utente
+    function handleOption(key) {
+        // 1. Aggiungi la scelta dell'utente alla chat
+        addMessage(document.querySelector(`button[onclick="handleOption('${key}')"]`).innerText.split('\n')[0], 'user');
+
+        // 2. Simula caricamento AI (Loading state)
+        optionsContainer.innerHTML = '<div class="text-pano-lime text-center text-sm animate-pulse">Analisi in corso...</div>';
+        
+        // 3. Simula ritardo di rete (API Call)
+        setTimeout(() => {
+            const nextStep = sessionFlow[key] || sessionFlow['default'];
+            renderTurn(nextStep);
+        }, 800);
+    }
+
+    // FUNZIONE: Renderizza il turno successivo (come da specifica JSON Backend [cite: 69])
+    function renderTurn(stepData) {
+        // Aggiungi risposta AI
+        addMessage(stepData.message, 'ai');
+        
+        // Aggiorna progress bar
+        progressBar.style.width = stepData.progress + '%';
+
+        // Pulisce opzioni vecchie
+        optionsContainer.innerHTML = '';
+
+        // Genera nuovi bottoni [cite: 15]
+        stepData.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = "w-full p-4 text-left border border-pano-border rounded hover:border-pano-lime hover:bg-pano-lime/5 transition text-gray-300 hover:text-white font-medium mb-2";
+            btn.onclick = () => handleOption(opt.key);
+            btn.innerText = opt.label;
+            optionsContainer.appendChild(btn);
+        });
+
+        // Gestione "Chat Lock"[cite: 66]: Mostra input testo solo se permesso
+        if (stepData.mode === 'mixed') {
+            textInputContainer.classList.remove('hidden');
+        } else {
+            textInputContainer.classList.add('hidden');
+        }
+
+        // Scroll automatico in basso
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    // UTILITY: Aggiunge messaggi visivi
+    function addMessage(text, sender) {
+        const div = document.createElement('div');
+        if (sender === 'ai') {
+            div.className = "self-start bg-[#1a1a1a] border border-[#333] p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl max-w-[85%] animate-[slide-up_0.3s_ease-out]";
+            div.innerHTML = `<p class="text-white text-sm leading-relaxed">${text}</p>`;
+        } else {
+            div.className = "self-end bg-pano-lime/10 border border-pano-lime/30 p-3 rounded-tl-xl rounded-bl-xl rounded-br-xl max-w-[80%] mb-4 animate-[slide-up_0.3s_ease-out]";
+            div.innerHTML = `<p class="text-pano-lime text-sm font-medium">${text}</p>`;
+        }
+        chatHistory.appendChild(div);
+    }
+
+    function handleTextSubmit() {
+        const input = document.getElementById('ai-text-input');
+        if(input.value.trim() === "") return;
+        addMessage(input.value, 'user');
+        input.value = "";
+        // Nella demo, l'invio del testo porta semplicemente al default step dopo un po'
+        optionsContainer.innerHTML = '<div class="text-pano-lime text-center text-sm animate-pulse">Integrazione contesto...</div>';
+        setTimeout(() => renderTurn(sessionFlow['default']), 1000);
+    }
+</script>
 </body> 
 </body>
 </html>
+
 
 
 
