@@ -100,6 +100,41 @@
             #custom-cursor { display: none !important; }
         }
     </style>
+    <style>
+    /* Stile FAQ Dark Mode */
+    .faq-section {
+        background-color: #050505; /* Adattato al tuo sfondo */
+        color: #ffffff;
+        padding: 60px 20px;
+        font-family: 'Inter', sans-serif; /* Adattato al tuo font */
+        border-top: 1px solid #262626; /* Bordo come le altre sezioni */
+    }
+    .faq-container { max-width: 800px; margin: 0 auto; }
+    .faq-header { margin-bottom: 40px; }
+    .faq-header h2 { font-size: 3rem; margin: 0 0 10px 0; font-weight: 700; }
+    .faq-header p { color: #A0A0A0; font-size: 1.1rem; }
+    .faq-item {
+        background-color: #0F0F0F; /* Colore delle tue card */
+        border: 1px solid #262626;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        overflow: hidden;
+        transition: border-color 0.3s ease;
+    }
+    .faq-item:hover { border-color: #DCEE6A; /* Il tuo colore Lime */ }
+    .faq-question {
+        padding: 24px; cursor: pointer; display: flex;
+        justify-content: space-between; align-items: center;
+        font-weight: 600; font-size: 1.1rem; color: white;
+    }
+    .faq-answer {
+        max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
+        padding: 0 24px; color: #A0A0A0; line-height: 1.6;
+    }
+    .faq-item.active .faq-answer { padding-bottom: 24px; }
+    .faq-icon { font-size: 24px; transition: transform 0.3s ease; color: #666; }
+    .faq-item.active .faq-icon { transform: rotate(45deg); color: #DCEE6A; }
+</style>
 </head>
 <body class="antialiased selection:bg-pano-lime selection:text-black">
 
@@ -290,7 +325,34 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
 
             </div>
     </section>
+<div class="faq-section">
+    <div class="faq-container">
+        <div class="faq-header">
+            <h2>FAQs</h2>
+            <p>Answers to common questions about our ops engineering solutions</p>
+        </div>
 
+        <div class="faq-item">
+            <div class="faq-question">What is the onboarding process? <span class="faq-icon">+</span></div>
+            <div class="faq-answer"><p>Our discovery-first approach begins with a comprehensive intake call to map your current systems and identify key optimization opportunities.</p></div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Can you support our specific industry? <span class="faq-icon">+</span></div>
+            <div class="faq-answer"><p>We specialize in SaaS, financial services, and e-commerce. Our solutions are adaptable and tailored to your unique operational context.</p></div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">What are your pricing models? <span class="faq-icon">+</span></div>
+            <div class="faq-answer"><p>We offer flexible engagement tiers from starter kits to managed optimization, with transparent pricing aligned to your growth stage.</p></div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">How quickly can we see results? <span class="faq-icon">+</span></div>
+            <div class="faq-answer"><p>Most clients experience measurable improvements within 8-12 weeks, with initial quick wins often visible in the first 30 days.</p></div>
+        </div>
+    </div>
+</div>
 <section class="py-24 relative overflow-hidden flex items-center justify-center">
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-pano-lime/20 blur-[120px] rounded-full pointer-events-none"></div>
 
@@ -351,9 +413,32 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
     <div style="text-align: center; padding: 20px; font-family: sans-serif; font-size: 12px; color: #666;">
     <a href="/privacy.html" style="color: #888; text-decoration: none;">Privacy Policy</a>
 </div>
+    <script>
+    document.querySelectorAll('.faq-question').forEach(item => {
+        item.addEventListener('click', () => {
+            const parent = item.parentElement;
+            const answer = parent.querySelector('.faq-answer');
+            
+            document.querySelectorAll('.faq-item').forEach(child => {
+                if (child !== parent) {
+                    child.classList.remove('active');
+                    child.querySelector('.faq-answer').style.maxHeight = null;
+                }
+            });
+
+            parent.classList.toggle('active');
+            if (parent.classList.contains('active')) {
+                answer.style.maxHeight = answer.scrollHeight + "px";
+            } else {
+                answer.style.maxHeight = null;
+            }
+        });
+    });
+</script>
 </body> 
 </body>
 </html>
+
 
 
 
