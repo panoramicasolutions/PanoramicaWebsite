@@ -674,30 +674,37 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
 </script>
 <script>
     // --- CONFIGURAZIONE ---
-    // Incolla qui l'URL che hai copiato da Cloudflare
+    // Usiamo il percorso locale per Vercel
     const API_URL = "/api/chat";
     
     let conversationHistory = []; 
 
-    // Elementi
+    // Elementi DOM
     const chatHistory = document.getElementById('chat-history');
     const optionsContainer = document.getElementById('ai-options');
     const textInputContainer = document.getElementById('ai-text-input-container');
     const progressBar = document.getElementById('ai-progress');
 
-    // Funzione Principale
+    // --- FUNZIONE 1: Gestisce le scelte (Click sui bottoni) ---
     async function handleOption(key) {
-        // 1. Mostra la scelta dell'utente
+        
+        // [NUOVO] Controllo speciale: Se l'utente clicca "Download Report"
+        if (key === 'download_report') {
+            downloadReport(); // Chiama la funzione di download
+            return; // E si ferma qui
+        }
+
+        // 1. Mostra la scelta dell'utente nella chat
         const btn = document.querySelector(`button[onclick="handleOption('${key}')"]`);
         const label = btn ? btn.innerText.split('\n')[0] : key;
         addMessage(label, 'user');
 
-        // 2. Mostra "Analyzing..." e nascondi input
+        // 2. UI di caricamento
         optionsContainer.innerHTML = '<div class="text-pano-lime text-center text-sm animate-pulse tracking-widest p-4">ANALYZING REVENUE ENGINE...</div>';
         textInputContainer.classList.add('hidden');
 
         try {
-            // 3. Chiama il TUO Worker su Cloudflare
+            // 3. Chiamata al Backend (Chat)
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -711,11 +718,11 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
 
             const stepData = await response.json();
 
-            // 4. Salva in memoria locale
+            // 4. Salva in memoria
             conversationHistory.push({ role: "user", content: `User selected: ${key}` });
             conversationHistory.push({ role: "assistant", content: JSON.stringify(stepData) });
 
-            // 5. Renderizza la risposta
+            // 5. Mostra la risposta
             renderTurn(stepData);
 
         } catch (error) {
@@ -730,40 +737,85 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
         }
     }
 
+    // --- [NUOVO] FUNZIONE 2: Scarica il Report PDF ---
+    async function downloadReport() {
+        // Feedback visivo
+        const optionsContainer = document.getElementById('ai-options');
+        optionsContainer.innerHTML = '<div class="text-pano-lime text-center animate-pulse p-4">Drafting Strategy Document...</div>';
+
+        try {
+            // Chiamata alla nuova API Report che hai creato su GitHub
+            const response = await fetch('/api/report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ history: conversationHistory })
+            });
+            
+            const data = await response.json();
+            
+            // Crea il file scaricabile al volo
+            const blob = new Blob([data.report], { type: 'text/markdown' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Panoramica_Growth_Plan.md'; // Scarica il file
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+            // Conferma
+            optionsContainer.innerHTML = '<div class="text-white text-center p-4 border border-pano-lime rounded">✅ Report Downloaded</div>';
+            addMessage("Il tuo piano strategico è stato scaricato. Controlla i download.", 'ai');
+
+        } catch (error) {
+            console.error(error);
+            optionsContainer.innerHTML = '<div class="text-red-500 text-center p-4">Errore generazione report.</div>';
+        }
+    }
+
+    // --- FUNZIONE 3: Disegna l'interfaccia (Messaggi e Bottoni) ---
     function renderTurn(stepData) {
         // Messaggio AI
         addMessage(stepData.message, 'ai');
         
-        // Progress Bar
+        // Aggiorna Barra
         const currentWidth = parseFloat(progressBar.style.width) || 0;
         progressBar.style.width = (currentWidth + 20) + '%';
 
         // Pulisci bottoni vecchi
         optionsContainer.innerHTML = '';
 
-        // Nuovi Bottoni
+        // Crea Nuovi Bottoni
         if (stepData.options && stepData.options.length > 0) {
             stepData.options.forEach(opt => {
                 const btn = document.createElement('button');
+                // Stile del bottone
                 btn.className = "w-full p-4 text-left border border-pano-border rounded hover:border-pano-lime hover:bg-pano-lime/5 transition text-gray-300 hover:text-white font-medium mb-2 animate-[fade-in_0.5s]";
+                
+                // Azione al click
                 btn.onclick = () => handleOption(opt.key);
-                // Aggiungiamo icona freccia se vuoi
-                btn.innerHTML = `<span class="flex justify-between items-center">${opt.label} <span class="text-pano-lime">→</span></span>`;
+                
+                // Icona freccia o download
+                let icon = '<span class="text-pano-lime">→</span>';
+                if(opt.key === 'download_report') icon = '<span class="text-pano-lime">⬇</span>';
+                
+                btn.innerHTML = `<span class="flex justify-between items-center">${opt.label} ${icon}</span>`;
                 optionsContainer.appendChild(btn);
             });
         }
 
-        // Se l'AI chiede testo libero (mixed mode)
+        // Mostra input testo se serve
         if (stepData.mode === 'mixed') {
             textInputContainer.classList.remove('hidden');
         } else {
             textInputContainer.classList.add('hidden');
         }
         
-        // Scroll in basso
+        // Scroll automatico
         chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: 'smooth' });
     }
 
+    // --- UTILITY: Aggiunge il messaggio a schermo ---
     function addMessage(text, sender) {
         const div = document.createElement('div');
         if (sender === 'ai') {
@@ -776,18 +828,19 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
         chatHistory.appendChild(div);
     }
 
-    // Gestione Invio Testo
+    // Gestione Invio Testo manuale
     function handleTextSubmit() {
         const input = document.getElementById('ai-text-input');
         const val = input.value.trim();
         if(val === "") return;
         input.value = "";
-        handleOption(val); // Tratta il testo come una scelta
+        handleOption(val); 
     }
 </script>
 </body> 
 </body>
 </html>
+
 
 
 
