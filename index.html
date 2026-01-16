@@ -673,123 +673,101 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
     });
 </script>
 <script>
-    // CONFIGURAZIONE SIMULATA (Finite State Machine - English)
-    const sessionFlow = {
-        'start': {
-            message: "Excellent. Let's identify the primary bottleneck. Where do you feel the most friction today?",
-            mode: 'buttons',
-            progress: 10,
-            options: [
-                { key: 'leads', label: 'Lead Generation (Quality/Volume)' },
-                { key: 'sales', label: 'Sales Process & Handoff' },
-                { key: 'retention', label: 'Churn & Retention' }
-            ]
-        },
-        'info': {
-            message: "The system analyzes your answers, benchmarks them against industry standards, and generates a PDF with a tactical plan. Ready to start?",
-            mode: 'buttons',
-            progress: 0,
-            options: [
-                { key: 'start', label: 'Yes, let\'s start' }
-            ]
-        },
-        'sales': {
-            message: "Understood. Friction often occurs during the handoff between Sales and CS. Do you use a unified tool to track this journey?",
-            mode: 'mixed', // Buttons + Optional text
-            progress: 35,
-            options: [
-                { key: 'yes_crm', label: 'Yes, we use HubSpot/Salesforce' },
-                { key: 'no_sheets', label: 'No, scattered spreadsheets/tools' }
-            ]
-        },
-        'leads': {
-            message: "Is it a Quality issue or a Volume issue? Please define the core problem.",
-            mode: 'buttons',
-            progress: 20,
-            options: [
-                { key: 'quality', label: 'High volume, low conversion' },
-                { key: 'volume', label: 'Not enough inbound leads' }
-            ]
-        },
-        'retention': {
-            message: "Retention issues usually signal a data disconnect. Can you predict churn before it happens?",
-            mode: 'buttons',
-            progress: 25,
-            options: [
-                { key: 'yes_predict', label: 'Yes, we have health scores' },
-                { key: 'no_surprise', label: 'No, churn is always a surprise' }
-            ]
-        },
-        // Fallback for demo
-        'default': {
-            message: "Data point collected. In the live version, the AI would now generate the next specific question or the final 30/60/90 PDF Report.",
-            mode: 'buttons',
-            progress: 100,
-            options: [
-                { key: 'start', label: 'Restart Demo' }
-            ]
-        }
-    };
+    // --- CONFIGURAZIONE ---
+    // Incolla qui l'URL che hai copiato da Cloudflare
+    const API_URL = "https://dry-sound-33a4.giulioricciutipriv.workers.dev"; 
+    
+    let conversationHistory = []; 
 
-    // DOM ELEMENTS
+    // Elementi
     const chatHistory = document.getElementById('chat-history');
     const optionsContainer = document.getElementById('ai-options');
     const textInputContainer = document.getElementById('ai-text-input-container');
     const progressBar = document.getElementById('ai-progress');
 
-    // MAIN FUNCTION: Handles user choice
-    function handleOption(key) {
-        // 1. Add user choice to chat
+    // Funzione Principale
+    async function handleOption(key) {
+        // 1. Mostra la scelta dell'utente
         const btn = document.querySelector(`button[onclick="handleOption('${key}')"]`);
-        const label = btn ? btn.innerText.split('\n')[0] : key; // Clean text
+        const label = btn ? btn.innerText.split('\n')[0] : key;
         addMessage(label, 'user');
 
-        // 2. Loading state
-        optionsContainer.innerHTML = '<div class="text-pano-lime text-center text-sm animate-pulse tracking-widest">ANALYZING ARCHITECTURE...</div>';
-        
-        // 3. Simulate Network Delay (API Call)
-        setTimeout(() => {
-            const nextStep = sessionFlow[key] || sessionFlow['default'];
-            renderTurn(nextStep);
-        }, 800);
+        // 2. Mostra "Analyzing..." e nascondi input
+        optionsContainer.innerHTML = '<div class="text-pano-lime text-center text-sm animate-pulse tracking-widest p-4">ANALYZING REVENUE ENGINE...</div>';
+        textInputContainer.classList.add('hidden');
+
+        try {
+            // 3. Chiama il TUO Worker su Cloudflare
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    choice: key,
+                    history: conversationHistory
+                })
+            });
+
+            if (!response.ok) throw new Error("Errore API");
+
+            const stepData = await response.json();
+
+            // 4. Salva in memoria locale
+            conversationHistory.push({ role: "user", content: `User selected: ${key}` });
+            conversationHistory.push({ role: "assistant", content: JSON.stringify(stepData) });
+
+            // 5. Renderizza la risposta
+            renderTurn(stepData);
+
+        } catch (error) {
+            console.error(error);
+            optionsContainer.innerHTML = '<div class="text-red-500 text-center text-xs p-4">Connection Error. Please try again.</div>';
+            // Tasto Riprova
+            const retryBtn = document.createElement('button');
+            retryBtn.className = "w-full p-3 border border-red-500 text-red-500 rounded mt-2 hover:bg-red-900/20";
+            retryBtn.innerText = "Retry";
+            retryBtn.onclick = () => handleOption(key);
+            optionsContainer.appendChild(retryBtn);
+        }
     }
 
-    // FUNCTION: Render next turn
     function renderTurn(stepData) {
-        // Add AI response
+        // Messaggio AI
         addMessage(stepData.message, 'ai');
         
-        // Update progress
-        progressBar.style.width = stepData.progress + '%';
+        // Progress Bar
+        const currentWidth = parseFloat(progressBar.style.width) || 0;
+        progressBar.style.width = (currentWidth + 20) + '%';
 
-        // Clear old options
+        // Pulisci bottoni vecchi
         optionsContainer.innerHTML = '';
 
-        // Generate new buttons
-        stepData.options.forEach(opt => {
-            const btn = document.createElement('button');
-            btn.className = "w-full p-4 text-left border border-pano-border rounded hover:border-pano-lime hover:bg-pano-lime/5 transition text-gray-300 hover:text-white font-medium mb-2";
-            btn.onclick = () => handleOption(opt.key);
-            btn.innerText = opt.label;
-            optionsContainer.appendChild(btn);
-        });
+        // Nuovi Bottoni
+        if (stepData.options && stepData.options.length > 0) {
+            stepData.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "w-full p-4 text-left border border-pano-border rounded hover:border-pano-lime hover:bg-pano-lime/5 transition text-gray-300 hover:text-white font-medium mb-2 animate-[fade-in_0.5s]";
+                btn.onclick = () => handleOption(opt.key);
+                // Aggiungiamo icona freccia se vuoi
+                btn.innerHTML = `<span class="flex justify-between items-center">${opt.label} <span class="text-pano-lime">→</span></span>`;
+                optionsContainer.appendChild(btn);
+            });
+        }
 
-        // Chat Lock Logic: Show text input only if allowed
+        // Se l'AI chiede testo libero (mixed mode)
         if (stepData.mode === 'mixed') {
             textInputContainer.classList.remove('hidden');
         } else {
             textInputContainer.classList.add('hidden');
         }
-
-        // Auto-scroll
-        chatHistory.scrollTop = chatHistory.scrollHeight;
+        
+        // Scroll in basso
+        chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: 'smooth' });
     }
 
-    // UTILITY: Add visual messages
     function addMessage(text, sender) {
         const div = document.createElement('div');
         if (sender === 'ai') {
-            div.className = "self-start bg-[#1a1a1a] border border-[#333] p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl max-w-[85%] animate-[slide-up_0.3s_ease-out]";
+            div.className = "self-start bg-[#1a1a1a] border border-[#333] p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl max-w-[85%] animate-[slide-up_0.3s_ease-out] mb-4 shadow-lg";
             div.innerHTML = `<p class="text-white text-sm leading-relaxed">${text}</p>`;
         } else {
             div.className = "self-end bg-pano-lime/10 border border-pano-lime/30 p-3 rounded-tl-xl rounded-bl-xl rounded-br-xl max-w-[80%] mb-4 animate-[slide-up_0.3s_ease-out]";
@@ -798,19 +776,19 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
         chatHistory.appendChild(div);
     }
 
+    // Gestione Invio Testo
     function handleTextSubmit() {
         const input = document.getElementById('ai-text-input');
-        if(input.value.trim() === "") return;
-        addMessage(input.value, 'user');
+        const val = input.value.trim();
+        if(val === "") return;
         input.value = "";
-        
-        optionsContainer.innerHTML = '<div class="text-pano-lime text-center text-sm animate-pulse tracking-widest">INTEGRATING CONTEXT...</div>';
-        setTimeout(() => renderTurn(sessionFlow['default']), 1000);
+        handleOption(val); // Tratta il testo come una scelta
     }
 </script>
 </body> 
 </body>
 </html>
+
 
 
 
