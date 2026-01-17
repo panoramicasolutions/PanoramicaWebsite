@@ -444,24 +444,25 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
 <div id="ai-text-input-container" class="hidden mt-4">
     <div class="flex flex-col gap-2">
         <div id="file-preview" class="hidden text-xs text-pano-lime bg-pano-lime/10 p-2 rounded flex justify-between items-center">
-            <span id="file-name">Document.pdf</span>
-            <button onclick="clearFile()" class="text-white hover:text-red-500 font-bold">×</button>
+            <span id="file-name" class="truncate max-w-[200px]">Document.pdf</span>
+            <button onclick="clearFile()" class="text-white hover:text-red-500 font-bold px-2">×</button>
         </div>
 
         <div class="flex gap-2 items-center">
             <input type="file" id="file-upload" class="hidden" accept="image/*,application/pdf" onchange="handleFileSelect(this)">
             
-            <button onclick="document.getElementById('file-upload').click()" class="p-3 bg-[#222] border border-[#333] text-gray-400 hover:text-white hover:border-pano-lime rounded transition" title="Upload Document/Image">
+            <button onclick="document.getElementById('file-upload').click()" class="shrink-0 p-3 md:p-3 bg-[#222] border border-[#333] text-gray-400 hover:text-white hover:border-pano-lime rounded transition" title="Upload Document/Image">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
                 </svg>
             </button>
 
-            <input type="text" id="ai-text-input" placeholder="Type or upload a doc..." 
-                   class="flex-1 bg-[#111] border border-[#333] text-white px-4 py-3 rounded focus:outline-none focus:border-pano-lime transition text-sm">
+            <input type="text" id="ai-text-input" placeholder="Type..." 
+                   class="flex-1 min-w-0 bg-[#111] border border-[#333] text-white px-3 py-3 rounded focus:outline-none focus:border-pano-lime transition text-sm">
             
-            <button onclick="handleTextSubmit()" class="bg-pano-lime text-black px-6 py-3 rounded font-bold hover:bg-white transition">
-                Submit
+            <button onclick="handleTextSubmit()" class="shrink-0 bg-pano-lime text-black h-[46px] w-[46px] md:w-auto md:px-6 md:py-3 rounded font-bold hover:bg-white transition flex items-center justify-center">
+                <svg class="w-5 h-5 md:hidden transform rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                <span class="hidden md:inline">Submit</span>
             </button>
         </div>
     </div>
@@ -920,6 +921,7 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
 </body> 
 </body>
 </html>
+
 
 
 
