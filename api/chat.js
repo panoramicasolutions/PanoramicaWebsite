@@ -1,82 +1,85 @@
 export default async function handler(req, res) {
-  // 1. CONFIGURAZIONE BASE (CORS)
+  // 1. CONFIGURAZIONE BASE
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Funzione di emergenza per rispondere nella chat invece di crashare
-  const sendErrorToChat = (errorMsg, details = "") => {
+  // Funzione per non crashare mai
+  const sendSafeResponse = (msg, mode="buttons", options=[]) => {
     return res.status(200).json({
-      step_id: "error",
-      message: `🛑 ERRORE DI SISTEMA: ${errorMsg}\n\nDETTAGLI: ${JSON.stringify(details)}`,
-      mode: "buttons",
-      options: [{ key: "retry", label: "Riprova tra poco" }]
+      step_id: "response",
+      message: msg,
+      mode: mode,
+      options: options.length > 0 ? options : [{ key: "continue", label: "Continua" }]
     });
   };
 
   try {
     const { choice, history = [] } = req.body;
-
-    // 2. CONTROLLO CHIAVE API
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return sendErrorToChat("Chiave API mancante su Vercel.", "Verifica in Settings > Environment Variables");
-    }
 
-    // 3. PREPARAZIONE DATI
-    const geminiHistory = history.slice(-4).map(msg => ({
+    if (!apiKey) return sendSafeResponse("Errore: Chiave API mancante.");
+
+    // 2. PREPARAZIONE DATI
+    const geminiHistory = history.slice(-6).map(msg => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }]
     }));
 
     const currentTurn = {
       role: 'user',
-      parts: [{ text: `User: "${choice}". Next step? JSON only.` }]
+      parts: [{ text: `User input: "${choice}". Rispondi in JSON.` }]
     };
 
+    // Prompt Sistema Semplificato
     const SYSTEM_PROMPT = `
-      You are a Revenue Architect. Output JSON only.
-      Schema: {"step_id": "string", "message": "string", "mode": "buttons", "options": [{"key": "k", "label": "l"}]}
+    Sei un Revenue Architect. 
+    Obiettivo: Diagnosi in 5 turni.
+    Output: SOLO JSON valido.
+    Schema: {"step_id": "step", "message": "domanda breve", "mode": "buttons", "options": [{"key": "a", "label": "b"}]}
+    Alla fine (5 turni) usa step_id: "FINISH" e opzione "download_report".
     `;
 
-    // 4. CHIAMATA GOOGLE (Usiamo gemini-pro che è il più compatibile)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+    // 3. CHIAMATA AL MODELLO CORRETTO (Quello che dava 500, non Not Found)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-001:generateContent?key=${apiKey}`;
     
-    console.log("Chiamata a Google in corso...");
-
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: SYSTEM_PROMPT }] }, ...geminiHistory, currentTurn]
+        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: [...geminiHistory, currentTurn],
+        generationConfig: { response_mime_type: "application/json", temperature: 0.2 }
       })
     });
 
     const data = await response.json();
 
-    // 5. GESTIONE ERRORI GOOGLE
+    // 4. GESTIONE ERRORI GOOGLE
     if (data.error) {
-      return sendErrorToChat("Google ha rifiutato la richiesta", data.error.message);
+      return sendSafeResponse(`Errore Google: ${data.error.message}. Riprova.`);
     }
 
-    // 6. ESTRAZIONE E PARSING
+    // 5. PARSING SICURO (Qui è dove crashava prima!)
     let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) return sendErrorToChat("Risposta vuota da Google", data);
+    if (!text) return sendSafeResponse("L'AI non ha risposto.");
 
+    // Pulizia
     text = text.replace(/```json/g, "").replace(/```/g, "").trim();
 
     try {
       const jsonResponse = JSON.parse(text);
-      // Se tutto va bene, inviamo la risposta corretta
+      // Se manca il campo options, aggiungiamolo per sicurezza
+      if (!jsonResponse.options) jsonResponse.options = [];
       return res.status(200).json(jsonResponse);
     } catch (e) {
-      return sendErrorToChat("L'AI non ha risposto in JSON valido", text);
+      // Se il JSON è rotto, rispondiamo col testo normale invece di crashare
+      return sendSafeResponse(text, "mixed"); 
     }
 
   } catch (error) {
-    // 7. CATTURA ERRORI DI RETE O SERVER
-    return sendErrorToChat("Crash del Server Vercel", error.message);
+    return sendSafeResponse(`Errore Server: ${error.message}`);
   }
 }
