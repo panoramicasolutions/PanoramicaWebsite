@@ -441,16 +441,31 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
                     </button>
                 </div>
 
-                <div id="ai-text-input-container" class="hidden">
-                    <label class="text-xs text-pano-grey mb-2 block uppercase tracking-widest">Add Context (Optional)</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="ai-text-input" placeholder="Type additional details here..." 
-                               class="flex-1 bg-[#111] border border-[#333] text-white px-4 py-3 rounded focus:outline-none focus:border-pano-lime transition text-sm">
-                        <button onclick="handleTextSubmit()" class="bg-pano-lime text-black px-6 py-3 rounded font-bold hover:bg-white transition">
-                            Submit
-                        </button>
-                    </div>
-                </div>
+<div id="ai-text-input-container" class="hidden mt-4">
+    <div class="flex flex-col gap-2">
+        <div id="file-preview" class="hidden text-xs text-pano-lime bg-pano-lime/10 p-2 rounded flex justify-between items-center">
+            <span id="file-name">Document.pdf</span>
+            <button onclick="clearFile()" class="text-white hover:text-red-500 font-bold">×</button>
+        </div>
+
+        <div class="flex gap-2 items-center">
+            <input type="file" id="file-upload" class="hidden" accept="image/*,application/pdf" onchange="handleFileSelect(this)">
+            
+            <button onclick="document.getElementById('file-upload').click()" class="p-3 bg-[#222] border border-[#333] text-gray-400 hover:text-white hover:border-pano-lime rounded transition" title="Upload Document/Image">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                </svg>
+            </button>
+
+            <input type="text" id="ai-text-input" placeholder="Type or upload a doc..." 
+                   class="flex-1 bg-[#111] border border-[#333] text-white px-4 py-3 rounded focus:outline-none focus:border-pano-lime transition text-sm">
+            
+            <button onclick="handleTextSubmit()" class="bg-pano-lime text-black px-6 py-3 rounded font-bold hover:bg-white transition">
+                Submit
+            </button>
+        </div>
+    </div>
+</div>
 
                 <div class="mt-4 flex justify-between items-center">
                     <span class="text-[10px] text-[#444] uppercase tracking-wider">AI POWERED • SECURE CONTEXT</span>
@@ -707,10 +722,11 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
     });
 </script>
 <script>
-    // --- CONFIGURAZIONE ---
     const API_URL = "/api/chat";
-    
     let conversationHistory = []; 
+    
+    // VARIABILE PER IL FILE CORRENTE
+    let currentAttachment = null; 
 
     // Elementi DOM
     const chatHistory = document.getElementById('chat-history');
@@ -719,8 +735,7 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
     const progressBar = document.getElementById('ai-progress');
     const textInput = document.getElementById('ai-text-input'); 
 
-    // --- NUOVO: INVIO CON TASTO ENTER ---
-    // Così non devi cliccare per forza su "Submit" col mouse
+    // ENTER KEY LISTENER
     textInput.addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
             event.preventDefault();
@@ -728,81 +743,110 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
         }
     });
 
-    // --- FUNZIONE 1: Gestisce le scelte ---
-    // Ora accetta un secondo parametro 'explicitLabel' per evitare errori col testo libero
+    // --- GESTIONE FILE UPLOAD ---
+    function handleFileSelect(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        // Limite dimensione (Vercel supporta max 4.5MB payload, stiamo sicuri sui 3MB)
+        if (file.size > 3 * 1024 * 1024) {
+            alert("File troppo grande. Massimo 3MB.");
+            input.value = ""; // Reset
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Estraiamo il Base64 puro (rimuovendo "data:image/png;base64,")
+            const base64Data = e.target.result.split(',')[1];
+            
+            currentAttachment = {
+                mime_type: file.type,
+                data: base64Data
+            };
+
+            // Mostra anteprima
+            document.getElementById('file-preview').classList.remove('hidden');
+            document.getElementById('file-name').innerText = "📎 " + file.name;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearFile() {
+        currentAttachment = null;
+        document.getElementById('file-upload').value = "";
+        document.getElementById('file-preview').classList.add('hidden');
+    }
+
+    // --- MAIN FUNCTION ---
     async function handleOption(key, explicitLabel = null) {
-        
         if (key === 'download_report') {
             downloadReport();
             return;
         }
 
-        // 1. UI: Determina cosa mostrare nella chat
         let label = explicitLabel;
-
-        // Se non abbiamo un'etichetta esplicita (è un click su bottone), cerchiamola nel DOM
         if (!label) {
             try {
-                // Escape degli apostrofi per evitare crash (es. "L'azienda")
                 const safeKey = key.replace(/'/g, "\\'"); 
                 const btn = document.querySelector(`button[onclick="handleOption('${safeKey}')"]`);
                 label = btn ? btn.innerText.split('\n')[0] : key;
-            } catch (e) {
-                // Se qualcosa fallisce, usiamo la chiave come testo di fallback
-                label = key;
-            }
+            } catch (e) { label = key; }
         }
 
-        // Mostra messaggio utente
+        // Se c'è un file allegato, lo diciamo nel messaggio utente
+        if (currentAttachment) {
+            label += " (📄 Document attached)";
+        }
+
         addMessage(label, 'user');
 
-        // 2. UI di caricamento
-        optionsContainer.innerHTML = '<div class="text-pano-lime text-center text-sm animate-pulse tracking-widest p-4">ANALYZING...</div>';
+        optionsContainer.innerHTML = '<div class="text-pano-lime text-center text-sm animate-pulse tracking-widest p-4">ANALYZING DATA...</div>';
         
         try {
-            // 3. Chiamata al Backend
+            // PREPARIAMO IL PAYLOAD
+            const payload = {
+                choice: key,
+                history: conversationHistory,
+                attachment: currentAttachment // Inviamo il file (se c'è)
+            };
+
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    choice: key,
-                    history: conversationHistory
-                })
+                body: JSON.stringify(payload)
             });
+
+            // RESETTIAMO IL FILE DOPO L'INVIO (Privacy & Pulizia)
+            clearFile();
 
             if (!response.ok) throw new Error("Errore API");
 
             const stepData = await response.json();
 
-            // 4. Salva in memoria
-            conversationHistory.push({ role: "user", content: `User input: ${key}` });
+            // Salviamo solo il testo nella history (non il file base64 pesante)
+            conversationHistory.push({ role: "user", content: `User input: ${key} [Attachment Sent]` });
             conversationHistory.push({ role: "assistant", content: JSON.stringify(stepData) });
 
-            // 5. Mostra la risposta
             renderTurn(stepData);
 
         } catch (error) {
             console.error(error);
             optionsContainer.innerHTML = '<div class="text-red-500 text-center text-xs p-4">Connection Error. Retrying...</div>';
-            // Riprova automatica tra 3 secondi in caso di errore rete
             setTimeout(() => handleOption(key, explicitLabel), 3000); 
         }
     }
 
-    // --- FUNZIONE 2: Scarica il Report ---
     async function downloadReport() {
         const optionsContainer = document.getElementById('ai-options');
         optionsContainer.innerHTML = '<div class="text-pano-lime text-center animate-pulse p-4">Drafting Strategy Document...</div>';
-
         try {
             const response = await fetch('/api/report', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ history: conversationHistory })
             });
-            
             const data = await response.json();
-            
             const blob = new Blob([data.report], { type: 'text/markdown' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -811,24 +855,17 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
-
             optionsContainer.innerHTML = '<div class="text-white text-center p-4 border border-pano-lime rounded">✅ Report Downloaded</div>';
             addMessage("Strategy Plan downloaded successfully.", 'ai');
-
         } catch (error) {
-            console.error(error);
             optionsContainer.innerHTML = '<div class="text-red-500 text-center p-4">Error generating report.</div>';
         }
     }
 
-    // --- FUNZIONE 3: Renderizza l'interfaccia ---
     function renderTurn(stepData) {
         addMessage(stepData.message, 'ai');
-        
-        // Barra progresso: avanza del 8% a ogni turno (per durare circa 12 turni)
         const currentWidth = parseFloat(progressBar.style.width) || 0;
         progressBar.style.width = Math.min(currentWidth + 8, 100) + '%';
-
         optionsContainer.innerHTML = '';
 
         if (stepData.options && stepData.options.length > 0) {
@@ -836,64 +873,54 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
                 const btn = document.createElement('button');
                 btn.className = "w-full p-4 text-left border border-pano-border rounded hover:border-pano-lime hover:bg-pano-lime/5 transition text-gray-300 hover:text-white font-medium mb-2 animate-[fade-in_0.5s]";
                 btn.onclick = () => handleOption(opt.key);
-                
                 let icon = '<span class="text-pano-lime">→</span>';
                 if(opt.key === 'download_report') icon = '<span class="text-pano-lime">⬇</span>';
-                
                 btn.innerHTML = `<span class="flex justify-between items-center">${opt.label} ${icon}</span>`;
                 optionsContainer.appendChild(btn);
             });
         }
 
-        // Gestione Input Testo
         if (stepData.mode === 'mixed') {
             textInputContainer.classList.remove('hidden');
-            // Focus automatico per scrivere subito
             setTimeout(() => document.getElementById('ai-text-input').focus(), 100);
         } else {
             textInputContainer.classList.add('hidden');
         }
-        
         chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: 'smooth' });
     }
 
-    // --- UTILITY: Aggiunge Messaggi (CON MARKDOWN E STILE CSS) ---
     function addMessage(text, sender) {
         const div = document.createElement('div');
-        
         if (sender === 'ai') {
             div.className = "self-start bg-[#1a1a1a] border border-[#333] p-5 rounded-tr-xl rounded-br-xl rounded-bl-xl max-w-[90%] md:max-w-[80%] animate-[slide-up_0.3s_ease-out] mb-4 shadow-lg";
-            
-            // Controlla se Marked.js è caricato, altrimenti usa testo semplice
             const content = (typeof marked !== 'undefined') ? marked.parse(text) : text;
-            
             div.innerHTML = `<div class="chat-content text-gray-300">${content}</div>`;
         } else {
             div.className = "self-end bg-pano-lime/10 border border-pano-lime/30 p-3 rounded-tl-xl rounded-bl-xl rounded-br-xl max-w-[80%] mb-4 animate-[slide-up_0.3s_ease-out]";
             div.innerHTML = `<p class="text-pano-lime text-sm font-medium">${text}</p>`;
         }
-        
         chatHistory.appendChild(div);
         chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: 'smooth' });
     }
 
-    // --- GESTIONE INVIO TESTO ---
     function handleTextSubmit() {
         const input = document.getElementById('ai-text-input');
         const val = input.value.trim();
-        if(val === "") return;
+        
+        // Se non c'è testo MA c'è un file allegato, permettiamo l'invio
+        if(val === "" && !currentAttachment) return;
+        
+        // Se il testo è vuoto ma c'è un file, mettiamo un testo di default
+        const finalText = val === "" ? "Analizza questo documento" : val;
         
         input.value = "";
-        
-        // CORREZIONE FONDAMENTALE: Passiamo 'val' due volte
-        // 1. Come 'key' da inviare all'AI
-        // 2. Come 'explicitLabel' da mostrare nella chat (evita errori di ricerca pulsanti)
-        handleOption(val, val); 
+        handleOption(finalText, finalText); 
     }
 </script>
 </body> 
 </body>
 </html>
+
 
 
 
