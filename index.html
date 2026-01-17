@@ -708,7 +708,6 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
 </script>
 <script>
     // --- CONFIGURAZIONE ---
-    // Usiamo il percorso locale per Vercel
     const API_URL = "/api/chat";
     
     let conversationHistory = []; 
@@ -718,27 +717,50 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
     const optionsContainer = document.getElementById('ai-options');
     const textInputContainer = document.getElementById('ai-text-input-container');
     const progressBar = document.getElementById('ai-progress');
+    const textInput = document.getElementById('ai-text-input'); 
 
-    // --- FUNZIONE 1: Gestisce le scelte (Click sui bottoni) ---
-    async function handleOption(key) {
+    // --- NUOVO: INVIO CON TASTO ENTER ---
+    // Così non devi cliccare per forza su "Submit" col mouse
+    textInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            handleTextSubmit();
+        }
+    });
+
+    // --- FUNZIONE 1: Gestisce le scelte ---
+    // Ora accetta un secondo parametro 'explicitLabel' per evitare errori col testo libero
+    async function handleOption(key, explicitLabel = null) {
         
-        // [NUOVO] Controllo speciale: Se l'utente clicca "Download Report"
         if (key === 'download_report') {
-            downloadReport(); // Chiama la funzione di download
-            return; // E si ferma qui
+            downloadReport();
+            return;
         }
 
-        // 1. Mostra la scelta dell'utente nella chat
-        const btn = document.querySelector(`button[onclick="handleOption('${key}')"]`);
-        const label = btn ? btn.innerText.split('\n')[0] : key;
+        // 1. UI: Determina cosa mostrare nella chat
+        let label = explicitLabel;
+
+        // Se non abbiamo un'etichetta esplicita (è un click su bottone), cerchiamola nel DOM
+        if (!label) {
+            try {
+                // Escape degli apostrofi per evitare crash (es. "L'azienda")
+                const safeKey = key.replace(/'/g, "\\'"); 
+                const btn = document.querySelector(`button[onclick="handleOption('${safeKey}')"]`);
+                label = btn ? btn.innerText.split('\n')[0] : key;
+            } catch (e) {
+                // Se qualcosa fallisce, usiamo la chiave come testo di fallback
+                label = key;
+            }
+        }
+
+        // Mostra messaggio utente
         addMessage(label, 'user');
 
         // 2. UI di caricamento
-        optionsContainer.innerHTML = '<div class="text-pano-lime text-center text-sm animate-pulse tracking-widest p-4">ANALYZING REVENUE ENGINE...</div>';
-        textInputContainer.classList.add('hidden');
-
+        optionsContainer.innerHTML = '<div class="text-pano-lime text-center text-sm animate-pulse tracking-widest p-4">ANALYZING...</div>';
+        
         try {
-            // 3. Chiamata al Backend (Chat)
+            // 3. Chiamata al Backend
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -753,7 +775,7 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
             const stepData = await response.json();
 
             // 4. Salva in memoria
-            conversationHistory.push({ role: "user", content: `User selected: ${key}` });
+            conversationHistory.push({ role: "user", content: `User input: ${key}` });
             conversationHistory.push({ role: "assistant", content: JSON.stringify(stepData) });
 
             // 5. Mostra la risposta
@@ -761,24 +783,18 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
 
         } catch (error) {
             console.error(error);
-            optionsContainer.innerHTML = '<div class="text-red-500 text-center text-xs p-4">Connection Error. Please try again.</div>';
-            // Tasto Riprova
-            const retryBtn = document.createElement('button');
-            retryBtn.className = "w-full p-3 border border-red-500 text-red-500 rounded mt-2 hover:bg-red-900/20";
-            retryBtn.innerText = "Retry";
-            retryBtn.onclick = () => handleOption(key);
-            optionsContainer.appendChild(retryBtn);
+            optionsContainer.innerHTML = '<div class="text-red-500 text-center text-xs p-4">Connection Error. Retrying...</div>';
+            // Riprova automatica tra 3 secondi in caso di errore rete
+            setTimeout(() => handleOption(key, explicitLabel), 3000); 
         }
     }
 
-    // --- [NUOVO] FUNZIONE 2: Scarica il Report PDF ---
+    // --- FUNZIONE 2: Scarica il Report ---
     async function downloadReport() {
-        // Feedback visivo
         const optionsContainer = document.getElementById('ai-options');
         optionsContainer.innerHTML = '<div class="text-pano-lime text-center animate-pulse p-4">Drafting Strategy Document...</div>';
 
         try {
-            // Chiamata alla nuova API Report che hai creato su GitHub
             const response = await fetch('/api/report', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -787,49 +803,40 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
             
             const data = await response.json();
             
-            // Crea il file scaricabile al volo
             const blob = new Blob([data.report], { type: 'text/markdown' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'Panoramica_Growth_Plan.md'; // Scarica il file
+            a.download = 'Panoramica_Growth_Plan.md';
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
 
-            // Conferma
             optionsContainer.innerHTML = '<div class="text-white text-center p-4 border border-pano-lime rounded">✅ Report Downloaded</div>';
-            addMessage("Il tuo piano strategico è stato scaricato. Controlla i download.", 'ai');
+            addMessage("Strategy Plan downloaded successfully.", 'ai');
 
         } catch (error) {
             console.error(error);
-            optionsContainer.innerHTML = '<div class="text-red-500 text-center p-4">Errore generazione report.</div>';
+            optionsContainer.innerHTML = '<div class="text-red-500 text-center p-4">Error generating report.</div>';
         }
     }
 
-    // --- FUNZIONE 3: Disegna l'interfaccia (Messaggi e Bottoni) ---
+    // --- FUNZIONE 3: Renderizza l'interfaccia ---
     function renderTurn(stepData) {
-        // Messaggio AI
         addMessage(stepData.message, 'ai');
         
-        // Aggiorna Barra
+        // Barra progresso: avanza del 8% a ogni turno (per durare circa 12 turni)
         const currentWidth = parseFloat(progressBar.style.width) || 0;
-        progressBar.style.width = (currentWidth + 20) + '%';
+        progressBar.style.width = Math.min(currentWidth + 8, 100) + '%';
 
-        // Pulisci bottoni vecchi
         optionsContainer.innerHTML = '';
 
-        // Crea Nuovi Bottoni
         if (stepData.options && stepData.options.length > 0) {
             stepData.options.forEach(opt => {
                 const btn = document.createElement('button');
-                // Stile del bottone
                 btn.className = "w-full p-4 text-left border border-pano-border rounded hover:border-pano-lime hover:bg-pano-lime/5 transition text-gray-300 hover:text-white font-medium mb-2 animate-[fade-in_0.5s]";
-                
-                // Azione al click
                 btn.onclick = () => handleOption(opt.key);
                 
-                // Icona freccia o download
                 let icon = '<span class="text-pano-lime">→</span>';
                 if(opt.key === 'download_report') icon = '<span class="text-pano-lime">⬇</span>';
                 
@@ -838,43 +845,56 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
             });
         }
 
-        // Mostra input testo se serve
+        // Gestione Input Testo
         if (stepData.mode === 'mixed') {
             textInputContainer.classList.remove('hidden');
+            // Focus automatico per scrivere subito
+            setTimeout(() => document.getElementById('ai-text-input').focus(), 100);
         } else {
             textInputContainer.classList.add('hidden');
         }
         
-        // Scroll automatico
         chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: 'smooth' });
     }
 
-// --- UTILITY: Aggiunge il messaggio a schermo (VERSIONE FORMATTATA) ---
+    // --- UTILITY: Aggiunge Messaggi (CON MARKDOWN E STILE CSS) ---
     function addMessage(text, sender) {
         const div = document.createElement('div');
         
         if (sender === 'ai') {
-            // Stile Messaggio AI (Grigio scuro)
             div.className = "self-start bg-[#1a1a1a] border border-[#333] p-5 rounded-tr-xl rounded-br-xl rounded-bl-xl max-w-[90%] md:max-w-[80%] animate-[slide-up_0.3s_ease-out] mb-4 shadow-lg";
             
-            // QUI AVVIENE LA MAGIA: marked.parse trasforma **text** in <b>text</b>
-            // Usiamo una classe 'chat-content' per applicare il CSS che abbiamo scritto sopra
-            div.innerHTML = `<div class="chat-content text-gray-300">${marked.parse(text)}</div>`;
+            // Controlla se Marked.js è caricato, altrimenti usa testo semplice
+            const content = (typeof marked !== 'undefined') ? marked.parse(text) : text;
             
+            div.innerHTML = `<div class="chat-content text-gray-300">${content}</div>`;
         } else {
-            // Stile Messaggio Utente (Lime/Verde)
             div.className = "self-end bg-pano-lime/10 border border-pano-lime/30 p-3 rounded-tl-xl rounded-bl-xl rounded-br-xl max-w-[80%] mb-4 animate-[slide-up_0.3s_ease-out]";
             div.innerHTML = `<p class="text-pano-lime text-sm font-medium">${text}</p>`;
         }
         
         chatHistory.appendChild(div);
-        // Scroll automatico in basso per vedere l'ultimo messaggio
         chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: 'smooth' });
+    }
+
+    // --- GESTIONE INVIO TESTO ---
+    function handleTextSubmit() {
+        const input = document.getElementById('ai-text-input');
+        const val = input.value.trim();
+        if(val === "") return;
+        
+        input.value = "";
+        
+        // CORREZIONE FONDAMENTALE: Passiamo 'val' due volte
+        // 1. Come 'key' da inviare all'AI
+        // 2. Come 'explicitLabel' da mostrare nella chat (evita errori di ricerca pulsanti)
+        handleOption(val, val); 
     }
 </script>
 </body> 
 </body>
 </html>
+
 
 
 
