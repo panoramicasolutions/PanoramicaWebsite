@@ -49,7 +49,7 @@ export default async function handler(req, res) {
 
     // --- CHIAMATA GOOGLE ---
     // Usiamo il modello stabile "001" o "pro"
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-001:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
     
     const response = await fetch(url, {
       method: 'POST',
