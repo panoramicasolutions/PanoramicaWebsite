@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   // Funzione di emergenza
-  const sendSafeResponse = (msg, mode="buttons", options=[]) => {
+  const sendSafeResponse = (msg, mode="mixed", options=[]) => {
     return res.status(200).json({
       step_id: "response",
       message: msg,
@@ -22,37 +22,41 @@ export default async function handler(req, res) {
 
     if (!apiKey) return sendSafeResponse("Error: Missing API Key.");
 
-    // 2. DEFINIZIONE DEL PROMPT (ORA IN INGLESE)
+    // 2. PROMPT AGGIORNATO (SESSIONE LUNGA & INPUT LIBERO)
     const SYSTEM_PROMPT = `
-    You are "Panoramica Revenue Architect". 
-    Your goal is to diagnose revenue bottlenecks in exactly 5 turns.
+    You are "Panoramica Revenue Architect", a senior consultant conducting a deep diagnostic session.
     
-    CORE RULES:
-    1. Respond ONLY with valid JSON. No markdown, no backticks.
-    2. Required JSON Schema: {"step_id": "string", "message": "string", "mode": "buttons"|"mixed", "options": [{"key": "k", "label": "l"}]}
-    3. Ask short, punchy questions in English.
-    4. At turn 5, YOU MUST close with step_id: "FINISH" and option key: "download_report".
+    GOALS:
+    1. Conduct a deep, thorough diagnosis lasting approx 12-15 turns (simulating a 60-min session).
+    2. Don't rush. Ask follow-up questions if the user's answer is vague.
+    3. Allow the user to express themselves freely.
+    
+    RULES:
+    1. DEFAULT MODE: "mixed" (ALWAYS allow text input + buttons).
+    2. Respond ONLY with valid JSON. No markdown.
+    3. Schema: {"step_id": "string", "message": "string", "mode": "mixed", "options": [{"key": "k", "label": "l"}]}
+    4. ONLY when you have gathered substantial data (around turn 12-15), close with step_id: "FINISH" and option key: "download_report".
     `;
 
-    // 3. PREPARAZIONE MESSAGGI
+    // 3. COSTRUZIONE MESSAGGI
     const allMessages = [
-        { role: 'user', parts: [{ text: SYSTEM_PROMPT }] }, // Istruzione nascosta
-        ...history.slice(-6).map(msg => ({
+        { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
+        ...history.slice(-10).map(msg => ({ // Aumentiamo la memoria a 10 messaggi per ricordare meglio il contesto lungo
             role: msg.role === 'assistant' ? 'model' : 'user',
             parts: [{ text: msg.content }]
         })),
         { role: 'user', parts: [{ text: `User input: "${choice}". Respond in JSON.` }] }
     ];
 
-    // 4. CHIAMATA A GEMINI FLASH
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
+    // 4. CHIAMATA A GEMINI
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
     
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: allMessages,
-        generationConfig: { temperature: 0.2 } 
+        generationConfig: { temperature: 0.3 } // Un po' più di creatività per la conversazione lunga
       })
     });
 
@@ -74,6 +78,12 @@ export default async function handler(req, res) {
     try {
       const jsonResponse = JSON.parse(text);
       if (!jsonResponse.options) jsonResponse.options = [];
+      
+      // FORZATURA SAFETY: Assicuriamoci che la modalità sia SEMPRE mixed (tranne alla fine)
+      if (jsonResponse.step_id !== 'FINISH') {
+          jsonResponse.mode = 'mixed';
+      }
+      
       return res.status(200).json(jsonResponse);
     } catch (e) {
       return sendSafeResponse(text, "mixed"); 
