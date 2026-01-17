@@ -135,6 +135,40 @@
     .faq-icon { font-size: 24px; transition: transform 0.3s ease; color: #666; }
     .faq-item.active .faq-icon { transform: rotate(45deg); color: #DCEE6A; }
 </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</style>
+/* --- STILE MESSAGGI CHAT MIGLIORATO --- */
+.chat-content {
+    font-size: 0.95rem;
+    line-height: 1.6; /* Più spazio tra le righe per leggibilità */
+}
+
+/* Grassetto: Bianco brillante o Lime */
+.chat-content strong {
+    color: #fff; 
+    font-weight: 700;
+}
+
+/* Elenchi puntati: Spaziati e puliti */
+.chat-content ul {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin: 10px 0;
+    color: #d1d5db; /* Grigio chiaro */
+}
+
+.chat-content li {
+    margin-bottom: 8px; /* Spazio tra i punti elenco */
+}
+
+/* Paragrafi: Spazio tra i blocchi di testo */
+.chat-content p {
+    margin-bottom: 12px;
+}
+.chat-content p:last-child {
+    margin-bottom: 0;
+}
+    </style>
 </head>
 <body class="antialiased selection:bg-pano-lime selection:text-black">
 
@@ -815,31 +849,33 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
         chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: 'smooth' });
     }
 
-    // --- UTILITY: Aggiunge il messaggio a schermo ---
+// --- UTILITY: Aggiunge il messaggio a schermo (VERSIONE FORMATTATA) ---
     function addMessage(text, sender) {
         const div = document.createElement('div');
+        
         if (sender === 'ai') {
-            div.className = "self-start bg-[#1a1a1a] border border-[#333] p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl max-w-[85%] animate-[slide-up_0.3s_ease-out] mb-4 shadow-lg";
-            div.innerHTML = `<p class="text-white text-sm leading-relaxed">${text}</p>`;
+            // Stile Messaggio AI (Grigio scuro)
+            div.className = "self-start bg-[#1a1a1a] border border-[#333] p-5 rounded-tr-xl rounded-br-xl rounded-bl-xl max-w-[90%] md:max-w-[80%] animate-[slide-up_0.3s_ease-out] mb-4 shadow-lg";
+            
+            // QUI AVVIENE LA MAGIA: marked.parse trasforma **text** in <b>text</b>
+            // Usiamo una classe 'chat-content' per applicare il CSS che abbiamo scritto sopra
+            div.innerHTML = `<div class="chat-content text-gray-300">${marked.parse(text)}</div>`;
+            
         } else {
+            // Stile Messaggio Utente (Lime/Verde)
             div.className = "self-end bg-pano-lime/10 border border-pano-lime/30 p-3 rounded-tl-xl rounded-bl-xl rounded-br-xl max-w-[80%] mb-4 animate-[slide-up_0.3s_ease-out]";
             div.innerHTML = `<p class="text-pano-lime text-sm font-medium">${text}</p>`;
         }
+        
         chatHistory.appendChild(div);
-    }
-
-    // Gestione Invio Testo manuale
-    function handleTextSubmit() {
-        const input = document.getElementById('ai-text-input');
-        const val = input.value.trim();
-        if(val === "") return;
-        input.value = "";
-        handleOption(val); 
+        // Scroll automatico in basso per vedere l'ultimo messaggio
+        chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: 'smooth' });
     }
 </script>
 </body> 
 </body>
 </html>
+
 
 
 
