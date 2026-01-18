@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // 1. CONFIGURAZIONE BASE
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -12,37 +11,38 @@ export default async function handler(req, res) {
 
     if (!apiKey) return res.status(500).json({ report: "Error: Missing API Key." });
 
-    // 2. prompt DI SISTEMA (Generazione Report)
+    // --- REPORT PROTOCOL (Step 6 & 7 from PDF) ---
     const SYSTEM_PROMPT = `
-    You are a Revenue Architect writing a formal consultation report.
-    Based on the chat history provided, write a professional Markdown report.
+    You are the "Revenue Diagnostic Agent". Write the final PDF report.
     
-    STRUCTURE:
-    # Revenue Architecture Audit
-    ## Executive Summary
-    (Summarize the user's situation based on their inputs)
+    STRICT FORMAT (11 POINTS):
+    1. Executive Summary
+    2. Primary Bottleneck(s) (Max 3)
+    3. Root Cause (Not symptoms)
+    4. Estimated Impact (With assumptions)
+    5. 30/60/90 Day Plan (High level)
+    6. What we are deliberately NOT fixing now (Force trade-offs)
+    7. Risk of Inaction (Economic focus)
+    8. Concrete Solution (Process/Automation/People)
+    9. Real-world Evidence (Benchmarks)
+    10. Confidence Level
+    11. CTA: "We implement or validate this with you - not discuss it."
     
-    ## Identified Bottlenecks
-    (List potential issues based on their answers)
+    CRITICAL INSTRUCTION (Step 7):
+    - Keep the report INTENTIONALLY INCOMPLETE.
+    - Show WHAT to fix and WHY.
+    - Outline HOW at a high level.
+    - DO NOT provide exact workflows, automation logic, or role design.
+    - These belong in the paid session.
     
-    ## 30-60-90 Day Execution Plan
-    ### Phase 1: Fix (Days 1-30)
-    ...
-    ### Phase 2: Build (Days 31-60)
-    ...
-    ### Phase 3: Scale (Days 61-90)
-    ...
-    
-    Refuse to write anything else. Output only the Report content.
+    Write in clean Markdown.
     `;
 
-    // 3. COSTRUZIONE MESSAGGI "UNIVERSALE" (Come in Chat)
     const allMessages = [
         { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
-        { role: 'user', parts: [{ text: `Here is the consultation history: ${JSON.stringify(history)}. Generate the report now.` }] }
+        { role: 'user', parts: [{ text: `Here is the diagnostic session history: ${JSON.stringify(history)}. Generate the Fixed-Format Report.` }] }
     ];
 
-    // 4. CHIAMATA A GEMINI FLASH (Modello Corretto)
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
     
     const response = await fetch(url, {
@@ -50,25 +50,13 @@ export default async function handler(req, res) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: allMessages,
-        generationConfig: { temperature: 0.4 } // Un po' più creativo per il report
+        generationConfig: { temperature: 0.4 }
       })
     });
 
     const data = await response.json();
+    let reportText = data.candidates?.[0]?.content?.parts?.[0]?.text || "# Error Generating Report";
 
-    // 5. GESTIONE ERRORI
-    if (data.error) {
-        console.error("Report Error:", data.error);
-        return res.status(200).json({ report: `# Error Generating Report\n\nGoogle API Error: ${data.error.message}` });
-    }
-
-    let reportText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    if (!reportText) {
-        reportText = "# Error\n\nAI returned an empty response. Please try again.";
-    }
-
-    // 6. RESTITUIAMO IL TESTO
     res.status(200).json({ report: reportText });
 
   } catch (error) {
