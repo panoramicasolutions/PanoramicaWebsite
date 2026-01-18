@@ -21,69 +21,51 @@ export default async function handler(req, res) {
 
     if (!geminiKey) return sendSafeResponse("Error: Missing Gemini API Key.");
 
-    // --- FASE 1: CAPIRE SE SERVE IL WEB (ROUTER) ---
-    // Se l'utente ha scritto del testo (non un comando fisso) e non c'è allegato, controlliamo se serve cercare.
+    // --- FASE 1: ROUTER (DECIDE SE CERCARE NEL WEB) ---
     let searchContext = "";
-    
-    // Controlliamo se 'choice' è una frase lunga e non una chiave tecnica (es. "start", "download")
     const isFreeText = choice.includes(" ") || choice.length > 20;
     
+    // Cerchiamo solo se l'utente scrive testo libero e non c'è un file allegato
     if (isFreeText && tavilyKey && !attachment) {
-        console.log("Valutazione necessità ricerca web...");
-        
-        // Chiediamo a Gemini Flash (velocissimo) se serve cercare
-        const routerUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`;
-        const routerResponse = await fetch(routerUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ role: 'user', parts: [{ text: 
-                    `Analizza l'input utente: "${choice}". 
-                    Se l'utente chiede dati fattuali, news, aziende, o info che richiedono internet, rispondi SOLO con una query di ricerca ottimizzata in Inglese.
-                    Se è una risposta personale o conversazione, rispondi "NO_SEARCH".` 
-                }] }]
-            })
-        });
-        
-        const routerData = await routerResponse.json();
-        let searchQuery = routerData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "NO_SEARCH";
-        
-        // Puliamo eventuali virgolette
-        searchQuery = searchQuery.replace(/"/g, '');
+        console.log("Checking web search necessity...");
+        const routerUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${geminiKey}`;
+        try {
+            const routerResponse = await fetch(routerUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ role: 'user', parts: [{ text: 
+                        `User input: "${choice}". 
+                        Does this require real-time factual data (news, companies, stats)? 
+                        If YES, output a search query in English. 
+                        If NO (it's personal info or chat), output "NO_SEARCH".` 
+                    }] }]
+                })
+            });
+            const routerData = await routerResponse.json();
+            let searchQuery = routerData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "NO_SEARCH";
+            searchQuery = searchQuery.replace(/"/g, '');
 
-        if (searchQuery !== "NO_SEARCH") {
-            console.log("Cercando sul web:", searchQuery);
-            
-            // --- FASE 2: ESEGUIRE LA RICERCA CON TAVILY ---
-            try {
+            if (searchQuery !== "NO_SEARCH") {
                 const searchResp = await fetch("https://api.tavily.com/search", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         api_key: tavilyKey,
                         query: searchQuery,
-                        search_depth: "basic", // "advanced" è più lento, basic va bene per chat
-                        include_answer: false,
+                        search_depth: "basic",
                         max_results: 3
                     })
                 });
-                
                 const searchData = await searchResp.json();
-                
                 if (searchData.results && searchData.results.length > 0) {
-                    searchContext = "\n\n--- WEB SEARCH RESULTS (Use these to answer) ---\n";
-                    searchData.results.forEach((res, i) => {
-                        searchContext += `Source [${i+1}]: ${res.title} (${res.url})\nContent: ${res.content}\n\n`;
-                    });
-                    searchContext += "--- END WEB RESULTS ---\nRules for sources: Always cite sources inline using Markdown links like [Source Title](URL).";
+                    searchContext = "\n\n--- WEB RESULTS ---\n" + searchData.results.map(r => `Source: ${r.title} (${r.url})\n${r.content}`).join("\n\n") + "\n--- END RESULTS ---\n";
                 }
-            } catch (err) {
-                console.error("Errore Tavily:", err);
             }
-        }
+        } catch (e) { console.error("Router/Search Error", e); }
     }
 
-    // --- FASE 3: RISPOSTA FINALE DELL'AGENTE ---
+    // --- FASE 2: RISPOSTA AGENTE ---
 
     const SYSTEM_PROMPT = `
     You are "Panoramica Revenue Architect".
@@ -92,8 +74,9 @@ export default async function handler(req, res) {
     RULES:
     1. Respond ONLY with valid JSON.
     2. Schema: {"step_id": "string", "message": "string", "mode": "mixed", "options": [{"key": "k", "label": "l"}]}
-    3. If 'WEB SEARCH RESULTS' are provided below, USE THEM to enrich your answer.
-    4. CITATIONS: If you use web info, you MUST cite the source creating a clickable Markdown link. Example: "According to [HubSpot](https://hubspot.com)..."
+    3. CRITICAL: ALWAYS provide 3-4 "options" (suggested answers) in the JSON. Never leave options empty unless it is the final report step.
+       - Example: If asking about industry, provide [{"key": "saas", "label": "SaaS"}, {"key": "agency", "label": "Agency"}, etc.]
+    4. If 'WEB RESULTS' are present, use them and cite sources using Markdown links [Source](URL).
     5. At turn 12+, close with step_id: "FINISH" and option "download_report".
     `;
 
@@ -103,9 +86,8 @@ export default async function handler(req, res) {
         parts: [{ text: msg.content }]
     }));
 
-    // Messaggio utente corrente + Eventuale Context Web + Eventuale Allegato
     const userMessageParts = [
-        { text: `User input: "${choice}". ${searchContext} Respond in JSON.` }
+        { text: `User input: "${choice}". ${searchContext} Respond in JSON with options.` }
     ];
 
     if (attachment) {
@@ -120,8 +102,7 @@ export default async function handler(req, res) {
         { role: 'user', parts: userMessageParts }
     ];
 
-    // Chiamata Finale a Gemini
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${geminiKey}`;
     
     const response = await fetch(url, {
       method: 'POST',
@@ -134,9 +115,7 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    if (data.error) {
-        return sendSafeResponse(`Technical Error: ${data.error.message}.`);
-    }
+    if (data.error) return sendSafeResponse(`Error: ${data.error.message}`);
 
     let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) return sendSafeResponse("AI did not respond.");
@@ -145,8 +124,22 @@ export default async function handler(req, res) {
 
     try {
       const jsonResponse = JSON.parse(text);
-      if (!jsonResponse.options) jsonResponse.options = [];
+      
+      // SAFETY NET: Se l'AI si dimentica ancora i bottoni, ne aggiungiamo noi di default!
+      if (!jsonResponse.options || jsonResponse.options.length === 0) {
+          if (jsonResponse.step_id !== 'FINISH') {
+              jsonResponse.options = [
+                  { key: "details", label: "Give more details" },
+                  { key: "skip", label: "Skip this question" },
+                  { key: "unsure", label: "Not sure" }
+              ];
+          } else {
+              jsonResponse.options = [];
+          }
+      }
+
       if (jsonResponse.step_id !== 'FINISH') jsonResponse.mode = 'mixed';
+      
       return res.status(200).json(jsonResponse);
     } catch (e) {
       return sendSafeResponse(text, "mixed"); 
