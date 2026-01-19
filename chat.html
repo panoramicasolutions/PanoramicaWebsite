@@ -1,222 +1,342 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panoramica AI - Consultant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Engineering Clarity Coach | Panoramica</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <script>
         tailwind.config = {
-            theme: { 
+            theme: {
                 extend: {
-                    colors: {
+                    colors: { 
+                        'pano-bg': '#050505',
+                        'pano-panel': '#0A0A0A',
                         'pano-lime': '#DCEE6A',
-                        'pano-grey': '#9CA3AF',
-                        'pano-dark': '#0A0A0A',
-                        'pano-border': '#333333',
+                        'pano-grey': '#888888',
+                        'pano-border': '#222222',
                     },
-                    animation: {
-                        'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
-                    },
-                    keyframes: {
-                        fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(10px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        }
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
                     }
                 }
             }
         }
     </script>
+    
     <style>
-        body { background-color: #050505; color: white; font-family: sans-serif; }
+        body { background-color: #050505; color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Scrollbar personalizzata invisibile ma funzionale */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .chat-input:focus { outline: none; box-shadow: 0 0 0 2px #DCEE6A; }
+
+        /* Stile Markdown Messaggi */
+        .prose p { margin-bottom: 0.8em; line-height: 1.6; color: #E5E5E5; }
+        .prose strong { color: #fff; font-weight: 600; }
+        .prose ul { list-style-type: disc; padding-left: 1.2em; margin-bottom: 0.8em; color: #A0A0A0; }
+        .prose li { margin-bottom: 0.4em; }
+        .prose a { color: #DCEE6A; text-decoration: underline; text-underline-offset: 4px; }
         
-        /* Markdown rendering basic */
-        .bot-msg ul { list-style-type: disc; margin-left: 20px; margin-top: 5px; }
-        .bot-msg strong { color: #DCEE6A; font-weight: bold; }
-        .bot-msg a { color: #DCEE6A; text-decoration: underline; }
+        /* Animazioni */
+        @keyframes message-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .msg-anim { animation: message-in 0.4s ease-out forwards; }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
+<body class="selection:bg-pano-lime selection:text-black">
 
-    <header class="flex-none p-4 border-b border-pano-border bg-black/50 backdrop-blur-md z-10 flex justify-between items-center">
+    <header class="h-16 border-b border-pano-border bg-black/80 backdrop-blur flex items-center justify-between px-6 z-50 shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded bg-pano-lime/10 flex items-center justify-center border border-pano-lime/30">
-                <div class="w-3 h-3 bg-pano-lime rotate-45 shadow-[0_0_10px_#DCEE6A]"></div>
+            <div class="w-2 h-8 bg-pano-lime rounded-full"></div>
+            <div>
+                <h1 class="font-bold text-sm tracking-wide text-white uppercase">Revenue Architect</h1>
+                <div class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="text-[10px] text-pano-grey font-mono">SYSTEM ACTIVE</span>
+                </div>
             </div>
-            <span class="font-bold tracking-wide">Panoramica <span class="text-pano-lime">AI</span></span>
         </div>
-        <a href="index.html" class="text-sm text-pano-grey hover:text-white transition">Exit Chat ✕</a>
+        <a href="index.html" class="text-xs font-medium text-pano-grey hover:text-white transition uppercase tracking-widest border border-pano-border px-4 py-2 rounded hover:border-pano-lime">
+            Exit Session
+        </a>
     </header>
 
-    <main id="chat-container" class="flex-grow overflow-y-auto p-4 md:p-8 space-y-6 no-scrollbar relative">
-        <div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-5">
-             <div class="w-64 h-64 border border-white rotate-45"></div>
+    <div class="w-full h-[2px] bg-[#111]">
+        <div id="ai-progress" class="h-full bg-pano-lime transition-all duration-700 shadow-[0_0_10px_#DCEE6A]" style="width: 0%"></div>
+    </div>
+
+    <main id="chat-history" class="flex-1 overflow-y-auto no-scrollbar p-4 md:p-0 scroll-smooth">
+        <div class="max-w-3xl mx-auto py-10 space-y-8 min-h-full flex flex-col justify-end">
+            
+            <div class="flex gap-4 msg-anim">
+                <div class="w-8 h-8 rounded bg-[#111] border border-pano-border flex items-center justify-center shrink-0 text-pano-lime font-mono text-xs">AI</div>
+                <div class="flex-1 space-y-2">
+                    <div class="prose text-sm md:text-base bg-pano-panel border border-pano-border p-6 rounded-2xl shadow-xl">
+                        <p><strong>System initialized.</strong></p>
+                        <p>I am the Panoramica Revenue Architect. I am here to diagnose your revenue engine and build a 30/60/90-day execution plan.</p>
+                        <p class="text-pano-grey text-xs mt-4 border-t border-pano-border pt-3 font-mono">WAITING FOR INPUT...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dynamic-content"></div>
+
+            <div class="h-32"></div>
         </div>
     </main>
 
-    <footer id="input-area" class="flex-none p-4 md:p-6 bg-[#050505] border-t border-pano-border">
-        <div class="max-w-3xl mx-auto relative">
-            <form id="chat-form" class="flex gap-4">
-                <input type="text" id="user-input" 
-                    class="w-full bg-[#111] border border-pano-border rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:border-pano-lime transition outline-none shadow-lg"
-                    placeholder="Type your answer here..." autocomplete="off">
-                
-                <button type="submit" id="send-btn" class="bg-pano-lime text-black p-4 rounded-xl hover:bg-white transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                    </svg>
+    <div class="shrink-0 bg-gradient-to-t from-black via-black to-transparent pt-10 pb-6 px-4 z-40">
+        <div class="max-w-3xl mx-auto space-y-4">
+            
+            <div id="ai-options" class="flex flex-col gap-2 transition-all">
+                <button onclick="handleOption('start')" class="msg-anim w-full text-left bg-pano-panel border border-pano-border hover:border-pano-lime hover:bg-pano-lime/5 p-4 rounded-xl transition-all group flex items-center justify-between">
+                    <span class="text-sm font-medium text-white">Start Diagnostic Session</span>
+                    <span class="text-pano-grey group-hover:text-pano-lime transition">→</span>
                 </button>
-            </form>
-            <div class="text-center mt-2">
-                <p class="text-[10px] text-pano-grey uppercase tracking-widest">Powered by OpenAI GPT-4o</p>
+                <button onclick="handleOption('info')" class="msg-anim w-full text-left bg-pano-panel border border-pano-border hover:border-white/30 p-4 rounded-xl transition-all">
+                    <span class="text-sm font-medium text-pano-grey hover:text-white">How does the report work?</span>
+                </button>
+            </div>
+
+            <div id="input-bar" class="relative group hidden opacity-0 transition-opacity duration-500">
+                
+                <div id="file-preview" class="absolute -top-10 left-0 bg-[#222] border border-pano-border px-3 py-1 rounded-md flex items-center gap-2 hidden">
+                    <span class="text-[10px] text-pano-lime font-mono" id="file-name">DOC.PDF</span>
+                    <button onclick="clearFile()" class="text-gray-500 hover:text-white">×</button>
+                </div>
+
+                <div class="bg-[#0A0A0A] border border-pano-border rounded-xl flex items-center p-2 shadow-2xl ring-1 ring-white/5 focus-within:ring-pano-lime/50 transition-all">
+                    
+                    <input type="file" id="file-upload" class="hidden" accept="image/*,application/pdf" onchange="handleFileSelect(this)">
+                    <button onclick="document.getElementById('file-upload').click()" class="p-3 text-gray-500 hover:text-white transition rounded-lg hover:bg-white/5" title="Upload Context">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                    </button>
+
+                    <input type="text" id="ai-text-input" 
+                           class="flex-1 bg-transparent border-none text-white text-sm px-3 focus:ring-0 placeholder-gray-600 font-sans h-10"
+                           placeholder="Type your answer...">
+
+                    <button onclick="handleTextSubmit()" class="p-2 bg-pano-lime text-black rounded-lg hover:bg-white transition shadow-[0_0_10px_rgba(220,238,106,0.3)]">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <p class="text-[10px] text-[#333] font-mono uppercase tracking-widest">Panoramica AI Engine v2.1 • Secure Context</p>
             </div>
         </div>
-    </footer>
+    </div>
 
     <script>
-        // --- CONFIGURAZIONE ---
-        // INCOLLA QUI IL LINK DEL TUO CLOUDFLARE WORKER (es. https://panoramica-bot.tuonome.workers.dev)
-        const WORKER_URL = "https://odd-field-8d9b.giulioricciutipriv.workers.dev"; 
-        // ---------------------
+        const API_URL = "/api/chat";
+        let conversationHistory = []; 
+        let currentAttachment = null; 
 
-        const chatContainer = document.getElementById('chat-container');
-        const chatForm = document.getElementById('chat-form');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
+        // DOM Elements
+        const chatHistoryMain = document.getElementById('chat-history');
+        const dynamicContent = document.getElementById('dynamic-content');
+        const optionsContainer = document.getElementById('ai-options');
+        const inputBar = document.getElementById('input-bar');
+        const progressBar = document.getElementById('ai-progress');
+        const textInput = document.getElementById('ai-text-input'); 
 
-        // Storico della conversazione (per dare memoria al bot)
-        let conversationHistory = [];
+        // Auto-focus input on load
+        window.onload = () => { if(!inputBar.classList.contains('hidden')) textInput.focus(); };
 
-        // Funzione per aggiungere messaggi
-        function addMessage(text, sender) {
-            const msgDiv = document.createElement('div');
-            const isBot = sender === 'bot';
+        // Enter key to send
+        textInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") { e.preventDefault(); handleTextSubmit(); }
+        });
+
+        // --- FILE UPLOAD ---
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+            if (file.size > 3 * 1024 * 1024) { alert("File max 3MB"); input.value = ""; return; }
             
-            msgDiv.className = isBot 
-                ? 'flex gap-4 max-w-3xl mx-auto animate-fade-in-up' 
-                : 'flex gap-4 max-w-3xl mx-auto justify-end animate-fade-in-up';
-
-            // Formattazione base del testo (converte a capo in <br>)
-            let formattedText = text.replace(/\n/g, '<br>');
-            // Rende cliccabili i link
-            formattedText = formattedText.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
-
-            if (isBot) {
-                msgDiv.innerHTML = `
-                    <div class="w-8 h-8 flex-shrink-0 rounded bg-pano-lime flex items-center justify-center mt-1">
-                        <div class="w-2 h-2 bg-black rotate-45"></div>
-                    </div>
-                    <div class="bot-msg bg-[#1a1a1a] text-gray-200 p-4 rounded-2xl rounded-tl-none border border-pano-border/50 shadow-md leading-relaxed text-sm md:text-base">
-                        ${formattedText}
-                    </div>
-                `;
-            } else {
-                msgDiv.innerHTML = `
-                    <div class="bg-pano-lime/10 text-pano-lime border border-pano-lime/20 p-4 rounded-2xl rounded-tr-none shadow-[0_0_15px_rgba(220,238,106,0.1)] text-sm md:text-base">
-                        ${formattedText}
-                    </div>
-                `;
-            }
-            chatContainer.appendChild(msgDiv);
-            scrollToBottom();
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentAttachment = { mime_type: file.type, data: e.target.result.split(',')[1] };
+                document.getElementById('file-preview').classList.remove('hidden');
+                document.getElementById('file-name').innerText = file.name.toUpperCase();
+            };
+            reader.readAsDataURL(file);
         }
 
-        // Indicatore di caricamento
-        let typingDivId = null;
-        function showTyping() {
-            typingDivId = 'typing-' + Date.now();
-            const msgDiv = document.createElement('div');
-            msgDiv.id = typingDivId;
-            msgDiv.className = 'flex gap-4 max-w-3xl mx-auto animate-fade-in-up';
-            msgDiv.innerHTML = `
-                <div class="w-8 h-8 flex-shrink-0 rounded bg-pano-lime/50 flex items-center justify-center mt-1">
-                    <div class="w-2 h-2 bg-black rotate-45 animate-spin"></div>
-                </div>
-                <div class="bg-[#1a1a1a] p-4 rounded-2xl rounded-tl-none border border-pano-border/50 flex gap-2 items-center h-[54px]">
-                    <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-                    <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                    <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+        function clearFile() {
+            currentAttachment = null;
+            document.getElementById('file-upload').value = "";
+            document.getElementById('file-preview').classList.add('hidden');
+        }
+
+        // --- CORE LOGIC ---
+        async function handleOption(key, explicitLabel = null) {
+            if (key === 'download_report') { downloadReport(); return; }
+
+            // 1. Determina Etichetta
+            let label = explicitLabel;
+            if (!label) {
+                // Se è un click su un bottone, prendiamo il testo del bottone
+                // Cerchiamo nell'array di bottoni attuali
+                const buttons = optionsContainer.querySelectorAll('button');
+                buttons.forEach(btn => {
+                   if(btn.getAttribute('onclick').includes(key)) label = btn.innerText.replace('→', '').trim();
+                });
+                if(!label) label = key;
+            }
+            if (currentAttachment) label += " (📎 DOC)";
+
+            // 2. Aggiungi messaggio Utente alla Chat
+            addUserMessage(label);
+
+            // 3. Stato di Caricamento (UI)
+            optionsContainer.innerHTML = `
+                <div class="w-full bg-[#111] border border-pano-border p-4 rounded-xl flex items-center gap-3 animate-pulse">
+                    <div class="w-4 h-4 border-2 border-pano-lime border-t-transparent rounded-full animate-spin"></div>
+                    <span class="text-xs font-mono text-pano-lime uppercase tracking-widest">Analyzing Revenue Data...</span>
                 </div>
             `;
-            chatContainer.appendChild(msgDiv);
-            scrollToBottom();
-        }
-
-        function removeTyping() {
-            if (typingDivId) {
-                document.getElementById(typingDivId).remove();
-                typingDivId = null;
-            }
-        }
-
-        function scrollToBottom() {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        // --- INTEGRAZIONE API REALE ---
-        async function handleUserMessage(text) {
-            if (!text.trim()) return;
-
-            // 1. Mostra messaggio utente
-            addMessage(text, 'user');
-            userInput.value = '';
-            userInput.disabled = true;
-            sendBtn.disabled = true;
-
-            // 2. Aggiungi alla memoria
-            conversationHistory.push({ role: "user", content: text });
-
-            // 3. Mostra "sta scrivendo..."
-            showTyping();
+            inputBar.classList.add('opacity-50', 'pointer-events-none'); // Disabilita input
 
             try {
-                // 4. Chiama il Backend
-                const response = await fetch(WORKER_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messages: conversationHistory })
-                });
-
-                if (!response.ok) throw new Error("Server error");
-
-                const data = await response.json();
-                const aiReply = data.choices[0].message.content;
-
-                // 5. Mostra risposta AI
-                removeTyping();
-                addMessage(aiReply, 'bot');
+                const payload = { choice: key, history: conversationHistory, attachment: currentAttachment };
                 
-                // Aggiungi risposta AI alla memoria
-                conversationHistory.push({ role: "assistant", content: aiReply });
+                const response = await fetch(API_URL, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+                });
+                
+                clearFile(); // Pulisci file dopo invio
+
+                if (!response.ok) throw new Error("API Error");
+                const stepData = await response.json();
+                
+                // Aggiorna memoria
+                conversationHistory.push({ role: "user", content: `User input: ${key}` });
+                conversationHistory.push({ role: "assistant", content: JSON.stringify(stepData) });
+
+                renderTurn(stepData);
 
             } catch (error) {
-                removeTyping();
-                addMessage("I'm having trouble connecting to the neural network. Please try again.", 'bot');
                 console.error(error);
+                optionsContainer.innerHTML = `<div class="text-red-500 text-sm text-center p-2 border border-red-900 rounded bg-red-900/10">Connection Error. Retrying...</div>`;
+                setTimeout(() => handleOption(key, explicitLabel), 3000); 
             }
-
-            userInput.disabled = false;
-            sendBtn.disabled = false;
-            userInput.focus();
         }
 
-        // --- AVVIO ---
-        window.onload = () => {
-            setTimeout(() => {
-                addMessage("Hello. I am the Panoramica Revenue Architect AI. I'm here to analyze your infrastructure scalability.", 'bot');
-                addMessage("To start, what is your name and which company are you representing?", 'bot');
-            }, 800);
-        };
+        function renderTurn(stepData) {
+            // 1. Rimuovi lo stato di caricamento
+            optionsContainer.innerHTML = '';
+            inputBar.classList.remove('opacity-50', 'pointer-events-none');
 
-        chatForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            handleUserMessage(userInput.value);
-        });
+            // 2. Aggiungi messaggio AI
+            addAIMessage(stepData.message);
+
+            // 3. Aggiorna Barra Progresso
+            const currentWidth = parseFloat(progressBar.style.width) || 0;
+            progressBar.style.width = Math.min(currentWidth + 8, 100) + '%';
+
+            // 4. Genera nuovi bottoni
+            if (stepData.options && stepData.options.length > 0) {
+                stepData.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    // Stile Bottone "Card"
+                    btn.className = "msg-anim w-full text-left bg-pano-panel border border-pano-border hover:border-pano-lime hover:bg-pano-lime/5 p-4 rounded-xl transition-all group flex items-center justify-between mb-2";
+                    btn.onclick = () => handleOption(opt.key);
+                    
+                    let icon = '<span class="text-pano-grey group-hover:text-pano-lime transition">→</span>';
+                    if(opt.key === 'download_report') {
+                        btn.className = "msg-anim w-full text-left bg-pano-lime text-black border border-pano-lime p-4 rounded-xl transition-all font-bold flex items-center justify-between shadow-[0_0_20px_rgba(220,238,106,0.2)] hover:scale-[1.02]";
+                        icon = '<span>⬇</span>';
+                    }
+
+                    btn.innerHTML = `<span class="text-sm font-medium">${opt.label}</span>${icon}`;
+                    optionsContainer.appendChild(btn);
+                });
+            }
+
+            // 5. Gestione Input Testo
+            if (stepData.mode === 'mixed') {
+                inputBar.classList.remove('hidden');
+                // Piccolo ritardo per animazione CSS
+                setTimeout(() => inputBar.classList.remove('opacity-0'), 50);
+                setTimeout(() => textInput.focus(), 100);
+            } else {
+                inputBar.classList.add('hidden', 'opacity-0');
+            }
+
+            // Scroll in basso
+            chatHistoryMain.scrollTop = chatHistoryMain.scrollHeight;
+        }
+
+        // --- UI HELPERS ---
+        function addUserMessage(text) {
+            const div = document.createElement('div');
+            div.className = "flex gap-4 flex-row-reverse msg-anim";
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded bg-pano-lime flex items-center justify-center shrink-0 text-black font-bold text-xs">YOU</div>
+                <div class="max-w-[80%]">
+                    <div class="text-sm md:text-base bg-[#1A1A1A] border border-pano-border p-4 rounded-2xl text-white">
+                        ${text}
+                    </div>
+                </div>
+            `;
+            dynamicContent.appendChild(div);
+            chatHistoryMain.scrollTop = chatHistoryMain.scrollHeight;
+        }
+
+        function addAIMessage(text) {
+            const div = document.createElement('div');
+            div.className = "flex gap-4 msg-anim";
+            const content = (typeof marked !== 'undefined') ? marked.parse(text) : text;
+            
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded bg-[#111] border border-pano-border flex items-center justify-center shrink-0 text-pano-lime font-mono text-xs">AI</div>
+                <div class="flex-1 space-y-2 max-w-[90%]">
+                    <div class="prose text-sm md:text-base bg-pano-panel border border-pano-border p-6 rounded-2xl shadow-xl">
+                        ${content}
+                    </div>
+                </div>
+            `;
+            dynamicContent.appendChild(div);
+            chatHistoryMain.scrollTop = chatHistoryMain.scrollHeight;
+        }
+
+        function handleTextSubmit() {
+            const val = textInput.value.trim();
+            if(val === "" && !currentAttachment) return;
+            const finalText = val === "" ? "Analyzing document..." : val;
+            textInput.value = "";
+            handleOption(finalText, finalText); 
+        }
+        
+        // Report Download Logic
+        async function downloadReport() {
+            optionsContainer.innerHTML = `<div class="w-full bg-[#111] border border-pano-lime p-4 rounded-xl flex items-center gap-3"><div class="animate-spin text-pano-lime">⚙️</div><span class="text-white text-sm">Generating Strategy PDF...</span></div>`;
+            try {
+                const response = await fetch('/api/report', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ history: conversationHistory })
+                });
+                const data = await response.json();
+                const blob = new Blob([data.report], { type: 'text/markdown' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'Panoramica_Growth_Plan.md';
+                document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url);
+                
+                optionsContainer.innerHTML = `<div class="w-full bg-pano-lime/10 border border-pano-lime p-4 rounded-xl text-center text-pano-lime font-bold">✅ REPORT DOWNLOADED</div>`;
+                addAIMessage("Your Strategy Plan has been downloaded. Review the execution steps carefully.");
+            } catch (error) {
+                optionsContainer.innerHTML = `<div class="text-red-500">Error generating report.</div>`;
+            }
+        }
     </script>
 </body>
-</html>
 </html>
