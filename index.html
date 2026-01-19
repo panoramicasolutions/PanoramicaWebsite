@@ -184,10 +184,19 @@
                 </a>
             </div>
 
-            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300 absolute left-1/2 -translate-x-1/2">
-                <a href="#" class="hover:text-white transition">Home</a>
-                <a href="#" class="hover:text-white transition">Marketplace</a>
-                <a href="#" class="hover:text-white transition">Insights</a>
+<div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300 absolute left-1/2 -translate-x-1/2 leading-none mt-1">
+                
+                <a href="#" class="hover:text-white transition relative">Home</a>
+                
+                <div class="relative group">
+                    <a href="#" class="hover:text-white transition peer">Marketplace</a>
+                    
+                    <span class="absolute -top-3 -right-7 px-1.5 py-[2px] bg-pano-lime text-black text-[8px] font-extrabold uppercase tracking-widest rounded-[3px] shadow-[0_0_10px_rgba(220,238,106,0.5)] pointer-events-none select-none">
+                        Beta
+                    </span>
+                </div>
+
+                <a href="#" class="hover:text-white transition relative">Insights</a>
             </div>
 
             <div class="hidden md:flex items-center gap-6 z-20">
@@ -920,6 +929,7 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
 </body> 
 </body>
 </html>
+
 
 
 
