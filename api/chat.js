@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     // Cerchiamo solo se l'utente scrive testo libero e non c'è un file allegato
     if (isFreeText && tavilyKey && !attachment) {
         console.log("Checking web search necessity...");
-        const routerUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
+        const routerUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${geminiKey}`;
         try {
             const routerResponse = await fetch(routerUrl, {
                 method: 'POST',
@@ -102,7 +102,7 @@ export default async function handler(req, res) {
         { role: 'user', parts: userMessageParts }
     ];
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${geminiKey}`;
     
     const response = await fetch(url, {
       method: 'POST',
