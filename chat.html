@@ -39,7 +39,6 @@
         @keyframes message-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .msg-anim { animation: message-in 0.4s ease-out forwards; }
         
-        /* Stile Input Autofill fix per dark mode */
         input:-webkit-autofill,
         input:-webkit-autofill:hover, 
         input:-webkit-autofill:focus, 
@@ -78,9 +77,12 @@
                                class="w-full bg-[#111] border border-pano-border rounded-lg px-4 py-3 text-white text-sm focus:border-pano-lime focus:outline-none focus:ring-1 focus:ring-pano-lime/50 transition">
                     </div>
 
-                    <div class="pt-4">
-                        <button type="submit" class="w-full bg-pano-lime text-black font-bold py-4 rounded-lg hover:bg-white transition shadow-[0_0_20px_rgba(220,238,106,0.2)] flex items-center justify-center gap-2">
-                            <span>Start Analysis & Session</span>
+                    <div class="pt-4 flex gap-3">
+                        <button type="button" onclick="closeModalAndStartDemo()" class="flex-1 bg-transparent border border-pano-border text-pano-grey font-bold py-4 rounded-lg hover:text-white hover:border-white transition">
+                            Skip (Demo)
+                        </button>
+                        <button type="submit" class="flex-[2] bg-pano-lime text-black font-bold py-4 rounded-lg hover:bg-white transition shadow-[0_0_20px_rgba(220,238,106,0.2)] flex items-center justify-center gap-2">
+                            <span>Start Analysis</span>
                             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </button>
                     </div>
@@ -119,7 +121,11 @@
     <div class="shrink-0 bg-gradient-to-t from-black via-black to-transparent pt-10 pb-6 px-4 z-30">
         <div class="max-w-3xl mx-auto space-y-4">
             <div id="ai-options" class="flex flex-col gap-2 transition-all">
-                </div>
+                <button onclick="handleOption('start', 'Start Diagnostic Session')" class="msg-anim w-full text-left bg-pano-panel border border-pano-border hover:border-pano-lime hover:bg-pano-lime/5 p-4 rounded-xl transition-all group flex items-center justify-between">
+                    <span class="text-sm font-medium text-white">Start Diagnostic Session</span>
+                    <span class="text-pano-grey group-hover:text-pano-lime transition">→</span>
+                </button>
+            </div>
 
             <div id="input-bar" class="relative group hidden opacity-0 transition-opacity duration-500">
                 <div id="file-preview" class="absolute -top-10 left-0 bg-[#222] border border-pano-border px-3 py-1 rounded-md flex items-center gap-2 hidden">
@@ -156,70 +162,72 @@
         const textInput = document.getElementById('ai-text-input');
         const modal = document.getElementById('context-modal');
 
-        // --- GESTIONE POP-UP INIZIALE ---
+        // --- GESTIONE POP-UP ---
+        function closeModalAndStartDemo() {
+            modal.style.opacity = '0';
+            setTimeout(() => modal.classList.add('hidden'), 500);
+            addAIMessage("Context skipped. Initiating Demo Mode.");
+        }
+
         async function handleContextSubmit(e) {
             e.preventDefault();
             const website = document.getElementById('company-website').value;
             const linkedin = document.getElementById('company-linkedin').value;
 
-            // 1. Chiudi Modal con animazione
             modal.style.opacity = '0';
             setTimeout(() => modal.classList.add('hidden'), 500);
 
-            // 2. Mostra messaggio di sistema "Scanning..."
-            addAIMessage("**Initializing System...**\nScanning digital footprint to build company snapshot (Pricing, ICP, Team Structure). Please wait.");
+            addAIMessage("**Initializing System...**\nScanning digital footprint to build company snapshot. Please wait.");
             
-            // 3. UI Loading
             optionsContainer.innerHTML = `
                 <div class="w-full bg-[#111] border border-pano-border p-4 rounded-xl flex items-center gap-3 animate-pulse">
                     <div class="w-4 h-4 border-2 border-pano-lime border-t-transparent rounded-full animate-spin"></div>
-                    <span class="text-xs font-mono text-pano-lime uppercase tracking-widest">ANALYZING ${new URL(website).hostname}...</span>
+                    <span class="text-xs font-mono text-pano-lime uppercase tracking-widest">ANALYZING TARGET...</span>
                 </div>
             `;
 
-            // 4. Invia dati al backend per l'analisi (Step 2 PDF)
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        choice: "SNAPSHOT_INIT", // Comando speciale
+                        choice: "SNAPSHOT_INIT", 
                         history: [],
-                        contextData: { website, linkedin } // Dati del form
+                        contextData: { website, linkedin } 
                     })
                 });
 
                 if (!response.ok) throw new Error("API Error");
                 const stepData = await response.json();
 
-                // 5. Salva la storia (Il backend avrà già inserito lo snapshot invisibile)
-                // Nota: Non aggiungiamo "User input: website" per mantenere la chat pulita
                 conversationHistory.push({ role: "assistant", content: JSON.stringify(stepData) });
-
                 renderTurn(stepData);
 
             } catch (error) {
                 console.error(error);
-                optionsContainer.innerHTML = `<button onclick="location.reload()" class="text-red-500 border border-red-900 p-2 rounded w-full">Connection Error. Click to Reload.</button>`;
+                optionsContainer.innerHTML = `<div class="text-red-500">Connection Error. Please refresh.</div>`;
             }
         }
 
-        // --- LOGICA STANDARD (uguale a prima) ---
+        // --- CORE LOGIC (CORRETTA) ---
+        // Ora accettiamo label come parametro OBBLIGATORIO o dedotto in modo sicuro
         async function handleOption(key, explicitLabel = null) {
             if (key === 'download_report') { downloadReport(); return; }
 
-            let label = explicitLabel;
-            if (!label) {
-                const buttons = optionsContainer.querySelectorAll('button');
-                buttons.forEach(btn => {
-                   if(btn.getAttribute('onclick').includes(key)) label = btn.innerText.replace('→', '').trim();
-                });
-                if(!label) label = key;
-            }
+            // CORREZIONE CRITICA: Se label non è passata, usiamo la chiave.
+            // Non cerchiamo più nel DOM per evitare crash.
+            let label = explicitLabel || key;
             if (currentAttachment) label += " (📎 DOC)";
 
             addUserMessage(label);
-            optionsContainer.innerHTML = `<div class="w-full bg-[#111] border border-pano-border p-4 rounded-xl flex items-center gap-3 animate-pulse"><div class="w-4 h-4 border-2 border-pano-lime border-t-transparent rounded-full animate-spin"></div><span class="text-xs font-mono text-pano-lime uppercase tracking-widest">Thinking...</span></div>`;
+            
+            // Loading State
+            optionsContainer.innerHTML = `
+                <div class="w-full bg-[#111] border border-pano-border p-4 rounded-xl flex items-center gap-3 animate-pulse">
+                    <div class="w-4 h-4 border-2 border-pano-lime border-t-transparent rounded-full animate-spin"></div>
+                    <span class="text-xs font-mono text-pano-lime uppercase tracking-widest">Thinking...</span>
+                </div>
+            `;
             inputBar.classList.add('opacity-50', 'pointer-events-none');
 
             try {
@@ -236,8 +244,9 @@
 
                 renderTurn(stepData);
             } catch (error) {
-                optionsContainer.innerHTML = `<div class="text-red-500 p-2">Error. Retrying...</div>`;
-                setTimeout(() => handleOption(key, explicitLabel), 3000); 
+                console.error(error);
+                optionsContainer.innerHTML = `<div class="text-red-500 p-2 border border-red-900 rounded">Error connecting to AI. Retrying...</div>`;
+                setTimeout(() => handleOption(key, label), 3000); 
             }
         }
 
@@ -253,7 +262,10 @@
                 stepData.options.forEach(opt => {
                     const btn = document.createElement('button');
                     btn.className = "msg-anim w-full text-left bg-pano-panel border border-pano-border hover:border-pano-lime hover:bg-pano-lime/5 p-4 rounded-xl transition-all group flex items-center justify-between mb-2";
-                    btn.onclick = () => handleOption(opt.key);
+                    
+                    // CORREZIONE CRITICA: Passiamo esplicitamente opt.label qui!
+                    btn.onclick = () => handleOption(opt.key, opt.label);
+                    
                     let icon = '<span class="text-pano-grey group-hover:text-pano-lime transition">→</span>';
                     if(opt.key === 'download_report') {
                         btn.className = "msg-anim w-full text-left bg-pano-lime text-black border border-pano-lime p-4 rounded-xl transition-all font-bold flex items-center justify-between shadow-[0_0_20px_rgba(220,238,106,0.2)] hover:scale-[1.02]";
@@ -291,9 +303,26 @@
             chatHistoryMain.scrollTop = chatHistoryMain.scrollHeight;
         }
 
-        // ... Altre funzioni (text submit, upload, report) uguali a prima ...
         textInput.addEventListener("keypress", (e) => { if (e.key === "Enter") { e.preventDefault(); handleTextSubmit(); } });
-        function handleFileSelect(input) { /* ... codice upload ... */ }
+        
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentAttachment = { mime_type: file.type, data: e.target.result.split(',')[1] };
+                document.getElementById('file-preview').classList.remove('hidden');
+                document.getElementById('file-name').innerText = file.name.toUpperCase();
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function clearFile() {
+            currentAttachment = null;
+            document.getElementById('file-upload').value = "";
+            document.getElementById('file-preview').classList.add('hidden');
+        }
+
         function handleTextSubmit() {
             const val = textInput.value.trim();
             if(val === "" && !currentAttachment) return;
@@ -301,6 +330,7 @@
             textInput.value = "";
             handleOption(finalText, finalText); 
         }
+
         async function downloadReport() {
             optionsContainer.innerHTML = `<div class="w-full bg-[#111] border border-pano-lime p-4 rounded-xl flex items-center gap-3"><div class="animate-spin text-pano-lime">⚙️</div><span class="text-white text-sm">Generating Strategy PDF...</span></div>`;
             try {
