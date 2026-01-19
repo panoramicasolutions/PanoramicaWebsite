@@ -21,76 +21,73 @@ export default async function handler(req, res) {
 
     if (!geminiKey) return sendSafeResponse("Error: Missing Gemini API Key.");
 
-    // --- FASE 1: COMPANY SNAPSHOT (SILENT CONTEXT BUILDING) ---
-    // Come da Step 2 del PDF: "Agent silently builds context from Website/LinkedIn"
+    // --- FASE 1: ROUTER (DECIDE SE CERCARE NEL WEB) ---
     let searchContext = "";
+    const isFreeText = choice.includes(" ") || choice.length > 20;
     
-    // Se l'input sembra un nome azienda o un URL, attiviamo Tavily per creare lo snapshot
-    const isCompanyInput = choice.includes("http") || choice.toLowerCase().includes(".com") || (history.length < 2 && choice.length > 3);
-    
-    if (isCompanyInput && tavilyKey && !attachment) {
+    // Cerchiamo solo se l'utente scrive testo libero e non c'è un file allegato
+    if (isFreeText && tavilyKey && !attachment) {
+        console.log("Checking web search necessity...");
+        const routerUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
         try {
-            console.log("Building Company Snapshot for:", choice);
-            const searchResp = await fetch("https://api.tavily.com/search", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            const routerResponse = await fetch(routerUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    api_key: tavilyKey,
-                    query: `Analyze business model, ICP, and pricing for: ${choice}. Short summary.`,
-                    search_depth: "basic",
-                    max_results: 2
+                    contents: [{ role: 'user', parts: [{ text: 
+                        `User input: "${choice}". 
+                        Does this require real-time factual data (news, companies, stats)? 
+                        If YES, output a search query in English. 
+                        If NO (it's personal info or chat), output "NO_SEARCH".` 
+                    }] }]
                 })
             });
-            const searchData = await searchResp.json();
-            if (searchData.results) {
-                searchContext = `\n[INTERNAL SNAPSHOT - DO NOT READ ALOUD]:\n${searchData.results.map(r => r.content).join('\n')}\n`;
+            const routerData = await routerResponse.json();
+            let searchQuery = routerData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "NO_SEARCH";
+            searchQuery = searchQuery.replace(/"/g, '');
+
+            if (searchQuery !== "NO_SEARCH") {
+                const searchResp = await fetch("https://api.tavily.com/search", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        api_key: tavilyKey,
+                        query: searchQuery,
+                        search_depth: "basic",
+                        max_results: 3
+                    })
+                });
+                const searchData = await searchResp.json();
+                if (searchData.results && searchData.results.length > 0) {
+                    searchContext = "\n\n--- WEB RESULTS ---\n" + searchData.results.map(r => `Source: ${r.title} (${r.url})\n${r.content}`).join("\n\n") + "\n--- END RESULTS ---\n";
+                }
             }
-        } catch (e) { console.error("Snapshot Error", e); }
+        } catch (e) { console.error("Router/Search Error", e); }
     }
 
-    // --- FASE 2: DEFINIZIONE DEL PROTOCOLLO (SYSTEM PROMPT) ---
-    // Basato rigorosamente sul PDF "Operating Instructions"
-    
+    // --- FASE 2: RISPOSTA AGENTE ---
+
     const SYSTEM_PROMPT = `
-    ROLE: You are the "Revenue Diagnostic Agent". 
-    NOT a generic chat. NOT a RevOps audit tool.
+    You are "Panoramica Revenue Architect".
+    GOAL: Diagnose revenue bottlenecks (12-15 turns).
     
-    GOAL: Reduce uncertainty. Surface 1-2 real revenue constraints. Force trade-offs. Guide to paid session.
-    
-    OPERATING PROTOCOL:
-    
-    PHASE 1: ANCHOR & SNAPSHOT (Turns 1-2)
-    - If you don't know the company, ask for the URL/Name first.
-    - Build a mental "Company Snapshot" (ICP, Pricing, Size) using the web context provided.
-    
-    PHASE 2: KYC CHECKPOINT (Turns 3-6)
-    - This is a CHECKPOINT, not a conversation.
-    - Collect STRICTLY: Company Structure, Market, Stage, Key Metrics.
-    - USE BUTTONS by default. Free text only if unavoidable.
-    
-    PHASE 3: NARROW INTENT (Turns 7-12)
-    - Guide, don't explore. One question at a time.
-    - Narrow down to the primary constraint (Leads? Sales Process? Retention?).
-    - If outcomes feel fuzzy, narrow the scope.
-    
-    PHASE 4: REPORT SIGNAL (Turn 12+)
-    - Once you have clear signal on the bottleneck, close with step_id: "FINISH".
-    
-    CRITICAL RULES:
-    1. Output JSON ONLY. Schema: {"step_id": "string", "message": "string", "mode": "mixed", "options": [{"key": "k", "label": "l"}]}
-    2. ALWAYS provide 3-4 distinct buttons (options) for every question.
-    3. Keep questions short. Clarity creates momentum.
-    4. CITE SOURCES if you use web data.
+    RULES:
+    1. Respond ONLY with valid JSON.
+    2. Schema: {"step_id": "string", "message": "string", "mode": "mixed", "options": [{"key": "k", "label": "l"}]}
+    3. CRITICAL: ALWAYS provide 3-4 "options" (suggested answers) in the JSON. Never leave options empty unless it is the final report step.
+       - Example: If asking about industry, provide [{"key": "saas", "label": "SaaS"}, {"key": "agency", "label": "Agency"}, etc.]
+    4. If 'WEB RESULTS' are present, use them and cite sources using Markdown links [Source](URL).
+    5. At turn 12+, close with step_id: "FINISH" and option "download_report".
     `;
 
     // Costruzione messaggi
-    const historyParts = history.slice(-12).map(msg => ({
+    const historyParts = history.slice(-10).map(msg => ({
         role: msg.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: msg.content }]
     }));
 
     const userMessageParts = [
-        { text: `User input: "${choice}". ${searchContext} Respond in JSON following the PROTOCOL.` }
+        { text: `User input: "${choice}". ${searchContext} Respond in JSON with options.` }
     ];
 
     if (attachment) {
@@ -105,14 +102,14 @@ export default async function handler(req, res) {
         { role: 'user', parts: userMessageParts }
     ];
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${geminiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
     
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: allMessages,
-        generationConfig: { temperature: 0.2 } // Bassa temperatura per rigore procedurale
+        generationConfig: { temperature: 0.3 }
       })
     });
 
@@ -128,14 +125,19 @@ export default async function handler(req, res) {
     try {
       const jsonResponse = JSON.parse(text);
       
-      // SAFETY: Se mancano le opzioni in fase KYC/Narrowing, le forziamo
-      if ((!jsonResponse.options || jsonResponse.options.length === 0) && jsonResponse.step_id !== 'FINISH') {
-          jsonResponse.options = [
-              { key: "next", label: "Continue" },
-              { key: "details", label: "Add Details" }
-          ];
+      // SAFETY NET: Se l'AI si dimentica ancora i bottoni, ne aggiungiamo noi di default!
+      if (!jsonResponse.options || jsonResponse.options.length === 0) {
+          if (jsonResponse.step_id !== 'FINISH') {
+              jsonResponse.options = [
+                  { key: "details", label: "Give more details" },
+                  { key: "skip", label: "Skip this question" },
+                  { key: "unsure", label: "Not sure" }
+              ];
+          } else {
+              jsonResponse.options = [];
+          }
       }
-      
+
       if (jsonResponse.step_id !== 'FINISH') jsonResponse.mode = 'mixed';
       
       return res.status(200).json(jsonResponse);
