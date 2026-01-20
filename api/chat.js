@@ -34,15 +34,28 @@ export default async function handler(req, res) {
         } catch(e) { console.error("Snapshot failed", e); }
     }
 
+    // --- SYSTEM PROMPT (PROTOCOL & SCHEMA RIGOROSO) ---
     const SYSTEM_PROMPT = `
     ROLE: "Revenue Diagnostic Agent". 
     GOAL: Reduce uncertainty. Surface 1-2 real revenue constraints. Guide to paid session.
+    
     PROTOCOL:
     1. SNAPSHOT PHASE: If you have snapshot data, start by confirming the user's business model to show authority.
     2. KYC CHECKPOINT: Verify missing pieces (Buttons).
     3. NARROW INTENT: Drill down into ONE constraint.
     4. REPORT: Close with step_id: "FINISH".
-    RULES: Output JSON. Always provide 3-4 options.
+    
+    CRITICAL OUTPUT RULES:
+    1. Respond ONLY with valid JSON.
+    2. STRICT SCHEMA: 
+       {
+         "step_id": "string", 
+         "message": "string", 
+         "mode": "mixed", 
+         "options": [{"key": "short_id", "label": "Text displayed on button"}]
+       }
+    3. "label" MUST be a short, clear string. NEVER omit "label".
+    4. Always provide 3-4 options.
     `;
 
     const historyParts = history.slice(-10).map(msg => ({
@@ -51,8 +64,8 @@ export default async function handler(req, res) {
     }));
 
     const userText = choice === "SNAPSHOT_INIT" 
-        ? `[SYSTEM: User submitted Context Form. Website: ${contextData.website}. LinkedIn: ${contextData.linkedin}. Generate the FIRST welcome message demonstrating you know their business.]`
-        : `User input: "${choice}". Respond in JSON.`;
+        ? `[SYSTEM: User submitted Context Form. Website: ${contextData.website}. LinkedIn: ${contextData.linkedin}. Generate the FIRST welcome message demonstrating you know their business. Use the Schema with "label" for buttons.]`
+        : `User input: "${choice}". Respond in JSON with "label" for options.`;
 
     const allMessages = [
         { role: 'user', parts: [{ text: SYSTEM_PROMPT + systemContextInjection }] },
@@ -62,7 +75,7 @@ export default async function handler(req, res) {
     
     if (attachment) allMessages[allMessages.length-1].parts.push({ inline_data: { mime_type: attachment.mime_type, data: attachment.data } });
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${geminiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: allMessages, generationConfig: { temperature: 0.2 } })
     });
@@ -78,14 +91,21 @@ export default async function handler(req, res) {
     try {
       const jsonResponse = JSON.parse(text);
       
-      // FIX BACKEND: Se l'AI si dimentica il messaggio, mettiamo un default
       if (!jsonResponse.message) {
           jsonResponse.message = "I have analyzed your input. Let's proceed to the next step.";
       }
 
+      // Fix options mancanti
       if ((!jsonResponse.options || jsonResponse.options.length === 0) && jsonResponse.step_id !== 'FINISH') {
           jsonResponse.options = [{ key: "next", label: "Continue" }, { key: "details", label: "Add Details" }];
+      } else if (jsonResponse.options) {
+          // Fix label undefined: se manca label, usa key o text
+          jsonResponse.options = jsonResponse.options.map(opt => ({
+              key: opt.key,
+              label: opt.label || opt.text || opt.value || opt.key // Fallback di sicurezza
+          }));
       }
+
       if (jsonResponse.step_id !== 'FINISH') jsonResponse.mode = 'mixed';
       return res.status(200).json(jsonResponse);
     } catch (e) { return sendSafeResponse(text, "mixed"); }
