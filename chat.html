@@ -162,7 +162,6 @@
         const textInput = document.getElementById('ai-text-input');
         const modal = document.getElementById('context-modal');
 
-        // --- GESTIONE POP-UP ---
         function closeModalAndStartDemo() {
             modal.style.opacity = '0';
             setTimeout(() => modal.classList.add('hidden'), 500);
@@ -177,6 +176,7 @@
             modal.style.opacity = '0';
             setTimeout(() => modal.classList.add('hidden'), 500);
 
+            // Messaggio sistema
             addAIMessage("**Initializing System...**\nScanning digital footprint to build company snapshot. Please wait.");
             
             optionsContainer.innerHTML = `
@@ -200,28 +200,25 @@
                 if (!response.ok) throw new Error("API Error");
                 const stepData = await response.json();
 
+                // Safe render
                 conversationHistory.push({ role: "assistant", content: JSON.stringify(stepData) });
                 renderTurn(stepData);
 
             } catch (error) {
                 console.error(error);
-                optionsContainer.innerHTML = `<div class="text-red-500">Connection Error. Please refresh.</div>`;
+                // In caso di errore, mostriamo un bottone per riprovare
+                optionsContainer.innerHTML = `<button onclick="location.reload()" class="text-red-500 border border-red-900 bg-red-900/10 p-4 rounded-xl w-full">Analysis Error. Click to Refresh.</button>`;
             }
         }
 
-        // --- CORE LOGIC (CORRETTA) ---
-        // Ora accettiamo label come parametro OBBLIGATORIO o dedotto in modo sicuro
         async function handleOption(key, explicitLabel = null) {
             if (key === 'download_report') { downloadReport(); return; }
 
-            // CORREZIONE CRITICA: Se label non è passata, usiamo la chiave.
-            // Non cerchiamo più nel DOM per evitare crash.
             let label = explicitLabel || key;
             if (currentAttachment) label += " (📎 DOC)";
 
             addUserMessage(label);
             
-            // Loading State
             optionsContainer.innerHTML = `
                 <div class="w-full bg-[#111] border border-pano-border p-4 rounded-xl flex items-center gap-3 animate-pulse">
                     <div class="w-4 h-4 border-2 border-pano-lime border-t-transparent rounded-full animate-spin"></div>
@@ -245,7 +242,7 @@
                 renderTurn(stepData);
             } catch (error) {
                 console.error(error);
-                optionsContainer.innerHTML = `<div class="text-red-500 p-2 border border-red-900 rounded">Error connecting to AI. Retrying...</div>`;
+                optionsContainer.innerHTML = `<div class="text-red-500 p-2 text-center text-xs">Connection interrupted. Auto-retrying...</div>`;
                 setTimeout(() => handleOption(key, label), 3000); 
             }
         }
@@ -253,7 +250,10 @@
         function renderTurn(stepData) {
             optionsContainer.innerHTML = '';
             inputBar.classList.remove('opacity-50', 'pointer-events-none');
-            addAIMessage(stepData.message);
+            
+            // CORREZIONE CRITICA: Fallback se il messaggio è vuoto
+            const msg = stepData.message || "I've processed that. What would you like to do next?";
+            addAIMessage(msg);
             
             const currentWidth = parseFloat(progressBar.style.width) || 0;
             progressBar.style.width = Math.min(currentWidth + 8, 100) + '%';
@@ -262,8 +262,6 @@
                 stepData.options.forEach(opt => {
                     const btn = document.createElement('button');
                     btn.className = "msg-anim w-full text-left bg-pano-panel border border-pano-border hover:border-pano-lime hover:bg-pano-lime/5 p-4 rounded-xl transition-all group flex items-center justify-between mb-2";
-                    
-                    // CORREZIONE CRITICA: Passiamo esplicitamente opt.label qui!
                     btn.onclick = () => handleOption(opt.key, opt.label);
                     
                     let icon = '<span class="text-pano-grey group-hover:text-pano-lime transition">→</span>';
@@ -294,10 +292,23 @@
             chatHistoryMain.scrollTop = chatHistoryMain.scrollHeight;
         }
 
+        // CORREZIONE CRITICA: addAIMessage "Anti-Crash"
         function addAIMessage(text) {
+            // Se text è null o undefined, usa una stringa vuota di sicurezza
+            if (!text) text = " "; 
+            
             const div = document.createElement('div');
             div.className = "flex gap-4 msg-anim mb-6";
-            const content = (typeof marked !== 'undefined') ? marked.parse(text) : text;
+            
+            // Try/Catch per marked, nel caso estremo fallisca ancora
+            let content;
+            try {
+                content = (typeof marked !== 'undefined') ? marked.parse(text) : text;
+            } catch (e) {
+                console.error("Markdown parse error", e);
+                content = text; // Fallback su testo semplice
+            }
+
             div.innerHTML = `<div class="w-8 h-8 rounded bg-[#111] border border-pano-border flex items-center justify-center shrink-0 text-pano-lime font-mono text-xs">AI</div><div class="flex-1 space-y-2 max-w-[90%]"><div class="prose text-sm md:text-base bg-pano-panel border border-pano-border p-6 rounded-2xl shadow-xl">${content}</div></div>`;
             dynamicContent.appendChild(div);
             chatHistoryMain.scrollTop = chatHistoryMain.scrollHeight;
