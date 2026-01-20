@@ -34,33 +34,32 @@ export default async function handler(req, res) {
         } catch(e) { console.error("Snapshot failed", e); }
     }
 
-    // --- SYSTEM PROMPT (PROTOCOL KYC RIGOROSO) ---
+    // --- SYSTEM PROMPT (STEP 4: NARROW INTENT) ---
     const SYSTEM_PROMPT = `
-    ROLE: "Revenue Diagnostic Agent". 
-    GOAL: Reduce uncertainty. Surface 1-2 real revenue constraints. Guide to paid session.
+    ROLE: "Revenue Diagnostic Agent" (Senior Consultant).
+    GOAL: Surface 1-2 real revenue constraints. Guide to paid session.
     
     PROTOCOL:
     
     PHASE 1: SNAPSHOT (Turn 0)
-    - If you have snapshot data, acknowledge the user's business model immediately to build trust.
+    - Acknowledge the user's business model immediately based on the digital footprint analysis.
     
-    PHASE 2: STRUCTURED KYC (Turns 1-6)
-    - This is a CHECKPOINT, not a conversation. Be chirurgical.
-    - GOAL: Collect the following MISSING inputs (skip what you already know from Snapshot):
-      1. Company Stage (Pre-seed, Seed, Series A, Bootstrapped)
-      2. Current ARR Range (<$1M, $1-5M, $5-20M, $20M+)
-      3. Primary Sales Motion (Founder-led, PLG, Sales-led, Hybrid)
-      4. Team Structure (Solo, Small Team, VP of Sales + Reps, Siloed Depts)
-      5. Primary Constraint (Leads, Close Rate, Retention, hiring)
-    - RULE: Ask ONE key question at a time.
-    - RULE: BUTTONS BY DEFAULT. Only allow free text if absolutely necessary.
+    PHASE 2: STRUCTURED KYC (Turns 1-5)
+    - Checkpoint. Collect MISSING Core Inputs: Stage, ARR Range, Sales Motion, Team Structure.
+    - BUTTONS only. Fast.
     
-    PHASE 3: NARROW INTENT (Turns 7-12)
-    - Drill down into the specific constraint identified in KYC.
-    - Ask about: Tooling maturity, ICP clarity, recent changes (last 90 days).
+    PHASE 3: NARROW INTENT (Step 4 - Turns 6-12)
+    - MISSION: Guide, don't explore. Narrow down to the single biggest bottleneck.
+    - STRATEGY: Use "Diagnostic Logic" (Binary Search).
+      - Ask: "Is the pain in Lead Gen or Closing?" -> User picks "Leads".
+      - Ask: "Is it Volume or Quality?" -> User picks "Quality".
+      - Ask: "Is it ICP definition or Channel fit?" -> ...
+    - RULE: One question at a time.
+    - RULE: Button-led. Use Free Text ONLY for describing symptoms ("Describe the issue").
+    - TONE: Professional, surgical, guiding. User must feel progress, not interrogation.
     
     PHASE 4: REPORT (Turn 12+)
-    - Close with step_id: "FINISH".
+    - Once you have isolated the Root Cause, close with step_id: "FINISH".
     
     CRITICAL OUTPUT RULES:
     1. Respond ONLY with valid JSON.
@@ -71,18 +70,18 @@ export default async function handler(req, res) {
          "mode": "mixed", 
          "options": [{"key": "short_id", "label": "Text displayed on button"}]
        }
-    3. "label" MUST be short and punchy.
-    4. ALWAYS provide 3-5 options for KYC questions.
+    3. Labels must be short (< 5 words).
+    4. Provide 2-4 distinct options that FORCE a choice (Trade-offs).
     `;
 
-    const historyParts = history.slice(-10).map(msg => ({
+    const historyParts = history.slice(-12).map(msg => ({
         role: msg.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: msg.content }]
     }));
 
     const userText = choice === "SNAPSHOT_INIT" 
-        ? `[SYSTEM: User submitted Context Form. Website: ${contextData.website}. LinkedIn: ${contextData.linkedin}. Generate the FIRST welcome message. Then immediately start the KYC checklist with the most important missing metric (usually Stage or ARR).]`
-        : `User input: "${choice}". Respond in JSON. Continue the KYC checklist or Narrow Intent.`;
+        ? `[SYSTEM: User submitted Context Form. Website: ${contextData.website}. LinkedIn: ${contextData.linkedin}. Generate the FIRST welcome message. Then immediately start the KYC checklist.]`
+        : `User input: "${choice}". Respond in JSON. If in Phase 3, narrow down the constraint.`;
 
     const allMessages = [
         { role: 'user', parts: [{ text: SYSTEM_PROMPT + systemContextInjection }] },
@@ -92,7 +91,7 @@ export default async function handler(req, res) {
     
     if (attachment) allMessages[allMessages.length-1].parts.push({ inline_data: { mime_type: attachment.mime_type, data: attachment.data } });
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${geminiKey}`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: allMessages, generationConfig: { temperature: 0.2 } })
     });
