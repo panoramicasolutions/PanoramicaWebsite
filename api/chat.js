@@ -17,7 +17,7 @@ export default async function handler(req, res) {
 
     let systemContextInjection = "";
     
-    // --- STEP 2 PDF: COMPANY SNAPSHOT ---
+    // --- STEP 1: SNAPSHOT (Analisi Silenziosa) ---
     if (choice === "SNAPSHOT_INIT" && contextData && tavilyKey) {
         console.log("Generating Snapshot for:", contextData.website);
         const query = `Analyze ${contextData.website} and ${contextData.linkedin || ''}. Extract: Value Proposition, ICP, Pricing Model, Company Size.`;
@@ -29,21 +29,38 @@ export default async function handler(req, res) {
             const searchData = await searchResp.json();
             if (searchData.results) {
                 const rawSnapshot = searchData.results.map(r => r.content).join('\n');
-                systemContextInjection = `\n[SYSTEM: SNAPSHOT DATA: ${rawSnapshot}. I will use this to skip basic questions.]\n`;
+                systemContextInjection = `\n[SYSTEM: DIGITAL FOOTPRINT SNAPSHOT: ${rawSnapshot}. Use this to skip obvious questions.]\n`;
             }
         } catch(e) { console.error("Snapshot failed", e); }
     }
 
-    // --- SYSTEM PROMPT (PROTOCOL & SCHEMA RIGOROSO) ---
+    // --- SYSTEM PROMPT (PROTOCOL KYC RIGOROSO) ---
     const SYSTEM_PROMPT = `
     ROLE: "Revenue Diagnostic Agent". 
     GOAL: Reduce uncertainty. Surface 1-2 real revenue constraints. Guide to paid session.
     
     PROTOCOL:
-    1. SNAPSHOT PHASE: If you have snapshot data, start by confirming the user's business model to show authority.
-    2. KYC CHECKPOINT: Verify missing pieces (Buttons).
-    3. NARROW INTENT: Drill down into ONE constraint.
-    4. REPORT: Close with step_id: "FINISH".
+    
+    PHASE 1: SNAPSHOT (Turn 0)
+    - If you have snapshot data, acknowledge the user's business model immediately to build trust.
+    
+    PHASE 2: STRUCTURED KYC (Turns 1-6)
+    - This is a CHECKPOINT, not a conversation. Be chirurgical.
+    - GOAL: Collect the following MISSING inputs (skip what you already know from Snapshot):
+      1. Company Stage (Pre-seed, Seed, Series A, Bootstrapped)
+      2. Current ARR Range (<$1M, $1-5M, $5-20M, $20M+)
+      3. Primary Sales Motion (Founder-led, PLG, Sales-led, Hybrid)
+      4. Team Structure (Solo, Small Team, VP of Sales + Reps, Siloed Depts)
+      5. Primary Constraint (Leads, Close Rate, Retention, hiring)
+    - RULE: Ask ONE key question at a time.
+    - RULE: BUTTONS BY DEFAULT. Only allow free text if absolutely necessary.
+    
+    PHASE 3: NARROW INTENT (Turns 7-12)
+    - Drill down into the specific constraint identified in KYC.
+    - Ask about: Tooling maturity, ICP clarity, recent changes (last 90 days).
+    
+    PHASE 4: REPORT (Turn 12+)
+    - Close with step_id: "FINISH".
     
     CRITICAL OUTPUT RULES:
     1. Respond ONLY with valid JSON.
@@ -54,8 +71,8 @@ export default async function handler(req, res) {
          "mode": "mixed", 
          "options": [{"key": "short_id", "label": "Text displayed on button"}]
        }
-    3. "label" MUST be a short, clear string. NEVER omit "label".
-    4. Always provide 3-4 options.
+    3. "label" MUST be short and punchy.
+    4. ALWAYS provide 3-5 options for KYC questions.
     `;
 
     const historyParts = history.slice(-10).map(msg => ({
@@ -64,8 +81,8 @@ export default async function handler(req, res) {
     }));
 
     const userText = choice === "SNAPSHOT_INIT" 
-        ? `[SYSTEM: User submitted Context Form. Website: ${contextData.website}. LinkedIn: ${contextData.linkedin}. Generate the FIRST welcome message demonstrating you know their business. Use the Schema with "label" for buttons.]`
-        : `User input: "${choice}". Respond in JSON with "label" for options.`;
+        ? `[SYSTEM: User submitted Context Form. Website: ${contextData.website}. LinkedIn: ${contextData.linkedin}. Generate the FIRST welcome message. Then immediately start the KYC checklist with the most important missing metric (usually Stage or ARR).]`
+        : `User input: "${choice}". Respond in JSON. Continue the KYC checklist or Narrow Intent.`;
 
     const allMessages = [
         { role: 'user', parts: [{ text: SYSTEM_PROMPT + systemContextInjection }] },
@@ -75,7 +92,7 @@ export default async function handler(req, res) {
     
     if (attachment) allMessages[allMessages.length-1].parts.push({ inline_data: { mime_type: attachment.mime_type, data: attachment.data } });
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${geminiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: allMessages, generationConfig: { temperature: 0.2 } })
     });
@@ -91,18 +108,15 @@ export default async function handler(req, res) {
     try {
       const jsonResponse = JSON.parse(text);
       
-      if (!jsonResponse.message) {
-          jsonResponse.message = "I have analyzed your input. Let's proceed to the next step.";
-      }
+      if (!jsonResponse.message) jsonResponse.message = "Let's proceed.";
 
-      // Fix options mancanti
+      // Fallback opzioni se l'AI dimentica di metterle
       if ((!jsonResponse.options || jsonResponse.options.length === 0) && jsonResponse.step_id !== 'FINISH') {
-          jsonResponse.options = [{ key: "next", label: "Continue" }, { key: "details", label: "Add Details" }];
+          jsonResponse.options = [{ key: "continue", label: "Continue" }];
       } else if (jsonResponse.options) {
-          // Fix label undefined: se manca label, usa key o text
           jsonResponse.options = jsonResponse.options.map(opt => ({
               key: opt.key,
-              label: opt.label || opt.text || opt.value || opt.key // Fallback di sicurezza
+              label: opt.label || opt.text || opt.key
           }));
       }
 
