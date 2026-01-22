@@ -35,11 +35,11 @@
         .prose p { margin-bottom: 0.8em; line-height: 1.6; color: #E5E5E5; }
         .prose strong { color: #fff; font-weight: 600; }
         .prose ul { list-style-type: disc; padding-left: 1.2em; margin-bottom: 0.8em; color: #A0A0A0; }
+        .prose li { margin-bottom: 0.4em; }
         .prose a { color: #DCEE6A; text-decoration: underline; }
         @keyframes message-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .msg-anim { animation: message-in 0.4s ease-out forwards; }
         
-        /* Typing indicator animation */
         @keyframes typing-dot {
             0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
             30% { opacity: 1; transform: translateY(-8px); }
@@ -56,7 +56,6 @@
             -webkit-text-fill-color: white !important;
         }
 
-        /* File upload progress */
         @keyframes upload-progress {
             0% { width: 0%; }
             100% { width: 100%; }
@@ -119,7 +118,7 @@
                 </div>
             </div>
         </div>
-        <a href="index.html" class="text-xs font-medium text-pano-grey hover:text-white transition uppercase tracking-widest border border-pano-border px-4 py-2 rounded hover:border-pano-lime">
+        <a href="#" onclick="location.reload()" class="text-xs font-medium text-pano-grey hover:text-white transition uppercase tracking-widest border border-pano-border px-4 py-2 rounded hover:border-pano-lime">
             Exit
         </a>
     </header>
@@ -171,13 +170,13 @@
 
     <script>
         const API_URL = "/api/chat";
+        const REPORT_API_URL = "/api/report";
         let conversationHistory = []; 
         let currentAttachment = null; 
         let isProcessing = false;
-        let retryCount = 0;
         const MAX_RETRIES = 3;
         const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+        const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
         const chatHistoryMain = document.getElementById('chat-history');
         const dynamicContent = document.getElementById('dynamic-content');
@@ -189,7 +188,6 @@
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
 
-        // Enhanced URL validation
         function isValidURL(string) {
             try {
                 const url = new URL(string);
@@ -199,14 +197,12 @@
             }
         }
 
-        // Sanitize HTML to prevent XSS
         function sanitizeHTML(html) {
             const temp = document.createElement('div');
             temp.textContent = html;
             return temp.innerHTML;
         }
 
-        // Update connection status
         function updateStatus(connected, message = '') {
             if (connected) {
                 statusIndicator.className = 'w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse';
@@ -217,7 +213,6 @@
             }
         }
 
-        // Retry with exponential backoff
         async function retryWithBackoff(fn, maxRetries = MAX_RETRIES) {
             for (let i = 0; i < maxRetries; i++) {
                 try {
@@ -231,7 +226,6 @@
             }
         }
 
-        // Show typing indicator
         function showTypingIndicator() {
             const indicator = document.createElement('div');
             indicator.id = 'typing-indicator';
@@ -266,7 +260,6 @@
             const linkedin = document.getElementById('company-linkedin').value.trim();
             const errorSpan = document.getElementById('website-error');
 
-            // Validate URLs
             if (!isValidURL(website)) {
                 errorSpan.classList.remove('hidden');
                 return;
@@ -278,7 +271,6 @@
                 return;
             }
 
-            // Disable submit button
             submitBtn.disabled = true;
             submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
@@ -296,6 +288,9 @@
 
             try {
                 const stepData = await retryWithBackoff(async () => {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 60000);
+                    
                     const response = await fetch(API_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -303,8 +298,11 @@
                             choice: "SNAPSHOT_INIT", 
                             history: [],
                             contextData: { website, linkedin } 
-                        })
+                        }),
+                        signal: controller.signal
                     });
+
+                    clearTimeout(timeoutId);
 
                     if (!response.ok) {
                         throw new Error(`API Error: ${response.status} ${response.statusText}`);
@@ -327,9 +325,75 @@
             }
         }
 
+        async function downloadReport() {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            optionsContainer.innerHTML = `
+                <div class="w-full bg-[#111] border border-pano-border p-4 rounded-xl flex items-center gap-3 animate-pulse">
+                    <div class="w-4 h-4 border-2 border-pano-lime border-t-transparent rounded-full animate-spin"></div>
+                    <span class="text-xs font-mono text-pano-lime uppercase tracking-widest">Generating Report...</span>
+                </div>
+            `;
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+                const response = await fetch(REPORT_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ history: conversationHistory }),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`Report API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                const blob = new Blob([data.report], { type: 'text/markdown' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = data.filename || 'Panoramica_Growth_Plan.md';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                addAIMessage("✅ **Report Generated Successfully**\n\nYour Strategic Growth Plan has been downloaded. Review the recommendations and feel free to reach out if you need clarification on any points.");
+                
+                optionsContainer.innerHTML = `
+                    <button onclick="location.reload()" class="w-full text-left bg-pano-panel border border-pano-border hover:border-pano-lime hover:bg-pano-lime/5 p-4 rounded-xl transition-all group flex items-center justify-between">
+                        <span class="text-sm font-medium text-white">Start New Session</span>
+                        <span class="text-pano-grey group-hover:text-pano-lime transition">↻</span>
+                    </button>
+                `;
+                
+                progressBar.style.width = '100%';
+
+            } catch (error) {
+                console.error('Report download failed:', error);
+                optionsContainer.innerHTML = `
+                    <div class="text-red-400 p-4 text-center text-sm bg-red-900/10 border border-red-900 rounded-xl">
+                        Failed to generate report. <button onclick="downloadReport()" class="underline hover:text-red-300">Retry</button>
+                    </div>
+                `;
+            } finally {
+                isProcessing = false;
+            }
+        }
+
         async function handleOption(key, explicitLabel = null) {
             if (isProcessing) return;
-            if (key === 'download_report') { downloadReport(); return; }
+            if (key === 'download_report') { 
+                downloadReport(); 
+                return; 
+            }
 
             isProcessing = true;
             let label = explicitLabel || key;
@@ -349,11 +413,18 @@
             try {
                 const stepData = await retryWithBackoff(async () => {
                     const payload = { choice: key, history: conversationHistory, attachment: currentAttachment };
+                    
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 30000);
+                    
                     const response = await fetch(API_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify(payload),
+                        signal: controller.signal
                     });
+                    
+                    clearTimeout(timeoutId);
                     
                     if (!response.ok) {
                         throw new Error(`API Error: ${response.status}`);
@@ -369,7 +440,6 @@
                 hideTypingIndicator();
                 renderTurn(stepData);
                 updateStatus(true);
-                retryCount = 0;
 
             } catch (error) {
                 console.error('API call failed:', error);
@@ -386,6 +456,16 @@
             }
         }
 
+        async function handleTextSubmit() {
+            const text = textInput.value.trim();
+            if (!text || isProcessing) return;
+
+            const userInput = text;
+            textInput.value = '';
+            
+            await handleOption(userInput, userInput);
+        }
+
         function renderTurn(stepData) {
             optionsContainer.innerHTML = '';
             inputBar.classList.remove('opacity-50', 'pointer-events-none');
@@ -393,7 +473,6 @@
             const msg = stepData.message || "I've processed that. What would you like to do next?";
             addAIMessage(msg);
             
-            // Smarter progress calculation based on conversation depth
             const progressIncrement = Math.max(5, 100 / (conversationHistory.length + 10));
             const currentWidth = parseFloat(progressBar.style.width) || 0;
             progressBar.style.width = Math.min(currentWidth + progressIncrement, 95) + '%';
@@ -425,7 +504,6 @@
                 inputBar.classList.add('hidden', 'opacity-0');
             }
 
-            // Smooth scroll only if user is near bottom
             const isNearBottom = chatHistoryMain.scrollHeight - chatHistoryMain.scrollTop - chatHistoryMain.clientHeight < 100;
             if (isNearBottom) {
                 chatHistoryMain.scrollTo({ top: chatHistoryMain.scrollHeight, behavior: 'smooth' });
@@ -460,25 +538,22 @@
             chatHistoryMain.scrollTop = chatHistoryMain.scrollHeight;
         }
 
-        textInput.addEventListener("keypress", (e) => { 
-            if (e.key === "Enter" && !e.shiftKey) { 
-                e.preventDefault(); 
-                handleTextSubmit(); 
-            } 
-        });
-        
+        function clearFile() {
+            currentAttachment = null;
+            document.getElementById('file-upload').value = '';
+            document.getElementById('file-preview').classList.add('hidden');
+        }
+
         function handleFileSelect(input) {
             const file = input.files[0];
             if (!file) return;
 
-            // Validate file type
             if (!ALLOWED_MIME_TYPES.includes(file.type)) {
                 alert(`File type not supported. Allowed types: Images, PDF, Word documents`);
                 input.value = '';
                 return;
             }
 
-            // Validate file size
             if (file.size > MAX_FILE_SIZE) {
                 alert(`File too large. Maximum size: ${MAX_FILE_SIZE / 1024 / 1024}MB`);
                 input.value = '';
@@ -501,4 +576,32 @@
             reader.onload = function(e) {
                 currentAttachment = { 
                     mime_type: file.type, 
-                    data
+                    data: e.target.result.split(',')[1]
+                };
+                document.getElementById('file-name').textContent = file.name.toUpperCase();
+                document.getElementById('file-preview').innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span class="text-xs text-pano-lime font-mono" id="file-name">${file.name.toUpperCase()}</span>
+                    </div>
+                    <button onclick="clearFile()" class="text-gray-500 hover:text-white transition">×</button>
+                `;
+            };
+
+            reader.onerror = () => {
+                alert('Error reading file');
+                clearFile();
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        textInput.addEventListener("keypress", (e) => { 
+            if (e.key === "Enter" && !e.shiftKey) { 
+                e.preventDefault(); 
+                handleTextSubmit(); 
+            } 
+        });
+    </script>
+</body>
+</html>
