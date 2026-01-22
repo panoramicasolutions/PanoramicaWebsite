@@ -268,11 +268,51 @@
                 </div>
             </div>
             
-            <!-- Phase indicators -->
-            <div id="phase-nav" class="hidden md:flex items-center gap-1 ml-8 pl-8 border-l border-pano-border">
-                <div class="phase-indicator px-3 py-1.5 rounded text-[10px] font-mono text-pano-grey cursor-default" data-phase="1">DISCOVERY</div>
-                <div class="phase-indicator px-3 py-1.5 rounded text-[10px] font-mono text-pano-grey cursor-default" data-phase="2">DIAGNOSIS</div>
-                <div class="phase-indicator px-3 py-1.5 rounded text-[10px] font-mono text-pano-grey cursor-default" data-phase="3">STRATEGY</div>
+            <!-- Confidence Score Display -->
+            <div id="confidence-display" class="hidden md:flex items-center gap-4 ml-8 pl-8 border-l border-pano-border">
+                <!-- Overall Score -->
+                <div class="flex items-center gap-2">
+                    <div class="relative w-10 h-10">
+                        <svg class="w-10 h-10 transform -rotate-90" viewBox="0 0 36 36">
+                            <circle cx="18" cy="18" r="15" fill="none" stroke="#1A1A1A" stroke-width="3"/>
+                            <circle id="score-circle" cx="18" cy="18" r="15" fill="none" stroke="#CDFF00" stroke-width="3" 
+                                    stroke-dasharray="0 94.2" stroke-linecap="round" class="transition-all duration-700"/>
+                        </svg>
+                        <span id="score-number" class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white">0</span>
+                    </div>
+                    <div class="text-[10px] font-mono">
+                        <div class="text-pano-grey">CONFIDENCE</div>
+                        <div id="score-status" class="text-pano-lime">GATHERING</div>
+                    </div>
+                </div>
+                
+                <!-- Pillar Bars -->
+                <div class="flex gap-1">
+                    <div class="flex flex-col items-center gap-1" title="Company Context">
+                        <div class="w-2 h-8 bg-pano-border rounded-full overflow-hidden flex flex-col-reverse">
+                            <div id="pillar1-bar" class="w-full bg-pano-lime transition-all duration-500" style="height: 0%"></div>
+                        </div>
+                        <span class="text-[8px] text-pano-grey">CO</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1" title="Go-to-Market">
+                        <div class="w-2 h-8 bg-pano-border rounded-full overflow-hidden flex flex-col-reverse">
+                            <div id="pillar2-bar" class="w-full bg-pano-lime transition-all duration-500" style="height: 0%"></div>
+                        </div>
+                        <span class="text-[8px] text-pano-grey">GTM</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1" title="Problem Diagnosis">
+                        <div class="w-2 h-8 bg-pano-border rounded-full overflow-hidden flex flex-col-reverse">
+                            <div id="pillar3-bar" class="w-full bg-pano-lime transition-all duration-500" style="height: 0%"></div>
+                        </div>
+                        <span class="text-[8px] text-pano-grey">DX</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1" title="Solution Ready">
+                        <div class="w-2 h-8 bg-pano-border rounded-full overflow-hidden flex flex-col-reverse">
+                            <div id="pillar4-bar" class="w-full bg-pano-lime transition-all duration-500" style="height: 0%"></div>
+                        </div>
+                        <span class="text-[8px] text-pano-grey">SOL</span>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -377,8 +417,17 @@
         let currentAttachment = null; 
         let isProcessing = false;
         let currentTurn = 0;
-        let currentPhase = 0;
         let diagnosticData = {};
+        
+        // Confidence Score State
+        let confidenceState = {
+            pillar1_company: { score: 0, max: 25, items: { stage: 0, revenue: 0, team: 0 } },
+            pillar2_gtm: { score: 0, max: 25, items: { motion: 0, icp: 0, channels: 0 } },
+            pillar3_diagnosis: { score: 0, max: 30, items: { pain_point: 0, root_cause: 0, factors: 0 } },
+            pillar4_solution: { score: 0, max: 20, items: { validated: 0, next_steps: 0, recommendations: 0 } },
+            total_score: 0,
+            ready_for_finish: false
+        };
 
         // ═══════════════════════════════════════════════════════════════
         // DOM ELEMENTS
@@ -393,7 +442,7 @@
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
         const turnCounter = document.getElementById('turn-counter');
-        const phaseNav = document.getElementById('phase-nav');
+        const confidenceDisplay = document.getElementById('confidence-display');
 
         // ═══════════════════════════════════════════════════════════════
         // UTILITIES
@@ -426,28 +475,57 @@
         }
 
         function updateProgress(turn) {
-            const progress = Math.min((turn / MAX_TURNS) * 100, 100);
+            const progress = Math.min((turn / 15) * 100, 100);
             progressBar.style.width = `${progress}%`;
             
             turnCounter.classList.remove('hidden');
-            turnCounter.textContent = `TURN ${turn}/${MAX_TURNS}`;
+            turnCounter.textContent = `TURN ${turn}/15`;
         }
 
-        function updatePhase(phase) {
-            if (phase === currentPhase) return;
-            currentPhase = phase;
+        function updateConfidenceDisplay(state) {
+            if (!state) return;
             
-            phaseNav.classList.remove('hidden');
-            const phases = phaseNav.querySelectorAll('.phase-indicator');
-            phases.forEach((p, idx) => {
-                if (idx + 1 <= phase) {
-                    p.classList.add('active', 'text-pano-lime');
-                    p.classList.remove('text-pano-grey');
-                } else {
-                    p.classList.remove('active', 'text-pano-lime');
-                    p.classList.add('text-pano-grey');
-                }
-            });
+            confidenceState = state;
+            const display = document.getElementById('confidence-display');
+            display.classList.remove('hidden');
+            
+            // Update circular score
+            const circle = document.getElementById('score-circle');
+            const number = document.getElementById('score-number');
+            const status = document.getElementById('score-status');
+            
+            const score = state.total_score || 0;
+            const circumference = 94.2; // 2 * PI * 15
+            const offset = circumference - (score / 100) * circumference;
+            
+            circle.setAttribute('stroke-dasharray', `${circumference - offset} ${circumference}`);
+            number.textContent = score;
+            
+            // Update status text
+            if (score >= 80) {
+                status.textContent = 'READY';
+                status.className = 'text-green-400';
+            } else if (score >= 50) {
+                status.textContent = 'BUILDING';
+                status.className = 'text-yellow-400';
+            } else {
+                status.textContent = 'GATHERING';
+                status.className = 'text-pano-lime';
+            }
+            
+            // Update pillar bars
+            const p1 = (state.pillar1_company?.score || 0) / 25 * 100;
+            const p2 = (state.pillar2_gtm?.score || 0) / 25 * 100;
+            const p3 = (state.pillar3_diagnosis?.score || 0) / 30 * 100;
+            const p4 = (state.pillar4_solution?.score || 0) / 20 * 100;
+            
+            document.getElementById('pillar1-bar').style.height = `${p1}%`;
+            document.getElementById('pillar2-bar').style.height = `${p2}%`;
+            document.getElementById('pillar3-bar').style.height = `${p3}%`;
+            document.getElementById('pillar4-bar').style.height = `${p4}%`;
+            
+            // Also update progress bar based on confidence
+            progressBar.style.width = `${score}%`;
         }
 
         async function retryWithBackoff(fn, maxRetries = MAX_RETRIES) {
@@ -617,7 +695,8 @@
                         body: JSON.stringify({ 
                             choice: "SNAPSHOT_INIT", 
                             history: [],
-                            contextData: { website, linkedin } 
+                            contextData: { website, linkedin },
+                            confidenceState: confidenceState
                         }),
                         signal: controller.signal
                     });
@@ -633,10 +712,14 @@
                 diagnosticData.website = website;
                 diagnosticData.linkedin = linkedin;
                 
+                // Update confidence from response
+                if (stepData.confidence_state) {
+                    updateConfidenceDisplay(stepData.confidence_state);
+                }
+                
                 conversationHistory.push({ role: "assistant", content: JSON.stringify(stepData) });
                 renderTurn(stepData);
                 updateStatus(true, 'READY');
-                updatePhase(1);
 
             } catch (error) {
                 console.error('Context initialization failed:', error);
@@ -776,7 +859,8 @@
                         history: conversationHistory, 
                         attachment: currentAttachment,
                         turn: currentTurn,
-                        diagnosticData: diagnosticData
+                        diagnosticData: diagnosticData,
+                        confidenceState: confidenceState
                     };
                     
                     const controller = new AbortController();
@@ -804,14 +888,15 @@
                 conversationHistory.push({ role: "assistant", content: JSON.stringify(stepData) });
 
                 hideTypingIndicator();
+                
+                // Update confidence display
+                if (stepData.confidence_state) {
+                    updateConfidenceDisplay(stepData.confidence_state);
+                }
+                
                 renderTurn(stepData);
                 updateStatus(true, 'READY');
                 updateProgress(currentTurn);
-
-                // Update phase based on turn
-                if (currentTurn <= 3) updatePhase(1);
-                else if (currentTurn <= 7) updatePhase(2);
-                else updatePhase(3);
 
             } catch (error) {
                 console.error('API call failed:', error);
