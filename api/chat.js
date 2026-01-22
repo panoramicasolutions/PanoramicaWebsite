@@ -59,10 +59,38 @@ export default async function handler(req, res) {
 
     let systemContextInjection = "";
 
-    // SNAPSHOT PHASE - WEB ANALYSIS
+    // SNAPSHOT PHASE - WEB ANALYSIS + TECH STACK
     if (choice === "SNAPSHOT_INIT" && contextData) {
       log('🔍', 'Analyzing:', contextData.website);
       
+      let techStackData = null;
+      
+      // Tech Stack Analysis
+      try {
+        const targetUrl = new URL(contextData.website.startsWith('http') ? contextData.website : `https://${contextData.website}`);
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        
+        const response = await fetch(targetUrl.href, {
+          method: 'GET',
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; TechStackBot/1.0)', 'Accept': 'text/html' },
+          signal: controller.signal,
+          redirect: 'follow'
+        });
+        clearTimeout(timeoutId);
+        
+        const html = await response.text();
+        const headers = Object.fromEntries(response.headers.entries());
+        
+        techStackData = analyzeTechStack(html, headers);
+        log('✅', `Tech stack: ${techStackData.summary}`);
+        
+      } catch (e) {
+        log('⚠️', `Tech stack analysis failed: ${e.message}`);
+      }
+      
+      // Tavily Search
       if (tavilyKey) {
         try {
           const query = `"${new URL(contextData.website).hostname}" company business model products pricing`;
@@ -87,15 +115,95 @@ export default async function handler(req, res) {
             }
             if (insights) {
               systemContextInjection = `\n[MARKET INTELLIGENCE for ${contextData.website}]:\n${insights}\n`;
-              // Pre-populate some confidence from web data
               confidence.pillar1_company.items.stage = 3;
               confidence.pillar2_gtm.items.icp = 3;
             }
           }
         } catch(e) { 
-          log('⚠️', 'Snapshot failed:', e.message); 
+          log('⚠️', 'Tavily search failed:', e.message); 
         }
       }
+      
+      // Add tech stack to context
+      if (techStackData) {
+        systemContextInjection += `\n[TECH STACK ANALYSIS]:\n${JSON.stringify(techStackData, null, 2)}\n`;
+        // Add tech stack confidence boost
+        if (techStackData.technologies?.length > 3) {
+          confidence.pillar1_company.items.stage = Math.max(confidence.pillar1_company.items.stage, 5);
+        }
+      }
+    }
+
+    // Tech Stack Analysis Helper Function
+    function analyzeTechStack(html, headers) {
+      const technologies = [];
+      const lowerHtml = html.toLowerCase();
+      
+      // Frontend
+      if (/__react|react-dom|data-reactroot|_next/i.test(html)) technologies.push('React');
+      if (/_next/i.test(html)) technologies.push('Next.js');
+      if (/vue\.js|__vue__|data-v-/i.test(html)) technologies.push('Vue.js');
+      if (/nuxt/i.test(html)) technologies.push('Nuxt.js');
+      if (/ng-version|angular/i.test(html)) technologies.push('Angular');
+      if (/svelte/i.test(html)) technologies.push('Svelte');
+      if (/tailwind|class="[^"]*\b(flex|px-|py-|mt-|bg-)/i.test(html)) technologies.push('Tailwind CSS');
+      if (/bootstrap/i.test(html)) technologies.push('Bootstrap');
+      
+      // CMS
+      if (/wp-content|wordpress/i.test(html)) technologies.push('WordPress');
+      if (/shopify|cdn\.shopify/i.test(html)) technologies.push('Shopify');
+      if (/webflow/i.test(html)) technologies.push('Webflow');
+      if (/wix\.com/i.test(html)) technologies.push('Wix');
+      if (/squarespace/i.test(html)) technologies.push('Squarespace');
+      if (/hubspot/i.test(html)) technologies.push('HubSpot');
+      if (/framer/i.test(html)) technologies.push('Framer');
+      
+      // Analytics
+      if (/google-analytics|gtag|googletagmanager/i.test(html)) technologies.push('Google Analytics');
+      if (/segment\.com/i.test(html)) technologies.push('Segment');
+      if (/mixpanel/i.test(html)) technologies.push('Mixpanel');
+      if (/amplitude/i.test(html)) technologies.push('Amplitude');
+      if (/hotjar/i.test(html)) technologies.push('Hotjar');
+      if (/posthog/i.test(html)) technologies.push('PostHog');
+      
+      // Marketing
+      if (/intercom/i.test(html)) technologies.push('Intercom');
+      if (/drift/i.test(html)) technologies.push('Drift');
+      if (/crisp/i.test(html)) technologies.push('Crisp');
+      if (/zendesk/i.test(html)) technologies.push('Zendesk');
+      if (/calendly/i.test(html)) technologies.push('Calendly');
+      
+      // Payments
+      if (/stripe/i.test(html)) technologies.push('Stripe');
+      if (/paypal/i.test(html)) technologies.push('PayPal');
+      if (/paddle/i.test(html)) technologies.push('Paddle');
+      
+      // Hosting/CDN
+      if (headers['server']?.includes('cloudflare') || headers['cf-ray']) technologies.push('Cloudflare');
+      if (headers['x-vercel-id'] || /vercel/i.test(html)) technologies.push('Vercel');
+      if (headers['x-netlify'] || /netlify/i.test(html)) technologies.push('Netlify');
+      if (/firebase/i.test(html)) technologies.push('Firebase');
+      if (/supabase/i.test(html)) technologies.push('Supabase');
+      if (/aws|amazon/i.test(html)) technologies.push('AWS');
+      
+      // Auth
+      if (/auth0/i.test(html)) technologies.push('Auth0');
+      if (/clerk/i.test(html)) technologies.push('Clerk');
+      
+      // Determine stack type
+      let stackType = 'Custom';
+      if (technologies.includes('WordPress')) stackType = 'WordPress';
+      else if (technologies.includes('Shopify')) stackType = 'Shopify E-commerce';
+      else if (technologies.includes('Next.js')) stackType = 'Next.js (JAMstack)';
+      else if (technologies.includes('React')) stackType = 'React SPA';
+      else if (technologies.includes('Vue.js')) stackType = 'Vue.js Application';
+      else if (technologies.some(t => ['Webflow', 'Wix', 'Squarespace', 'Framer'].includes(t))) stackType = 'No-Code Platform';
+      
+      return {
+        technologies: [...new Set(technologies)],
+        stack_type: stackType,
+        summary: `${stackType} stack with ${technologies.length} detected technologies: ${technologies.slice(0, 5).join(', ')}${technologies.length > 5 ? '...' : ''}`
+      };
     }
 
     // Recalculate totals
@@ -276,7 +384,7 @@ COMMUNICATION: Senior consultant, explain WHY you ask, reference benchmarks.
     log('📤', `Gemini call (Turn ${turnCount}, Score: ${confidence.total_score})`);
     
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${geminiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
       {
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' },
