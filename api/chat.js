@@ -1,7 +1,5 @@
 export default async function handler(req, res) {
-  // ═══════════════════════════════════════════════════════════════
   // CORS & METHOD HANDLING
-  // ═══════════════════════════════════════════════════════════════
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -11,422 +9,281 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  // HELPER FUNCTIONS
-  // ═══════════════════════════════════════════════════════════════
-  const sendSafeResponse = (msg, mode = "mixed", options = []) => res.status(200).json({
-    step_id: "response", 
-    message: msg, 
-    mode, 
-    options: options.length > 0 ? options : [{ key: "continue", label: "Continue" }]
-  });
+  const sendSafeResponse = (msg, mode = "mixed", options = [], confidenceState = null) => {
+    const response = {
+      step_id: "response", 
+      message: msg, 
+      mode, 
+      options: options.length > 0 ? options : [{ key: "continue", label: "Continue" }]
+    };
+    if (confidenceState) response.confidence_state = confidenceState;
+    return res.status(200).json(response);
+  };
 
   const log = (emoji, message, data = null) => {
-    const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
-    console.log(`[${timestamp}] ${emoji} ${message}`, data ? JSON.stringify(data).slice(0, 200) : '');
+    console.log(`[${new Date().toISOString().split('T')[1].split('.')[0]}] ${emoji} ${message}`, data || '');
   };
 
   try {
-    const { choice, history = [], attachment = null, contextData = null, turn = 0, diagnosticData = {} } = req.body;
+    const { 
+      choice, 
+      history = [], 
+      attachment = null, 
+      contextData = null, 
+      confidenceState = null
+    } = req.body;
+    
     const geminiKey = process.env.GEMINI_API_KEY;
     const tavilyKey = process.env.TAVILY_API_KEY;
 
     if (!geminiKey) {
-      log('❌', 'Missing Gemini API Key');
-      return sendSafeResponse("⚠️ System configuration error. Please contact support.");
+      return sendSafeResponse("⚠️ System configuration error.");
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // CONFIGURATION
+    // CONFIDENCE SCORE SYSTEM - 4 PILLARS (100 points total)
     // ═══════════════════════════════════════════════════════════════
-    const MAX_TURNS = 12;
+    const CONFIDENCE_THRESHOLD = 80;
+    const HARD_TURN_CAP = 15;
     const turnCount = history.filter(h => h.role === 'user').length;
     
-    let systemContextInjection = "";
-    let companyInsights = "";
+    // Initialize or restore confidence state
+    let confidence = confidenceState || {
+      pillar1_company: { score: 0, max: 25, items: { stage: 0, revenue: 0, team: 0 } },
+      pillar2_gtm: { score: 0, max: 25, items: { motion: 0, icp: 0, channels: 0 } },
+      pillar3_diagnosis: { score: 0, max: 30, items: { pain_point: 0, root_cause: 0, factors: 0 } },
+      pillar4_solution: { score: 0, max: 20, items: { validated: 0, next_steps: 0, recommendations: 0 } },
+      total_score: 0,
+      ready_for_finish: false
+    };
 
-    // ═══════════════════════════════════════════════════════════════
-    // SNAPSHOT PHASE - DEEP WEB ANALYSIS
-    // ═══════════════════════════════════════════════════════════════
+    let systemContextInjection = "";
+
+    // SNAPSHOT PHASE - WEB ANALYSIS
     if (choice === "SNAPSHOT_INIT" && contextData) {
-      log('🔍', 'Initiating deep analysis for:', contextData.website);
+      log('🔍', 'Analyzing:', contextData.website);
       
       if (tavilyKey) {
         try {
-          // Primary search - company profile
-          const primaryQuery = `"${new URL(contextData.website).hostname}" company overview business model products services pricing`;
-          log('🔎', 'Primary search:', primaryQuery);
-          
-          const primarySearch = await fetch("https://.tavily.com/search", {
+          const query = `"${new URL(contextData.website).hostname}" company business model products pricing`;
+          const search = await fetch("https://api.tavily.com/search", {
             method: "POST", 
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
-              _key: tavilyKey, 
-              query: primaryQuery, 
+              api_key: tavilyKey, 
+              query, 
               search_depth: "advanced", 
-              max_results: 8,
+              max_results: 6,
               include_answer: true
             })
           });
 
-          if (primarySearch.ok) {
-            const primaryData = await primarySearch.json();
-            
-            if (primaryData.answer) {
-              companyInsights += `[AI-GENERATED SUMMARY]: ${primaryData.answer}\n\n`;
+          if (search.ok) {
+            const data = await search.json();
+            let insights = "";
+            if (data.answer) insights += `[SUMMARY]: ${data.answer}\n\n`;
+            if (data.results?.length) {
+              insights += data.results.map(r => `[${r.title}]: ${r.content}`).join('\n\n');
             }
-            
-            if (primaryData.results?.length > 0) {
-              companyInsights += primaryData.results
-                .map(r => `[SOURCE: ${r.title}]\n${r.content}`)
-                .join('\n\n---\n\n');
-            }
-            log('✅', `Primary search returned ${primaryData.results?.length || 0} results`);
-          }
-
-          // Secondary search - competitive landscape (if we have time)
-          const competitiveQuery = `${new URL(contextData.website).hostname} competitors market position industry`;
-          const competitiveSearch = await fetch("https://.tavily.com/search", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              _key: tavilyKey,
-              query: competitiveQuery,
-              search_depth: "basic",
-              max_results: 3
-            })
-          });
-
-          if (competitiveSearch.ok) {
-            const compData = await competitiveSearch.json();
-            if (compData.results?.length > 0) {
-              companyInsights += "\n\n[COMPETITIVE LANDSCAPE]:\n" + 
-                compData.results.map(r => `- ${r.title}: ${r.content.slice(0, 200)}`).join('\n');
+            if (insights) {
+              systemContextInjection = `\n[MARKET INTELLIGENCE for ${contextData.website}]:\n${insights}\n`;
+              // Pre-populate some confidence from web data
+              confidence.pillar1_company.items.stage = 3;
+              confidence.pillar2_gtm.items.icp = 3;
             }
           }
-
-          if (companyInsights) {
-            systemContextInjection = `
-═══════════════════════════════════════════════════════════════
-[REAL-TIME MARKET INTELLIGENCE - CONFIDENTIAL]
-Target: ${contextData.website}
-LinkedIn: ${contextData.linkedin || 'Not provided'}
-Scan Time: ${new Date().toISOString()}
-═══════════════════════════════════════════════════════════════
-
-${companyInsights}
-
-═══════════════════════════════════════════════════════════════
-INSTRUCTIONS: Use this intelligence strategically. Reference specific 
-details to demonstrate expertise. If data is limited, acknowledge this 
-professionally and gather information through diagnostic questions.
-═══════════════════════════════════════════════════════════════
-`;
-          }
-          
         } catch(e) { 
           log('⚠️', 'Snapshot failed:', e.message); 
         }
-      } else {
-        log('⚠️', 'Tavily  key not configured');
       }
     }
 
+    // Recalculate totals
+    const recalculate = () => {
+      confidence.pillar1_company.score = 
+        confidence.pillar1_company.items.stage + 
+        confidence.pillar1_company.items.revenue + 
+        confidence.pillar1_company.items.team;
+      confidence.pillar2_gtm.score = 
+        confidence.pillar2_gtm.items.motion + 
+        confidence.pillar2_gtm.items.icp + 
+        confidence.pillar2_gtm.items.channels;
+      confidence.pillar3_diagnosis.score = 
+        confidence.pillar3_diagnosis.items.pain_point + 
+        confidence.pillar3_diagnosis.items.root_cause + 
+        confidence.pillar3_diagnosis.items.factors;
+      confidence.pillar4_solution.score = 
+        confidence.pillar4_solution.items.validated + 
+        confidence.pillar4_solution.items.next_steps + 
+        confidence.pillar4_solution.items.recommendations;
+      confidence.total_score = 
+        confidence.pillar1_company.score +
+        confidence.pillar2_gtm.score +
+        confidence.pillar3_diagnosis.score +
+        confidence.pillar4_solution.score;
+      confidence.ready_for_finish = 
+        confidence.total_score >= CONFIDENCE_THRESHOLD || turnCount >= HARD_TURN_CAP;
+    };
+    
+    recalculate();
+    log('📊', `Confidence: ${confidence.total_score}/100 (Threshold: ${CONFIDENCE_THRESHOLD})`);
+
     // ═══════════════════════════════════════════════════════════════
-    // MASTER SYSTEM PROMPT
+    // SYSTEM PROMPT WITH DYNAMIC SCORING
     // ═══════════════════════════════════════════════════════════════
     const SYSTEM_PROMPT = `
 ═══════════════════════════════════════════════════════════════════════════════
-REVENUE ARCHITECT - STRATEGIC DIAGNOSTIC ENGINE v3.0
+REVENUE ARCHITECT - DYNAMIC CONFIDENCE SCORING v4.0
 ═══════════════════════════════════════════════════════════════════════════════
 
-You are a world-class Revenue Operations strategist with 20+ years of experience 
-advising Fortune 500 companies and high-growth startups. Your expertise combines:
-
-- Winning by Design's revenue architecture methodology
-- MEDDICC/MEDDPICC qualification frameworks  
-- Gartner's B2B buying journey research
-- SaaS metrics benchmarks (Bessemer, OpenView, a16z)
-- Product-Led Growth frameworks (Reforge, ProductLed)
+You are a world-class Revenue Operations strategist conducting a diagnostic.
+The conversation continues until CONFIDENCE SCORE >= 80/100.
 
 ═══════════════════════════════════════════════════════════════════════════════
-DIAGNOSTIC METHODOLOGY
+CONFIDENCE SCORING SYSTEM
 ═══════════════════════════════════════════════════════════════════════════════
 
-PHASE 1: ANCHOR & QUALIFY (Turns 0-2)
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ OBJECTIVE: Establish credibility and understand business context           │
-│                                                                             │
-│ IF snapshot data available:                                                 │
-│   → Lead with a specific insight about their business                       │
-│   → "I've analyzed [Company]. Based on your positioning as a [segment]      │
-│      player targeting [ICP], I see [specific observation]."                 │
-│                                                                             │
-│ MUST GATHER (one question at a time, with context):                         │
-│   □ Company stage & ARR/MRR range                                          │
-│   □ Primary go-to-market motion                                            │
-│   □ Team composition (Sales/Marketing/CS headcount)                        │
-│   □ Primary challenge they're trying to solve                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+Track these 4 PILLARS. Focus questions on the LOWEST scoring pillar.
 
-PHASE 2: DEEP DIAGNOSIS (Turns 3-7)
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ OBJECTIVE: Identify root cause, not symptoms                                │
-│                                                                             │
-│ USE DECISION TREES:                                                         │
-│                                                                             │
-│ IF pain = "Not enough pipeline/leads":                                      │
-│   → "Is this a volume problem (not enough at-bats) or a quality problem    │
-│      (leads don't convert)?"                                                │
-│   → Volume: Demand gen strategy, channel mix, content effectiveness         │
-│   → Quality: ICP definition, targeting, lead scoring                        │
-│                                                                             │
-│ IF pain = "Sales not closing":                                              │
-│   → "Is this a process issue (deals stall/ghost) or a capability issue     │
-│      (reps can't execute)?"                                                 │
-│   → Process: Sales stages, qualification criteria, deal velocity           │
-│   → Capability: Hiring, enablement, coaching                               │
-│                                                                             │
-│ IF pain = "Churn/retention":                                                │
-│   → "Is churn concentrated in a specific segment or time period?"          │
-│   → Segment: Product-market fit, pricing, onboarding                       │
-│   → Time: Implementation, time-to-value, CS coverage                       │
-│                                                                             │
-│ IF pain = "Scaling challenges":                                             │
-│   → "What breaks first when you try to grow faster?"                       │
-│   → Hiring: Recruiting, onboarding, ramp time                              │
-│   → Process: Repeatability, documentation, automation                      │
-│   → Data: Visibility, reporting, forecasting                               │
-│                                                                             │
-│ DIAGNOSTIC QUESTIONS MUST:                                                  │
-│   1. Provide context (why you're asking)                                   │
-│   2. Reference industry benchmarks when relevant                           │
-│   3. Build on previous answers                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+PILLAR 1: COMPANY CONTEXT (25 pts max)
+├─ stage (0-10): Company stage identified
+│  0=unknown, 5=vague, 10=specific (Series A, $5M ARR)
+├─ revenue (0-8): ARR/MRR known
+│  0=unknown, 4=range, 8=specific
+└─ team (0-7): Team structure understood
+   0=unknown, 3=size, 7=breakdown
 
-PHASE 3: SYNTHESIS & VALIDATION (Turns 8-10)
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ OBJECTIVE: Confirm diagnosis before generating recommendations             │
-│                                                                             │
-│ STRUCTURE:                                                                  │
-│   "Based on our conversation, here's what I'm seeing:                      │
-│                                                                             │
-│   **Primary Bottleneck:** [Root cause]                                     │
-│   **Contributing Factors:** [2-3 secondary issues]                         │
-│   **Business Impact:** [Quantified if possible]                            │
-│                                                                             │
-│   Does this resonate with what you're experiencing?"                       │
-│                                                                             │
-│ IF they disagree: Ask clarifying questions                                 │
-│ IF they agree: Move to conclusion                                          │
-└─────────────────────────────────────────────────────────────────────────────┘
+PILLAR 2: GO-TO-MARKET (25 pts max)
+├─ motion (0-10): Sales motion identified
+│  0=unknown, 5=general, 10=specific
+├─ icp (0-8): ICP clear
+│  0=unknown, 4=vertical, 8=detailed
+└─ channels (0-7): Channels understood
+   0=unknown, 3=primary, 7=full mix
 
-PHASE 4: CONCLUSION (Turn 11+ OR sufficient data gathered)
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ TRIGGER CONDITIONS:                                                         │
-│   - Turn count >= ${MAX_TURNS - 1}, OR                                      │
-│   - Clear diagnosis confirmed by client                                     │
-│                                                                             │
-│ REQUIRED ACTIONS:                                                           │
-│   1. Set step_id to "FINISH"                                               │
-│   2. Summarize key findings in 3-4 bullets                                 │
-│   3. Preview what the Strategic Growth Plan will contain:                  │
-│      - Executive summary                                                    │
-│      - Root cause analysis                                                  │
-│      - 30/60/90 day action plan                                            │
-│      - Implementation roadmap with KPIs                                    │
-│      - Risk mitigation strategies                                          │
-│   4. Provide ONLY the download button                                      │
-└─────────────────────────────────────────────────────────────────────────────┘
+PILLAR 3: DIAGNOSIS (30 pts max) ← MOST IMPORTANT
+├─ pain_point (0-12): Pain identified
+│  0=unknown, 6=symptom, 12=specific+measurable
+├─ root_cause (0-10): Root cause found
+│  0=unknown, 5=likely, 10=confirmed
+└─ factors (0-8): Contributing factors
+   0=unknown, 4=one, 8=multiple
+
+PILLAR 4: SOLUTION READY (20 pts max)
+├─ validated (0-10): Client validated
+│  0=no, 5=partial, 10=full agreement
+├─ next_steps (0-5): Can recommend
+└─ recommendations (0-5): Ready to advise
 
 ═══════════════════════════════════════════════════════════════════════════════
-INDUSTRY BENCHMARKS TO REFERENCE
+CURRENT STATE
 ═══════════════════════════════════════════════════════════════════════════════
+${JSON.stringify(confidence, null, 2)}
 
-SAAS METRICS (Bessemer/OpenView):
-- Net Revenue Retention: 100-120% (good), 120%+ (excellent)
-- Gross Margin: 70-80% (typical), 80%+ (excellent)
-- CAC Payback: <18 months (healthy), <12 months (excellent)
-- LTV:CAC Ratio: 3:1 (minimum), 5:1+ (excellent)
-- Magic Number: >0.75 (efficient growth)
-- Rule of 40: Growth % + Profit % > 40
-
-SALES BENCHMARKS:
-- Win Rate: 15-25% (typical), 30%+ (strong)
-- Sales Cycle: Varies by ACV
-  - <$15K ACV: 14-30 days
-  - $15-50K ACV: 30-90 days  
-  - $50K+ ACV: 90-180+ days
-- Quota Attainment: 60-70% of reps hitting quota is healthy
-- Ramp Time: 3-6 months for SMB, 6-12 months for Enterprise
-
-FUNNEL BENCHMARKS:
-- MQL to SQL: 20-30%
-- SQL to Opportunity: 50-60%
-- Opportunity to Close: 15-25%
-- Website Visitor to Lead: 2-5%
+TOTAL: ${confidence.total_score}/100 | THRESHOLD: ${CONFIDENCE_THRESHOLD} | TURN: ${turnCount}/${HARD_TURN_CAP}
+READY FOR FINISH: ${confidence.ready_for_finish}
 
 ═══════════════════════════════════════════════════════════════════════════════
-COMMUNICATION STYLE
+DIAGNOSTIC DECISION TREES
 ═══════════════════════════════════════════════════════════════════════════════
 
-1. SENIOR AUTHORITY
-   - Don't just ask questions—explain WHY you're asking
-   - "To benchmark your sales efficiency against industry standards..."
-   - Use data and frameworks to support your points
+Use these to diagnose efficiently:
 
-2. CONSULTATIVE, NOT INTERROGATIVE  
-   - Make it feel like a conversation, not an interview
-   - Acknowledge their situation before diving deeper
-   - Show empathy for common challenges
+IF "Pipeline/Leads" problem:
+→ "VOLUME (not enough) or QUALITY (don't convert)?"
 
-3. PRECISE & ACTIONABLE
-   - Be specific, not generic
-   - Use their terminology and context
-   - Provide value in every response
+IF "Sales Closing" problem:
+→ "PROCESS issue (deals stall) or CAPABILITY (reps can't execute)?"
 
-4. STRUCTURED BUT NATURAL
-   - Use markdown formatting thoughtfully
-   - Bold for emphasis, bullets for clarity
-   - Don't over-format simple responses
+IF "Retention" problem:
+→ "Concentrated in SEGMENT or TIME PERIOD?"
+
+IF "Scaling" problem:
+→ "What breaks first: HIRING, PROCESS, or DATA?"
 
 ═══════════════════════════════════════════════════════════════════════════════
-OUTPUT SCHEMA (CRITICAL - MUST FOLLOW EXACTLY)
+BENCHMARKS TO REFERENCE
+═══════════════════════════════════════════════════════════════════════════════
+- NRR: 100-120% good, 120%+ excellent
+- CAC Payback: <18mo healthy, <12mo excellent
+- LTV:CAC: 3:1 minimum, 5:1+ excellent
+- Win Rate: 15-25% typical, 30%+ strong
+- Sales Cycle: <$15K=14-30d, $15-50K=30-90d, $50K+=90-180d
+
+═══════════════════════════════════════════════════════════════════════════════
+OUTPUT FORMAT (CRITICAL)
 ═══════════════════════════════════════════════════════════════════════════════
 
-Respond ONLY with valid JSON in this exact structure:
+Respond ONLY with valid JSON:
 
 {
-  "step_id": "string",
-  "message": "string (markdown formatted)",
+  "step_id": "diagnostic" | "validation" | "FINISH",
+  "message": "markdown string",
   "mode": "mixed",
-  "options": [
-    {"key": "machine_readable_key", "label": "Human-Readable Label"}
-  ]
+  "options": [{"key": "snake_case", "label": "Label"}],
+  "confidence_update": {
+    "pillar1_company": {"stage": N, "revenue": N, "team": N},
+    "pillar2_gtm": {"motion": N, "icp": N, "channels": N},
+    "pillar3_diagnosis": {"pain_point": N, "root_cause": N, "factors": N},
+    "pillar4_solution": {"validated": N, "next_steps": N, "recommendations": N}
+  },
+  "reasoning": "Why scores changed"
 }
 
-OPTION RULES:
-- Provide 3-4 options for multiple choice questions
-- Keys: snake_case, machine-readable (e.g., "series_a", "plg_motion")
-- Labels: Descriptive, actionable (e.g., "Series A ($1-10M ARR)", "Product-Led Growth")
-- At FINISH: ONLY provide {"key": "download_report", "label": "📥 Download Strategic Growth Plan"}
+RULES:
+- ALWAYS include confidence_update
+- Only INCREASE scores (cumulative)
+- When total >= ${CONFIDENCE_THRESHOLD}: step_id = "FINISH"
+- At FINISH: options = [{"key": "download_report", "label": "📥 Download Strategic Growth Plan"}]
+- Turn >= ${HARD_TURN_CAP}: FORCE FINISH
 
-MESSAGE RULES:
-- Use markdown: **bold**, bullet points, etc.
-- Keep conversational but professional
-- Reference previous answers to show continuity
-- At FINISH: Preview report contents specifically
-
-NEVER break character. ALWAYS respond in valid JSON. NEVER apologize for format.
-
-═══════════════════════════════════════════════════════════════════════════════
-CURRENT SESSION STATE
-═══════════════════════════════════════════════════════════════════════════════
-Turn Count: ${turnCount}
-Max Turns: ${MAX_TURNS}
-Turns Remaining: ${MAX_TURNS - turnCount}
+COMMUNICATION: Senior consultant, explain WHY you ask, reference benchmarks.
 `;
 
-    // ═══════════════════════════════════════════════════════════════
-    // BUILD CONVERSATION HISTORY FOR GEMINI
-    // ═══════════════════════════════════════════════════════════════
-    const historyParts = history.slice(-16).map(msg => {
+    // Build history
+    const historyParts = history.slice(-14).map(msg => {
       let content = msg.content;
-      
       if (msg.role === 'assistant') {
-        try {
-          const parsed = JSON.parse(content);
-          content = parsed.message || content;
-        } catch (e) {
-          // Keep original content
-        }
+        try { content = JSON.parse(content).message || content; } catch {}
       }
-      
-      return {
-        role: msg.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: content }]
-      };
+      return { role: msg.role === 'assistant' ? 'model' : 'user', parts: [{ text: content }] };
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // BUILD CURRENT USER MESSAGE
-    // ═══════════════════════════════════════════════════════════════
+    // Build user message
     let userText = "";
-
     if (choice === "SNAPSHOT_INIT") {
-      userText = `
-[SESSION START]
-Website: ${contextData.website}
-LinkedIn: ${contextData.linkedin || 'Not provided'}
-
-${systemContextInjection ? `[MARKET INTELLIGENCE LOADED]\n${systemContextInjection}` : '[NO EXTERNAL DATA AVAILABLE - rely on diagnostic questions]'}
-
-ACTION REQUIRED:
-1. If intelligence data is available, lead with ONE specific insight about their business
-2. Welcome them professionally
-3. Ask your FIRST diagnostic question about company stage/ARR
-4. Provide 4 specific options for company stage
-`;
-    } else if (turnCount >= MAX_TURNS - 1) {
-      userText = `
-[SYSTEM OVERRIDE - CONCLUSION REQUIRED]
-User Input: "${choice}"
-Current Turn: ${turnCount} (MAX: ${MAX_TURNS})
-
-You MUST conclude the diagnostic now:
-1. Set step_id to "FINISH"
-2. Summarize 3-4 key findings from the conversation
-3. Preview what the Strategic Growth Plan will include
-4. Provide ONLY the download_report option
-
-DO NOT ask more questions. CONCLUDE NOW.
-`;
+      userText = `[START] Website: ${contextData.website}\n${systemContextInjection}\nACTION: Welcome, share insight if available, ask first question targeting lowest pillar, include confidence_update.`;
+    } else if (confidence.ready_for_finish) {
+      userText = `[FINISH REQUIRED] Input: "${choice}" | Score: ${confidence.total_score}/100\nSummarize findings, preview report, set step_id="FINISH", only download option.`;
     } else {
-      userText = `
-User Response: "${choice}"
-Current Turn: ${turnCount}/${MAX_TURNS}
-
-Continue the diagnostic. Build on previous context. Ask ONE focused question.
-`;
+      userText = `Input: "${choice}" | Turn: ${turnCount} | Score: ${confidence.total_score}\nAnalyze response, update confidence, ask next question targeting lowest pillar.`;
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // ASSEMBLE MESSAGES
-    // ═══════════════════════════════════════════════════════════════
     const allMessages = [
       { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
-      { role: 'model', parts: [{ text: 'Understood. I am the Revenue Architect. I will conduct a strategic diagnostic following the methodology outlined, respond only in valid JSON, and provide actionable insights based on industry benchmarks. Ready to begin.' }] },
+      { role: 'model', parts: [{ text: 'Ready. I will track confidence across 4 pillars, focus on lowest-scoring areas, and finish when score >= 80.' }] },
       ...historyParts,
       { role: 'user', parts: [{ text: userText }] }
     ];
     
-    // Add attachment if present
     if (attachment) {
       allMessages[allMessages.length - 1].parts.push({ 
-        inline_data: { 
-          mime_type: attachment.mime_type, 
-          data: attachment.data 
-        } 
+        inline_data: { mime_type: attachment.mime_type, data: attachment.data } 
       });
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // CALL GEMINI 
-    // ═══════════════════════════════════════════════════════════════
-    log('📤', `Calling Gemini (Turn ${turnCount}/${MAX_TURNS})`);
+    // Call Gemini
+    log('📤', `Gemini call (Turn ${turnCount}, Score: ${confidence.total_score})`);
     
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${geminiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
       {
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           contents: allMessages, 
           generationConfig: { 
-            temperature: 0.7,
-            topP: 0.9,
-            topK: 40,
-            maxOutputTokens: 2048,
+            temperature: 0.7, topP: 0.9, maxOutputTokens: 2048,
             responseMimeType: "application/json"
           },
           safetySettings: [
@@ -440,127 +297,83 @@ Continue the diagnostic. Build on previous context. Ask ONE focused question.
     );
 
     if (!geminiResponse.ok) {
-      const errorText = await geminiResponse.text();
-      log('❌', `Gemini API Error: ${geminiResponse.status}`, errorText);
-      return sendSafeResponse(
-        "I encountered a technical issue. Let me try a different approach.",
-        "mixed",
-        [{ key: "retry", label: "Try Again" }]
-      );
+      return sendSafeResponse("Technical issue. Retrying...", "mixed", [{ key: "retry", label: "Retry" }], confidence);
     }
 
     const data = await geminiResponse.json();
-    
-    if (data.error) {
-      log('❌', 'Gemini API Error:', data.error);
-      return sendSafeResponse(`Technical error occurred. Please try again.`);
-    }
-    
     let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
     
     if (!text) {
-      log('❌', 'No text in response');
-      return sendSafeResponse(
-        "I'm having trouble formulating a response. Let me try again.",
-        "mixed",
-        [{ key: "retry", label: "Try Again" }]
-      );
+      return sendSafeResponse("No response. Retrying...", "mixed", [{ key: "retry", label: "Retry" }], confidence);
     }
     
-    // Clean JSON response
     text = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
 
-    // ═══════════════════════════════════════════════════════════════
-    // PARSE & VALIDATE RESPONSE
-    // ═══════════════════════════════════════════════════════════════
+    // Parse response
     try {
-      const jsonResponse = JSON.parse(text);
+      const json = JSON.parse(text);
       
-      // Ensure required fields
-      if (!jsonResponse.message || jsonResponse.message.trim() === "") {
-        jsonResponse.message = "I've processed your input. Let me continue with the diagnostic.";
-      }
-      
-      if (!jsonResponse.step_id) {
-        jsonResponse.step_id = turnCount >= MAX_TURNS - 1 ? "FINISH" : `diagnostic_${turnCount}`;
-      }
-      
-      // Always set mode
-      jsonResponse.mode = 'mixed';
-      
-      // Validate options
-      if (!jsonResponse.options || !Array.isArray(jsonResponse.options) || jsonResponse.options.length === 0) {
-        if (jsonResponse.step_id === 'FINISH' || jsonResponse.step_id.toLowerCase().includes('finish')) {
-          jsonResponse.options = [{ key: "download_report", label: "📥 Download Strategic Growth Plan" }];
-        } else {
-          jsonResponse.options = [
-            { key: "continue", label: "Continue" },
-            { key: "clarify", label: "I need to clarify something" }
-          ];
+      // Process confidence update (only increase)
+      if (json.confidence_update) {
+        const cu = json.confidence_update;
+        if (cu.pillar1_company) {
+          confidence.pillar1_company.items.stage = Math.max(confidence.pillar1_company.items.stage, cu.pillar1_company.stage || 0);
+          confidence.pillar1_company.items.revenue = Math.max(confidence.pillar1_company.items.revenue, cu.pillar1_company.revenue || 0);
+          confidence.pillar1_company.items.team = Math.max(confidence.pillar1_company.items.team, cu.pillar1_company.team || 0);
         }
+        if (cu.pillar2_gtm) {
+          confidence.pillar2_gtm.items.motion = Math.max(confidence.pillar2_gtm.items.motion, cu.pillar2_gtm.motion || 0);
+          confidence.pillar2_gtm.items.icp = Math.max(confidence.pillar2_gtm.items.icp, cu.pillar2_gtm.icp || 0);
+          confidence.pillar2_gtm.items.channels = Math.max(confidence.pillar2_gtm.items.channels, cu.pillar2_gtm.channels || 0);
+        }
+        if (cu.pillar3_diagnosis) {
+          confidence.pillar3_diagnosis.items.pain_point = Math.max(confidence.pillar3_diagnosis.items.pain_point, cu.pillar3_diagnosis.pain_point || 0);
+          confidence.pillar3_diagnosis.items.root_cause = Math.max(confidence.pillar3_diagnosis.items.root_cause, cu.pillar3_diagnosis.root_cause || 0);
+          confidence.pillar3_diagnosis.items.factors = Math.max(confidence.pillar3_diagnosis.items.factors, cu.pillar3_diagnosis.factors || 0);
+        }
+        if (cu.pillar4_solution) {
+          confidence.pillar4_solution.items.validated = Math.max(confidence.pillar4_solution.items.validated, cu.pillar4_solution.validated || 0);
+          confidence.pillar4_solution.items.next_steps = Math.max(confidence.pillar4_solution.items.next_steps, cu.pillar4_solution.next_steps || 0);
+          confidence.pillar4_solution.items.recommendations = Math.max(confidence.pillar4_solution.items.recommendations, cu.pillar4_solution.recommendations || 0);
+        }
+      }
+      
+      recalculate();
+      log('📊', `Updated: ${confidence.total_score}/100`);
+
+      // Validate response
+      if (!json.message) json.message = "Processing...";
+      json.mode = 'mixed';
+      
+      // Handle options
+      if (!json.options?.length) {
+        json.options = confidence.ready_for_finish 
+          ? [{ key: "download_report", label: "📥 Download Strategic Growth Plan" }]
+          : [{ key: "continue", label: "Continue" }];
       } else {
-        // Normalize options
-        jsonResponse.options = jsonResponse.options.map((opt, idx) => ({
-          key: opt.key || opt.id || `option_${idx}`, 
-          label: opt.label || opt.text || opt.title || "Continue"
-        }));
+        json.options = json.options.map((o, i) => ({ key: o.key || `opt_${i}`, label: o.label || "Continue" }));
       }
 
-      // Force FINISH state
-      const isFinishState = jsonResponse.step_id === 'FINISH' || 
-                           jsonResponse.step_id.toLowerCase().includes('finish') ||
-                           jsonResponse.step_id.toLowerCase().includes('conclusion');
-      
-      if (isFinishState || turnCount >= MAX_TURNS - 1) {
-        jsonResponse.step_id = 'FINISH';
-        jsonResponse.options = [{ key: "download_report", label: "📥 Download Strategic Growth Plan" }];
+      // Force FINISH if ready
+      if (confidence.ready_for_finish || json.step_id === 'FINISH') {
+        json.step_id = 'FINISH';
+        json.options = [{ key: "download_report", label: "📥 Download Strategic Growth Plan" }];
         
-        // Ensure message includes report preview
-        if (!jsonResponse.message.toLowerCase().includes('strategic') && 
-            !jsonResponse.message.toLowerCase().includes('report') &&
-            !jsonResponse.message.toLowerCase().includes('plan')) {
-          jsonResponse.message += `
-
-**Your Strategic Growth Plan is ready.**
-
-Based on our diagnostic session, the plan will include:
-- Executive summary of your revenue engine
-- Root cause analysis with supporting data
-- Prioritized 30/60/90 day action plan
-- Implementation roadmap with success metrics
-- Risk mitigation strategies
-
-Click below to download your personalized report.`;
+        if (!json.message.includes('Strategic Growth Plan')) {
+          json.message += `\n\n**Diagnostic Complete** (Confidence: ${confidence.total_score}%)\n\nYour Strategic Growth Plan includes:\n- Executive summary\n- Root cause analysis\n- 30/60/90 day action plan\n- KPIs and success metrics\n- Risk mitigation\n\nClick below to download.`;
         }
       }
       
-      log('✅', `Response validated: ${jsonResponse.step_id}`, { options: jsonResponse.options.length });
-      
-      return res.status(200).json(jsonResponse);
+      json.confidence_state = confidence;
+      return res.status(200).json(json);
 
-    } catch (parseError) { 
-      log('❌', 'JSON Parse Error:', parseError.message);
-      log('📝', 'Raw response:', text.substring(0, 300));
-      
-      // Attempt to extract meaningful content
-      return sendSafeResponse(
-        `I've processed that. Here's what I gathered:\n\n${text.substring(0, 500)}${text.length > 500 ? '...' : ''}\n\nShall I continue with the diagnostic?`,
-        "mixed",
-        [
-          { key: "continue", label: "Continue" },
-          { key: "clarify", label: "Let me clarify" }
-        ]
-      );
+    } catch (e) { 
+      log('❌', 'Parse error:', e.message);
+      return sendSafeResponse(text.substring(0, 400), "mixed", [{ key: "continue", label: "Continue" }], confidence);
     }
 
   } catch (error) { 
-    console.error("❌ Server Error:", error);
-    console.error("Stack:", error.stack);
-    
-    return sendSafeResponse(
-      `An unexpected error occurred. Please try again.`,
-      "mixed",
-      [{ key: "retry", label: "Try Again" }]
-    ); 
+    console.error("Server Error:", error);
+    return sendSafeResponse("Error occurred. Try again.", "mixed", [{ key: "retry", label: "Retry" }]); 
   }
 }
