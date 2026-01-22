@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  // CORS headers
+  // CORS & METHOD HANDLING
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -9,250 +9,260 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  const log = (emoji, message) => {
+    console.log(`[${new Date().toISOString().split('T')[1].split('.')[0]}] ${emoji} ${message}`);
+  };
+
   try {
-    const { history = [] } = req.body;
+    const { history = [], diagnosticData = {} } = req.body;
     const geminiKey = process.env.GEMINI_API_KEY;
 
     if (!geminiKey) {
-      console.error('❌ Missing Gemini API Key');
-      return res.status(500).json({ error: 'Missing Gemini API Key configuration' });
+      log('❌', 'Missing Gemini API Key');
+      return res.status(500).json({ error: 'Missing API Key' });
     }
 
     if (!history || history.length === 0) {
-      return res.status(400).json({ error: 'No conversation history provided' });
+      return res.status(400).json({ error: 'No conversation history' });
     }
 
-    console.log('📊 Generating report from', history.length, 'history items');
+    log('📊', `Generating report from ${history.length} items`);
 
     // Build conversation summary
     const conversationSummary = history
       .filter(h => h.role === 'assistant' || h.role === 'user')
       .map(h => {
-        if (h.role === 'user') {
-          return `**User:** ${h.content}`;
-        }
-        
-        // Parse assistant JSON responses
+        if (h.role === 'user') return `**CLIENT:** ${h.content}`;
         try {
           const parsed = JSON.parse(h.content);
-          return `**AI:** ${parsed.message || h.content}`;
+          return `**CONSULTANT:** ${parsed.message || h.content}`;
         } catch {
-          return `**AI:** ${h.content}`;
+          return `**CONSULTANT:** ${h.content}`;
         }
       })
-      .join('\n\n');
+      .join('\n\n---\n\n');
 
+    const formattedDate = new Date().toLocaleDateString('en-US', { 
+      year: 'numeric', month: 'long', day: 'numeric' 
+    });
+
+    // REPORT PROMPT
     const REPORT_PROMPT = `
-You are a Senior Revenue Operations Consultant. Based on the diagnostic conversation below, generate a comprehensive Strategic Growth Plan in markdown format.
+You are a Senior Revenue Operations Consultant. Generate a comprehensive Strategic Growth Plan based on this diagnostic conversation.
 
-CONVERSATION TRANSCRIPT:
----
+DIAGNOSTIC TRANSCRIPT:
 ${conversationSummary}
----
 
-YOUR TASK: Generate a professional, actionable markdown report with this EXACT structure:
+Generate a COMPLETE markdown report with this structure:
 
 # Strategic Growth Plan
-**Generated:** ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}  
-**Client:** [Company Name from conversation]  
-**Prepared by:** Revenue Architect (Panoramica AI)
+
+**Prepared for:** [Company name from conversation]
+**Date:** ${formattedDate}
+**Consultant:** Revenue Architect (Panoramica)
 
 ---
 
 ## Executive Summary
+[3-4 paragraphs: Current situation, Challenge identified, Strategic recommendation, Expected outcome with metrics]
 
-[2-3 paragraph overview covering:]
-- Current state of the company (stage, size, business model)
-- Primary challenge identified during diagnostic
-- Recommended strategic direction and expected outcome
+---
 
-## Current State Analysis
+## Company Profile
 
-### Company Profile
-- **Industry:** [Industry/Vertical]
-- **Business Model:** [SaaS/Services/Hybrid]
-- **Stage:** [Pre-seed/Seed/Series A/B/Growth]
-- **Revenue:** [ARR/MRR range if mentioned]
-- **Team Size:** [If mentioned]
+| Attribute | Current State |
+|-----------|---------------|
+| **Stage** | [From conversation] |
+| **Revenue** | [ARR/MRR if mentioned] |
+| **Model** | [SaaS/Services/Hybrid] |
+| **GTM Motion** | [Inbound/Outbound/PLG] |
+| **Team Size** | [If mentioned] |
 
-### Revenue Engine Assessment
-- **Sales Motion:** [Inbound/Outbound/PLG/Hybrid - with specifics]
-- **Current Metrics:** [Any metrics mentioned in conversation]
-- **Identified Bottlenecks:**
-  1. [Primary bottleneck]
-  2. [Secondary bottleneck if any]
-  3. [Tertiary bottleneck if any]
+---
 
-## Root Cause Diagnosis
+## Diagnostic Findings
 
-### Primary Issues Identified
+### Primary Challenge
+**[Core issue in 3-5 words]**
+[Detailed root cause analysis - what's broken, why, how it manifests, compounding effects]
 
-**1. [Issue Name]**
-- **Symptom:** [What's visible to the team]
-- **Root Cause:** [What's actually broken underneath]
-- **Business Impact:** [Revenue/efficiency consequence]
-- **Evidence:** [References from conversation]
-
-**2. [Issue Name]** (if applicable)
-- **Symptom:** [What's visible]
-- **Root Cause:** [Underlying problem]
-- **Business Impact:** [Consequence]
-- **Evidence:** [From conversation]
+### Supporting Evidence
+1. **[Indicator 1]:** [Evidence from conversation]
+2. **[Indicator 2]:** [Evidence]
+3. **[Indicator 3]:** [Evidence]
 
 ### Contributing Factors
-- [Secondary issue or systemic problem 1]
-- [Secondary issue or systemic problem 2]
-- [Market/competitive factors if relevant]
+- **[Factor 1]:** [Explanation]
+- **[Factor 2]:** [Explanation]
+
+---
+
+## Industry Benchmarks
+
+| Metric | Current | Benchmark | Gap |
+|--------|---------|-----------|-----|
+| [Metric 1] | [State] | [Standard] | [Analysis] |
+| [Metric 2] | [State] | [Standard] | [Analysis] |
+| [Metric 3] | [State] | [Standard] | [Analysis] |
+
+*Sources: Bessemer, OpenView, Gartner*
+
+---
 
 ## Strategic Recommendations
 
-### Immediate Actions (0-30 days)
-**Priority: Quick wins to build momentum**
+### Immediate Actions (Days 1-30)
 
-1. **[Action Item]**
-   - **Why:** [Reasoning based on diagnosis]
-   - **How:** [Specific implementation steps]
-   - **Expected Outcome:** [Measurable result]
-   - **Owner:** [Suggested role/team]
+#### 1. [Action Title]
+**Objective:** [Outcome]
+**Rationale:** [Why this matters]
+**Steps:**
+1. [Step]
+2. [Step]
+3. [Step]
+**Success Metric:** [KPI]
+**Owner:** [Role]
 
-2. **[Action Item]**
-   - **Why:** [Reasoning]
-   - **How:** [Implementation]
-   - **Expected Outcome:** [Result]
-   - **Owner:** [Role/team]
+#### 2. [Action Title]
+**Objective:** [Outcome]
+**Rationale:** [Why]
+**Steps:**
+1. [Step]
+2. [Step]
+3. [Step]
+**Success Metric:** [KPI]
+**Owner:** [Role]
 
-3. **[Action Item]**
-   - **Why:** [Reasoning]
-   - **How:** [Implementation]
-   - **Expected Outcome:** [Result]
-   - **Owner:** [Role/team]
+#### 3. [Action Title]
+**Objective:** [Outcome]
+**Rationale:** [Why]
+**Steps:**
+1. [Step]
+2. [Step]
+3. [Step]
+**Success Metric:** [KPI]
+**Owner:** [Role]
 
-### Short-term Initiatives (30-90 days)
-**Priority: Foundation building**
+---
 
-1. **[Initiative Name]**
-   - **Description:** [What needs to be done]
-   - **Success Criteria:** [How to measure success]
-   - **Resources Required:** [Team/tools/budget]
-   - **Dependencies:** [What needs to happen first]
+### Foundation Building (Days 31-60)
 
-2. **[Initiative Name]**
-   - **Description:** [Details]
-   - **Success Criteria:** [Metrics]
-   - **Resources Required:** [Needs]
-   - **Dependencies:** [Prerequisites]
+#### 1. [Initiative]
+**Objective:** [Outcome]
+**Scope:** [Components]
+**Deliverables:** [List]
+**Resources:** [Needs]
 
-### Long-term Strategy (90+ days)
-**Priority: Sustainable growth infrastructure**
+#### 2. [Initiative]
+**Objective:** [Outcome]
+**Scope:** [Components]
+**Deliverables:** [List]
+**Resources:** [Needs]
 
-- **Strategic Direction:** [Overall approach]
-- **Key Investments:** [Technology/team/process investments needed]
-- **Capability Building:** [Skills/systems to develop]
-- **Market Positioning:** [How to differentiate]
+---
+
+### Strategic Transformation (Days 61-90)
+
+#### 1. [Strategic Initiative]
+**Vision:** [End state]
+**Approach:** [Strategy]
+**Milestones:** Week 8, 10, 12 targets
+**Investment:** [Estimate]
+**Expected ROI:** [Projection]
+
+---
 
 ## Implementation Roadmap
 
-| Phase | Timeline | Focus Area | Key Deliverables | Success Metrics |
-|-------|----------|------------|------------------|-----------------|
-| **Phase 1** | Weeks 1-4 | [Primary focus] | • [Deliverable 1]<br>• [Deliverable 2] | [Metric] |
-| **Phase 2** | Weeks 5-8 | [Secondary focus] | • [Deliverable 1]<br>• [Deliverable 2] | [Metric] |
-| **Phase 3** | Weeks 9-12 | [Tertiary focus] | • [Deliverable 1]<br>• [Deliverable 2] | [Metric] |
-| **Phase 4** | Month 4+ | [Long-term focus] | • [Deliverable 1]<br>• [Deliverable 2] | [Metric] |
+| Phase | Timeline | Focus | Key Activities | Success Criteria |
+|-------|----------|-------|----------------|------------------|
+| Stabilize | Weeks 1-4 | [Focus] | [Activities] | [Metrics] |
+| Optimize | Weeks 5-8 | [Focus] | [Activities] | [Metrics] |
+| Scale | Weeks 9-12 | [Focus] | [Activities] | [Metrics] |
+
+---
 
 ## Success Metrics & KPIs
 
-### Leading Indicators (Monitor Weekly)
-- **[Metric Name]:** Current: [if known] → Target: [target value]
-- **[Metric Name]:** Current: [if known] → Target: [target value]
-- **[Metric Name]:** Current: [if known] → Target: [target value]
+### Leading Indicators (Weekly)
+- **[Metric]:** Current → Target
+- **[Metric]:** Current → Target
+- **[Metric]:** Current → Target
 
-### Lagging Indicators (Monitor Monthly)
-- **[Metric Name]:** Current: [if known] → Target: [target value] by [timeframe]
-- **[Metric Name]:** Current: [if known] → Target: [target value] by [timeframe]
-- **[Metric Name]:** Current: [if known] → Target: [target value] by [timeframe]
+### Lagging Indicators (Monthly)
+- **[Metric]:** Current → Target by [Date]
+- **[Metric]:** Current → Target by [Date]
 
 ### North Star Metric
-**[Primary metric to optimize for]:** [Current state] → [Target state] by [timeframe]
+**[Primary metric]:** [Current] → [Target] by [Timeframe]
+
+---
 
 ## Risk Mitigation
 
-| Risk | Likelihood | Impact | Mitigation Strategy |
-|------|------------|--------|---------------------|
-| [Risk description] | [High/Med/Low] | [High/Med/Low] | [Specific mitigation steps] |
-| [Risk description] | [High/Med/Low] | [High/Med/Low] | [Specific mitigation steps] |
-| [Risk description] | [High/Med/Low] | [High/Med/Low] | [Specific mitigation steps] |
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| [Risk 1] | Med/High | High | [Strategy] |
+| [Risk 2] | Med | Med | [Strategy] |
+| [Risk 3] | Low | High | [Strategy] |
+
+---
 
 ## Resource Requirements
 
 ### Team
-- [Role/headcount needed]
-- [Role/headcount needed]
+- [Role/hire needed]
+- [Role/hire needed]
 
-### Technology & Tools
-- [Tool/platform needed and why]
-- [Tool/platform needed and why]
+### Technology
+- [Tool needed and why]
+- [Tool needed and why]
 
 ### Budget Estimate
-- **Immediate (30 days):** $[amount or range]
-- **Short-term (90 days):** $[amount or range]
-- **Long-term (12 months):** $[amount or range]
+- **30 Days:** $[amount]
+- **90 Days:** $[amount]
+- **12 Months:** $[amount]
+
+---
 
 ## Next Steps
 
-**Immediate Actions (This Week):**
-1. [Specific, actionable step]
-2. [Specific, actionable step]
-3. [Specific, actionable step]
+**This Week:**
+1. [Specific action]
+2. [Specific action]
+3. [Specific action]
 
 **First 30 Days:**
-1. [Key milestone]
-2. [Key milestone]
-3. [Key milestone]
-
-**Recommended Follow-up:**
-- Weekly check-ins on leading indicators
-- Monthly strategic review meetings
-- Quarterly roadmap adjustments
+1. [Milestone]
+2. [Milestone]
+3. [Milestone]
 
 ---
 
-## Appendix: Industry Benchmarks
+## Appendix: Methodology
 
-[Include 2-3 relevant industry benchmarks referenced during the diagnostic]
-
-**Benchmark 1:** [Description and source]
-**Benchmark 2:** [Description and source]
-**Benchmark 3:** [Description and source]
-
----
-
-*This Strategic Growth Plan was generated by Panoramica's Revenue Architect AI based on your diagnostic session on ${new Date().toLocaleDateString()}. For implementation support or questions, please reach out to your account manager.*
+This diagnostic utilized:
+- Winning by Design Revenue Architecture Framework
+- MEDDICC Qualification Methodology
+- Industry benchmarks from Bessemer, OpenView, Gartner
 
 ---
 
-**CRITICAL INSTRUCTIONS FOR GENERATION:**
+*This Strategic Growth Plan was generated by Panoramica's Revenue Architect AI. For implementation support, contact your account manager.*
 
-1. **Be Specific:** Use actual details from the conversation. Don't write "[Company Name]" - use the actual company name if mentioned.
+---
 
-2. **Be Actionable:** Every recommendation must have clear implementation steps, not vague advice.
-
-3. **Use Data:** Reference any metrics, numbers, or specifics mentioned in the conversation.
-
-4. **Fill Gaps Honestly:** If information wasn't discussed, note it as "[Requires validation with team]" rather than inventing data.
-
-5. **Professional Tone:** Write as a senior consultant would - confident, evidence-based, actionable.
-
-6. **Length:** Target 1800-2200 words total. Be comprehensive but not verbose.
-
-7. **Formatting:** Use markdown properly. Bold for emphasis, tables for structure, bullet points for lists.
-
-8. **No Placeholders:** Replace ALL brackets with actual content. The only exception is "[Requires validation]" when data truly isn't available.
-
-Generate the complete report now:
+CRITICAL INSTRUCTIONS:
+1. Use ACTUAL details from conversation - no placeholders like "[Company Name]"
+2. Be SPECIFIC and ACTIONABLE
+3. Include real metrics and benchmarks
+4. If info wasn't discussed, note "To be validated"
+5. Professional consulting tone
+6. 2500-3500 words total
+7. Complete every section fully
 `;
 
-    // Call Gemini API for report generation
-    console.log('📤 Calling Gemini for report generation...');
+    log('📤', 'Calling Gemini for report generation...');
     
     const geminiResponse = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${geminiKey}`,
@@ -260,14 +270,10 @@ Generate the complete report now:
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ 
-            role: 'user', 
-            parts: [{ text: REPORT_PROMPT }] 
-          }],
+          contents: [{ role: 'user', parts: [{ text: REPORT_PROMPT }] }],
           generationConfig: {
-            temperature: 0.5,
+            temperature: 0.6,
             topP: 0.95,
-            topK: 40,
             maxOutputTokens: 8192
           },
           safetySettings: [
@@ -281,45 +287,27 @@ Generate the complete report now:
     );
 
     if (!geminiResponse.ok) {
-      const errorText = await geminiResponse.text();
-      console.error('❌ Gemini API Error:', geminiResponse.status, errorText);
-      return res.status(500).json({ 
-        error: 'Failed to generate report',
-        details: `Gemini API returned ${geminiResponse.status}`
-      });
+      log('❌', `Gemini Error: ${geminiResponse.status}`);
+      return res.status(500).json({ error: 'Failed to generate report' });
     }
 
     const data = await geminiResponse.json();
-
-    if (data.error) {
-      console.error('❌ Gemini API Error:', data.error);
-      return res.status(500).json({ 
-        error: 'Gemini API error', 
-        details: data.error.message 
-      });
-    }
-
     let reportText = data.candidates?.[0]?.content?.parts?.[0]?.text;
     
     if (!reportText) {
-      console.error('❌ No report text generated');
-      return res.status(500).json({ 
-        error: 'Failed to generate report',
-        details: 'No content returned from AI'
-      });
+      log('❌', 'No report text generated');
+      return res.status(500).json({ error: 'No content returned' });
     }
 
-    // Clean up markdown code blocks if present
+    // Clean markdown
     reportText = reportText
       .replace(/```markdown\n?/g, '')
       .replace(/```\n?$/g, '')
       .trim();
 
-    // Generate filename
-    const currentDate = new Date().toISOString().split('T')[0];
-    const filename = `Panoramica_Strategic_Growth_Plan_${currentDate}.md`;
+    const filename = `Panoramica_Strategic_Growth_Plan_${new Date().toISOString().split('T')[0]}.md`;
 
-    console.log(`✅ Report generated successfully (${reportText.length} characters)`);
+    log('✅', `Report generated (${reportText.length} chars)`);
     
     return res.status(200).json({ 
       report: reportText,
@@ -328,12 +316,7 @@ Generate the complete report now:
     });
 
   } catch (error) {
-    console.error('❌ Report Generation Error:', error);
-    console.error('Stack:', error.stack);
-    
-    return res.status(500).json({ 
-      error: 'Failed to generate report', 
-      details: error.message 
-    });
+    console.error('❌ Report Error:', error);
+    return res.status(500).json({ error: 'Failed to generate report', details: error.message });
   }
 }
