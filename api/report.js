@@ -2,64 +2,190 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
+  
   if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { history } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY;
+    const { history = [] } = req.body;
+    const geminiKey = process.env.GEMINI_API_KEY;
 
-    if (!apiKey) return res.status(500).json({ report: "Error: Missing API Key." });
+    if (!geminiKey) {
+      return res.status(500).json({ error: 'Missing Gemini API Key' });
+    }
 
-    // --- REPORT PROTOCOL (Step 6 & 7 from PDF) ---
-    const SYSTEM_PROMPT = `
-    You are the "Revenue Diagnostic Agent". Write the final PDF report.
-    
-    STRICT FORMAT (11 POINTS):
-    1. Executive Summary
-    2. Primary Bottleneck(s) (Max 3)
-    3. Root Cause (Not symptoms)
-    4. Estimated Impact (With assumptions)
-    5. 30/60/90 Day Plan (High level)
-    6. What we are deliberately NOT fixing now (Force trade-offs)
-    7. Risk of Inaction (Economic focus)
-    8. Concrete Solution (Process/Automation/People)
-    9. Real-world Evidence (Benchmarks)
-    10. Confidence Level
-    11. CTA: "We implement or validate this with you - not discuss it."
-    
-    CRITICAL INSTRUCTION (Step 7):
-    - Keep the report INTENTIONALLY INCOMPLETE.
-    - Show WHAT to fix and WHY.
-    - Outline HOW at a high level.
-    - DO NOT provide exact workflows, automation logic, or role design.
-    - These belong in the paid session.
-    
-    Write in clean Markdown.
-    `;
+    // Costruisci il contesto dalla conversazione
+    const conversationSummary = history
+      .filter(h => h.role === 'assistant' || h.role === 'user')
+      .map(h => {
+        if (h.role === 'user') return `**User:** ${h.content}`;
+        try {
+          const parsed = JSON.parse(h.content);
+          return `**AI:** ${parsed.message || h.content}`;
+        } catch {
+          return `**AI:** ${h.content}`;
+        }
+      })
+      .join('\n\n');
 
-    const allMessages = [
-        { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
-        { role: 'user', parts: [{ text: `Here is the diagnostic session history: ${JSON.stringify(history)}. Generate the Fixed-Format Report.` }] }
-    ];
+    const REPORT_PROMPT = `
+You are a Senior Revenue Operations Consultant. Based on the diagnostic conversation below, generate a comprehensive Strategic Growth Plan.
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
-    
-    const response = await fetch(url, {
+CONVERSATION TRANSCRIPT:
+${conversationSummary}
+
+---
+
+YOUR TASK: Generate a professional markdown report with the following structure:
+
+# Strategic Growth Plan
+**Generated:** [Current Date]
+
+## Executive Summary
+- 2-3 sentence overview of the company's current state
+- Primary challenge identified
+- Recommended strategic direction
+
+## Current State Analysis
+### Company Profile
+- Industry & Business Model
+- Stage & Size (ARR/Revenue)
+- Team Structure
+
+### Revenue Engine Assessment
+- Sales Motion (Inbound/Outbound/PLG)
+- Current Bottlenecks
+- Key Metrics (if mentioned)
+
+## Root Cause Diagnosis
+### Primary Issues Identified
+1. **[Issue Name]**
+   - Symptom: [What's visible]
+   - Root Cause: [What's actually broken]
+   - Impact: [Business consequence]
+
+2. **[Issue Name]**
+   - [Same structure]
+
+### Contributing Factors
+- List secondary issues or systemic problems
+
+## Strategic Recommendations
+
+### Immediate Actions (0-30 days)
+1. **[Action]** - [Why] - [Expected Outcome]
+2. **[Action]** - [Why] - [Expected Outcome]
+
+### Short-term Initiatives (30-90 days)
+1. **[Initiative]** - [Description] - [Success Criteria]
+2. **[Initiative]** - [Description] - [Success Criteria]
+
+### Long-term Strategy (90+ days)
+- [Strategic direction]
+- [Key investments needed]
+- [Capability building required]
+
+## Implementation Roadmap
+
+| Phase | Timeline | Focus Area | Key Deliverables |
+|-------|----------|------------|------------------|
+| 1 | Month 1 | [Area] | [Deliverables] |
+| 2 | Month 2-3 | [Area] | [Deliverables] |
+| 3 | Month 4+ | [Area] | [Deliverables] |
+
+## Success Metrics
+### Leading Indicators
+- [Metric]: [Target]
+- [Metric]: [Target]
+
+### Lagging Indicators
+- [Metric]: [Target] - [Timeframe]
+- [Metric]: [Target] - [Timeframe]
+
+## Risk Mitigation
+- **Risk:** [Description] | **Mitigation:** [Strategy]
+- **Risk:** [Description] | **Mitigation:** [Strategy]
+
+## Next Steps
+1. [Concrete action item]
+2. [Concrete action item]
+3. [Concrete action item]
+
+---
+
+**IMPORTANT GUIDELINES:**
+- Be specific and actionable, not generic
+- Cite industry benchmarks where relevant
+- Use data mentioned in the conversation
+- If information is missing, note it as "[Requires validation]"
+- Keep total length to 1500-2000 words
+- Use professional but accessible language
+- Focus on ROI and business impact
+`;
+
+    // Call Gemini to generate report
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: allMessages,
-        generationConfig: { temperature: 0.4 }
+        contents: [{ 
+          role: 'user', 
+          parts: [{ text: REPORT_PROMPT }] 
+        }],
+        generationConfig: {
+          temperature: 0.4,
+          topP: 0.95,
+          maxOutputTokens: 4096
+        }
       })
     });
 
     const data = await response.json();
-    let reportText = data.candidates?.[0]?.content?.parts?.[0]?.text || "# Error Generating Report";
 
-    res.status(200).json({ report: reportText });
+    if (data.error) {
+      console.error('Gemini API Error:', data.error);
+      return res.status(500).json({ error: data.error.message });
+    }
+
+    let reportText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    if (!reportText) {
+      return res.status(500).json({ error: 'Failed to generate report' });
+    }
+
+    // Clean up markdown code blocks if present
+    reportText = reportText.replace(/```markdown\n?/g, '').replace(/```\n?$/g, '').trim();
+
+    // Add metadata header
+    const currentDate = new Date().toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    
+    const finalReport = `---
+Generated: ${currentDate}
+Agent: Revenue Architect (Panoramica AI)
+---
+
+${reportText}
+
+---
+*This report was generated by Panoramica's Revenue Architect AI based on your diagnostic session. For questions or implementation support, contact your account manager.*
+`;
+
+    console.log('✅ Report generated successfully');
+    
+    return res.status(200).json({ 
+      report: finalReport,
+      filename: `Panoramica_Growth_Plan_${new Date().toISOString().split('T')[0]}.md`
+    });
 
   } catch (error) {
-    res.status(500).json({ report: `# Server Error\n\n${error.message}` });
+    console.error('❌ Report Generation Error:', error);
+    return res.status(500).json({ 
+      error: 'Failed to generate report', 
+      details: error.message 
+    });
   }
 }
