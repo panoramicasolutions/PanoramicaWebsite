@@ -39,6 +39,15 @@
         @keyframes message-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .msg-anim { animation: message-in 0.4s ease-out forwards; }
         
+        /* Typing indicator animation */
+        @keyframes typing-dot {
+            0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+            30% { opacity: 1; transform: translateY(-8px); }
+        }
+        .typing-dot { animation: typing-dot 1.4s infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
         input:-webkit-autofill,
         input:-webkit-autofill:hover, 
         input:-webkit-autofill:focus, 
@@ -46,6 +55,13 @@
             -webkit-box-shadow: 0 0 0 30px #0A0A0A inset !important;
             -webkit-text-fill-color: white !important;
         }
+
+        /* File upload progress */
+        @keyframes upload-progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        .upload-bar { animation: upload-progress 1.5s ease-out; }
     </style>
 </head>
 <body class="selection:bg-pano-lime selection:text-black">
@@ -69,6 +85,7 @@
                         <label class="block text-xs font-mono text-pano-grey uppercase mb-2">Company Website URL</label>
                         <input type="url" id="company-website" required placeholder="https://yourcompany.com" 
                                class="w-full bg-[#111] border border-pano-border rounded-lg px-4 py-3 text-white text-sm focus:border-pano-lime focus:outline-none focus:ring-1 focus:ring-pano-lime/50 transition">
+                        <span id="website-error" class="text-red-500 text-xs hidden mt-1 block">Please enter a valid URL</span>
                     </div>
                     
                     <div>
@@ -81,7 +98,7 @@
                         <button type="button" onclick="closeModalAndStartDemo()" class="flex-1 bg-transparent border border-pano-border text-pano-grey font-bold py-4 rounded-lg hover:text-white hover:border-white transition">
                             Skip (Demo)
                         </button>
-                        <button type="submit" class="flex-[2] bg-pano-lime text-black font-bold py-4 rounded-lg hover:bg-white transition shadow-[0_0_20px_rgba(220,238,106,0.2)] flex items-center justify-center gap-2">
+                        <button type="submit" id="submit-context" class="flex-[2] bg-pano-lime text-black font-bold py-4 rounded-lg hover:bg-white transition shadow-[0_0_20px_rgba(220,238,106,0.2)] flex items-center justify-center gap-2">
                             <span>Start Analysis</span>
                             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </button>
@@ -97,8 +114,8 @@
             <div>
                 <h1 class="font-bold text-sm tracking-wide text-white uppercase">Revenue Architect</h1>
                 <div class="flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                    <span class="text-[10px] text-pano-grey font-mono">SYSTEM ACTIVE</span>
+                    <span id="status-indicator" class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                    <span id="status-text" class="text-[10px] text-pano-grey font-mono">SYSTEM ACTIVE</span>
                 </div>
             </div>
         </div>
@@ -128,12 +145,15 @@
             </div>
 
             <div id="input-bar" class="relative group hidden opacity-0 transition-opacity duration-500">
-                <div id="file-preview" class="absolute -top-10 left-0 bg-[#222] border border-pano-border px-3 py-1 rounded-md flex items-center gap-2 hidden">
-                    <span class="text-[10px] text-pano-lime font-mono" id="file-name">DOC.PDF</span>
-                    <button onclick="clearFile()" class="text-gray-500 hover:text-white">×</button>
+                <div id="file-preview" class="absolute -top-14 left-0 bg-[#111] border border-pano-border px-4 py-2 rounded-lg flex items-center gap-3 hidden">
+                    <div class="flex items-center gap-2">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span class="text-xs text-pano-lime font-mono" id="file-name">DOCUMENT.PDF</span>
+                    </div>
+                    <button onclick="clearFile()" class="text-gray-500 hover:text-white transition">×</button>
                 </div>
                 <div class="bg-[#0A0A0A] border border-pano-border rounded-xl flex items-center p-2 shadow-2xl ring-1 ring-white/5 focus-within:ring-pano-lime/50 transition-all">
-                    <input type="file" id="file-upload" class="hidden" accept="image/*,application/pdf" onchange="handleFileSelect(this)">
+                    <input type="file" id="file-upload" class="hidden" accept="image/*,application/pdf,.doc,.docx" onchange="handleFileSelect(this)">
                     <button onclick="document.getElementById('file-upload').click()" class="p-3 text-gray-500 hover:text-white transition rounded-lg hover:bg-white/5" title="Upload Context">
                         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
                     </button>
@@ -153,6 +173,11 @@
         const API_URL = "/api/chat";
         let conversationHistory = []; 
         let currentAttachment = null; 
+        let isProcessing = false;
+        let retryCount = 0;
+        const MAX_RETRIES = 3;
+        const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
         const chatHistoryMain = document.getElementById('chat-history');
         const dynamicContent = document.getElementById('dynamic-content');
@@ -161,23 +186,106 @@
         const progressBar = document.getElementById('ai-progress');
         const textInput = document.getElementById('ai-text-input');
         const modal = document.getElementById('context-modal');
+        const statusIndicator = document.getElementById('status-indicator');
+        const statusText = document.getElementById('status-text');
+
+        // Enhanced URL validation
+        function isValidURL(string) {
+            try {
+                const url = new URL(string);
+                return url.protocol === "http:" || url.protocol === "https:";
+            } catch (_) {
+                return false;
+            }
+        }
+
+        // Sanitize HTML to prevent XSS
+        function sanitizeHTML(html) {
+            const temp = document.createElement('div');
+            temp.textContent = html;
+            return temp.innerHTML;
+        }
+
+        // Update connection status
+        function updateStatus(connected, message = '') {
+            if (connected) {
+                statusIndicator.className = 'w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse';
+                statusText.textContent = message || 'SYSTEM ACTIVE';
+            } else {
+                statusIndicator.className = 'w-1.5 h-1.5 bg-red-500 rounded-full';
+                statusText.textContent = message || 'CONNECTION ERROR';
+            }
+        }
+
+        // Retry with exponential backoff
+        async function retryWithBackoff(fn, maxRetries = MAX_RETRIES) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    return await fn();
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error;
+                    const delay = Math.min(1000 * Math.pow(2, i), 10000);
+                    console.log(`Retry ${i + 1}/${maxRetries} after ${delay}ms`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            const indicator = document.createElement('div');
+            indicator.id = 'typing-indicator';
+            indicator.className = 'flex gap-4 msg-anim';
+            indicator.innerHTML = `
+                <div class="w-8 h-8 rounded bg-[#111] border border-pano-border flex items-center justify-center shrink-0 text-pano-lime font-mono text-xs">AI</div>
+                <div class="flex gap-1 items-center bg-pano-panel border border-pano-border px-6 py-4 rounded-2xl">
+                    <div class="w-2 h-2 bg-pano-lime rounded-full typing-dot"></div>
+                    <div class="w-2 h-2 bg-pano-lime rounded-full typing-dot"></div>
+                    <div class="w-2 h-2 bg-pano-lime rounded-full typing-dot"></div>
+                </div>
+            `;
+            dynamicContent.appendChild(indicator);
+            chatHistoryMain.scrollTop = chatHistoryMain.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
+        }
 
         function closeModalAndStartDemo() {
             modal.style.opacity = '0';
             setTimeout(() => modal.classList.add('hidden'), 500);
-            addAIMessage("Context skipped. Initiating Demo Mode.");
+            addAIMessage("**Demo Mode Activated**\n\nI'm ready to help you build your revenue strategy. Let's start with a quick diagnostic.");
         }
 
         async function handleContextSubmit(e) {
             e.preventDefault();
-            const website = document.getElementById('company-website').value;
-            const linkedin = document.getElementById('company-linkedin').value;
+            const submitBtn = document.getElementById('submit-context');
+            const website = document.getElementById('company-website').value.trim();
+            const linkedin = document.getElementById('company-linkedin').value.trim();
+            const errorSpan = document.getElementById('website-error');
+
+            // Validate URLs
+            if (!isValidURL(website)) {
+                errorSpan.classList.remove('hidden');
+                return;
+            }
+            errorSpan.classList.add('hidden');
+
+            if (linkedin && !isValidURL(linkedin)) {
+                alert('LinkedIn URL is not valid');
+                return;
+            }
+
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
             modal.style.opacity = '0';
             setTimeout(() => modal.classList.add('hidden'), 500);
 
-            // Messaggio sistema
-            addAIMessage("**Initializing System...**\nScanning digital footprint to build company snapshot. Please wait.");
+            addAIMessage("**Initializing System...**\n\nScanning digital footprint to build company snapshot. This may take 30-60 seconds.");
             
             optionsContainer.innerHTML = `
                 <div class="w-full bg-[#111] border border-pano-border p-4 rounded-xl flex items-center gap-3 animate-pulse">
@@ -187,63 +295,94 @@
             `;
 
             try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        choice: "SNAPSHOT_INIT", 
-                        history: [],
-                        contextData: { website, linkedin } 
-                    })
+                const stepData = await retryWithBackoff(async () => {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            choice: "SNAPSHOT_INIT", 
+                            history: [],
+                            contextData: { website, linkedin } 
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    }
+                    return await response.json();
                 });
 
-                if (!response.ok) throw new Error("API Error");
-                const stepData = await response.json();
-
-                // Safe render
                 conversationHistory.push({ role: "assistant", content: JSON.stringify(stepData) });
                 renderTurn(stepData);
+                updateStatus(true);
 
             } catch (error) {
-                console.error(error);
-                // In caso di errore, mostriamo un bottone per riprovare
-                optionsContainer.innerHTML = `<button onclick="location.reload()" class="text-red-500 border border-red-900 bg-red-900/10 p-4 rounded-xl w-full">Analysis Error. Click to Refresh.</button>`;
+                console.error('Context initialization failed:', error);
+                updateStatus(false, 'INITIALIZATION FAILED');
+                optionsContainer.innerHTML = `
+                    <button onclick="location.reload()" class="text-red-400 border border-red-900 bg-red-900/10 p-4 rounded-xl w-full hover:bg-red-900/20 transition">
+                        ⚠️ Analysis Error. Click to Refresh and Retry.
+                    </button>
+                `;
             }
         }
 
         async function handleOption(key, explicitLabel = null) {
+            if (isProcessing) return;
             if (key === 'download_report') { downloadReport(); return; }
 
+            isProcessing = true;
             let label = explicitLabel || key;
-            if (currentAttachment) label += " (📎 DOC)";
+            if (currentAttachment) label += " 📎";
 
             addUserMessage(label);
+            showTypingIndicator();
             
             optionsContainer.innerHTML = `
                 <div class="w-full bg-[#111] border border-pano-border p-4 rounded-xl flex items-center gap-3 animate-pulse">
                     <div class="w-4 h-4 border-2 border-pano-lime border-t-transparent rounded-full animate-spin"></div>
-                    <span class="text-xs font-mono text-pano-lime uppercase tracking-widest">Thinking...</span>
+                    <span class="text-xs font-mono text-pano-lime uppercase tracking-widest">Processing...</span>
                 </div>
             `;
             inputBar.classList.add('opacity-50', 'pointer-events-none');
 
             try {
-                const payload = { choice: key, history: conversationHistory, attachment: currentAttachment };
-                const response = await fetch(API_URL, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+                const stepData = await retryWithBackoff(async () => {
+                    const payload = { choice: key, history: conversationHistory, attachment: currentAttachment };
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`API Error: ${response.status}`);
+                    }
+                    return await response.json();
                 });
+
                 clearFile();
-                if (!response.ok) throw new Error("API Error");
-                const stepData = await response.json();
                 
                 conversationHistory.push({ role: "user", content: `User input: ${key}` });
                 conversationHistory.push({ role: "assistant", content: JSON.stringify(stepData) });
 
+                hideTypingIndicator();
                 renderTurn(stepData);
+                updateStatus(true);
+                retryCount = 0;
+
             } catch (error) {
-                console.error(error);
-                optionsContainer.innerHTML = `<div class="text-red-500 p-2 text-center text-xs">Connection interrupted. Auto-retrying...</div>`;
-                setTimeout(() => handleOption(key, label), 3000); 
+                console.error('API call failed:', error);
+                hideTypingIndicator();
+                updateStatus(false, 'CONNECTION ERROR');
+                
+                optionsContainer.innerHTML = `
+                    <div class="text-red-400 p-4 text-center text-sm bg-red-900/10 border border-red-900 rounded-xl">
+                        Connection interrupted. <button onclick="handleOption('${key}', '${label}')" class="underline hover:text-red-300">Retry now</button>
+                    </div>
+                `;
+            } finally {
+                isProcessing = false;
             }
         }
 
@@ -251,17 +390,19 @@
             optionsContainer.innerHTML = '';
             inputBar.classList.remove('opacity-50', 'pointer-events-none');
             
-            // CORREZIONE CRITICA: Fallback se il messaggio è vuoto
             const msg = stepData.message || "I've processed that. What would you like to do next?";
             addAIMessage(msg);
             
+            // Smarter progress calculation based on conversation depth
+            const progressIncrement = Math.max(5, 100 / (conversationHistory.length + 10));
             const currentWidth = parseFloat(progressBar.style.width) || 0;
-            progressBar.style.width = Math.min(currentWidth + 8, 100) + '%';
+            progressBar.style.width = Math.min(currentWidth + progressIncrement, 95) + '%';
 
             if (stepData.options && stepData.options.length > 0) {
-                stepData.options.forEach(opt => {
+                stepData.options.forEach((opt, idx) => {
                     const btn = document.createElement('button');
                     btn.className = "msg-anim w-full text-left bg-pano-panel border border-pano-border hover:border-pano-lime hover:bg-pano-lime/5 p-4 rounded-xl transition-all group flex items-center justify-between mb-2";
+                    btn.style.animationDelay = `${idx * 0.1}s`;
                     btn.onclick = () => handleOption(opt.key, opt.label);
                     
                     let icon = '<span class="text-pano-grey group-hover:text-pano-lime transition">→</span>';
@@ -276,37 +417,42 @@
 
             if (stepData.mode === 'mixed') {
                 inputBar.classList.remove('hidden');
-                setTimeout(() => inputBar.classList.remove('opacity-0'), 50);
-                setTimeout(() => textInput.focus(), 100);
+                setTimeout(() => {
+                    inputBar.classList.remove('opacity-0');
+                    textInput.focus();
+                }, 50);
             } else {
                 inputBar.classList.add('hidden', 'opacity-0');
             }
-            chatHistoryMain.scrollTop = chatHistoryMain.scrollHeight;
+
+            // Smooth scroll only if user is near bottom
+            const isNearBottom = chatHistoryMain.scrollHeight - chatHistoryMain.scrollTop - chatHistoryMain.clientHeight < 100;
+            if (isNearBottom) {
+                chatHistoryMain.scrollTo({ top: chatHistoryMain.scrollHeight, behavior: 'smooth' });
+            }
         }
 
         function addUserMessage(text) {
             const div = document.createElement('div');
             div.className = "flex gap-4 flex-row-reverse msg-anim";
-            div.innerHTML = `<div class="w-8 h-8 rounded bg-pano-lime flex items-center justify-center shrink-0 text-black font-bold text-xs">YOU</div><div class="max-w-[80%]"><div class="text-sm md:text-base bg-[#1A1A1A] border border-pano-border p-4 rounded-2xl text-white">${text}</div></div>`;
+            const sanitized = sanitizeHTML(text);
+            div.innerHTML = `<div class="w-8 h-8 rounded bg-pano-lime flex items-center justify-center shrink-0 text-black font-bold text-xs">YOU</div><div class="max-w-[80%]"><div class="text-sm md:text-base bg-[#1A1A1A] border border-pano-border p-4 rounded-2xl text-white">${sanitized}</div></div>`;
             dynamicContent.appendChild(div);
             chatHistoryMain.scrollTop = chatHistoryMain.scrollHeight;
         }
 
-        // CORREZIONE CRITICA: addAIMessage "Anti-Crash"
         function addAIMessage(text) {
-            // Se text è null o undefined, usa una stringa vuota di sicurezza
-            if (!text) text = " "; 
+            if (!text) text = "_Processing..._"; 
             
             const div = document.createElement('div');
             div.className = "flex gap-4 msg-anim mb-6";
             
-            // Try/Catch per marked, nel caso estremo fallisca ancora
             let content;
             try {
                 content = (typeof marked !== 'undefined') ? marked.parse(text) : text;
             } catch (e) {
                 console.error("Markdown parse error", e);
-                content = text; // Fallback su testo semplice
+                content = sanitizeHTML(text);
             }
 
             div.innerHTML = `<div class="w-8 h-8 rounded bg-[#111] border border-pano-border flex items-center justify-center shrink-0 text-pano-lime font-mono text-xs">AI</div><div class="flex-1 space-y-2 max-w-[90%]"><div class="prose text-sm md:text-base bg-pano-panel border border-pano-border p-6 rounded-2xl shadow-xl">${content}</div></div>`;
@@ -314,46 +460,45 @@
             chatHistoryMain.scrollTop = chatHistoryMain.scrollHeight;
         }
 
-        textInput.addEventListener("keypress", (e) => { if (e.key === "Enter") { e.preventDefault(); handleTextSubmit(); } });
+        textInput.addEventListener("keypress", (e) => { 
+            if (e.key === "Enter" && !e.shiftKey) { 
+                e.preventDefault(); 
+                handleTextSubmit(); 
+            } 
+        });
         
         function handleFileSelect(input) {
             const file = input.files[0];
             if (!file) return;
+
+            // Validate file type
+            if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+                alert(`File type not supported. Allowed types: Images, PDF, Word documents`);
+                input.value = '';
+                return;
+            }
+
+            // Validate file size
+            if (file.size > MAX_FILE_SIZE) {
+                alert(`File too large. Maximum size: ${MAX_FILE_SIZE / 1024 / 1024}MB`);
+                input.value = '';
+                return;
+            }
+
             const reader = new FileReader();
-            reader.onload = function(e) {
-                currentAttachment = { mime_type: file.type, data: e.target.result.split(',')[1] };
+            reader.onloadstart = () => {
+                document.getElementById('file-preview').innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <div class="h-1 bg-pano-border rounded-full w-24 overflow-hidden">
+                            <div class="h-full bg-pano-lime upload-bar"></div>
+                        </div>
+                        <span class="text-xs text-pano-grey">Uploading...</span>
+                    </div>
+                `;
                 document.getElementById('file-preview').classList.remove('hidden');
-                document.getElementById('file-name').innerText = file.name.toUpperCase();
             };
-            reader.readAsDataURL(file);
-        }
-        
-        function clearFile() {
-            currentAttachment = null;
-            document.getElementById('file-upload').value = "";
-            document.getElementById('file-preview').classList.add('hidden');
-        }
 
-        function handleTextSubmit() {
-            const val = textInput.value.trim();
-            if(val === "" && !currentAttachment) return;
-            const finalText = val === "" ? "Analyzing document..." : val;
-            textInput.value = "";
-            handleOption(finalText, finalText); 
-        }
-
-        async function downloadReport() {
-            optionsContainer.innerHTML = `<div class="w-full bg-[#111] border border-pano-lime p-4 rounded-xl flex items-center gap-3"><div class="animate-spin text-pano-lime">⚙️</div><span class="text-white text-sm">Generating Strategy PDF...</span></div>`;
-            try {
-                const response = await fetch('/api/report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ history: conversationHistory }) });
-                const data = await response.json();
-                const blob = new Blob([data.report], { type: 'text/markdown' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a'); a.href = url; a.download = 'Panoramica_Growth_Plan.md'; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url);
-                optionsContainer.innerHTML = `<div class="w-full bg-pano-lime/10 border border-pano-lime p-4 rounded-xl text-center text-pano-lime font-bold">✅ REPORT DOWNLOADED</div>`;
-                addAIMessage("Strategy Plan downloaded.");
-            } catch (error) { optionsContainer.innerHTML = "Error."; }
-        }
-    </script>
-</body>
-</html>
+            reader.onload = function(e) {
+                currentAttachment = { 
+                    mime_type: file.type, 
+                    data
