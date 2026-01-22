@@ -1,8 +1,13 @@
 export default async function handler(req, res) {
+  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
   if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
   const sendSafeResponse = (msg, mode="mixed", options=[]) => res.status(200).json({
       step_id: "response", 
@@ -16,234 +21,338 @@ export default async function handler(req, res) {
     const geminiKey = process.env.GEMINI_API_KEY;
     const tavilyKey = process.env.TAVILY_API_KEY;
 
-    if (!geminiKey) return sendSafeResponse("⚠️ Error: Missing Gemini API Key. Configure in environment.");
+    if (!geminiKey) {
+      console.error('❌ Missing Gemini API Key');
+      return sendSafeResponse("⚠️ System configuration error. Please contact support.");
+    }
 
-    // CALCOLO DEI TURNI
+    // Calculate turn count
     const turnCount = history.filter(h => h.role === 'user').length;
     const MAX_TURNS = 10;
 
     let systemContextInjection = "";
     
-    // --- FASE 0: SNAPSHOT (Analisi Web) ---
-    if (choice === "SNAPSHOT_INIT" && contextData && tavilyKey) {
+    // --- SNAPSHOT PHASE (Web Analysis) ---
+    if (choice === "SNAPSHOT_INIT" && contextData) {
         console.log("🔍 Generating Snapshot for:", contextData.website);
-        const query = `Analyze ${contextData.website}. EXTRACT: Value Prop, ICP, Pricing Model (SaaS/Service), Est. Size. Cite 1 competitor if found.`;
-        try {
-            const searchResp = await fetch("https://api.tavily.com/search", {
-                method: "POST", 
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    api_key: tavilyKey, 
-                    query: query, 
-                    search_depth: "basic", 
-                    max_results: 3 
-                }),
-                timeout: 10000 // 10 secondi timeout
-            });
+        
+        if (tavilyKey) {
+            const query = `site:${contextData.website} OR ${contextData.website} company profile value proposition pricing model team size competitors`;
             
-            if (!searchResp.ok) throw new Error(`Tavily API error: ${searchResp.status}`);
-            
-            const searchData = await searchResp.json();
-            if (searchData.results && searchData.results.length > 0) {
-                const rawSnapshot = searchData.results.map(r => r.content).join('\n');
-                systemContextInjection = `\n[SYSTEM - REAL-TIME MARKET DATA: ${rawSnapshot}. Use this to show you know their specific market.]\n`;
-                console.log("✅ Snapshot retrieved successfully");
-            } else {
-                console.log("⚠️ No snapshot data found");
+            try {
+                const searchResp = await fetch("https://api.tavily.com/search", {
+                    method: "POST", 
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        api_key: tavilyKey, 
+                        query: query, 
+                        search_depth: "basic", 
+                        max_results: 5,
+                        include_domains: [new URL(contextData.website).hostname]
+                    })
+                });
+                
+                if (!searchResp.ok) {
+                    console.warn(`⚠️ Tavily API error: ${searchResp.status}`);
+                } else {
+                    const searchData = await searchResp.json();
+                    if (searchData.results && searchData.results.length > 0) {
+                        const rawSnapshot = searchData.results
+                            .map(r => `[${r.title}]: ${r.content}`)
+                            .join('\n\n');
+                        systemContextInjection = `\n[SYSTEM - REAL-TIME MARKET DATA FROM ${contextData.website}:\n${rawSnapshot}\n\nUse this data to demonstrate deep knowledge of their specific business. Reference specific details when possible.]\n`;
+                        console.log("✅ Snapshot retrieved successfully");
+                    }
+                }
+            } catch(e) { 
+                console.error("❌ Snapshot failed:", e.message); 
             }
-        } catch(e) { 
-            console.error("❌ Snapshot failed:", e.message); 
+        } else {
+            console.warn('⚠️ Tavily API key not configured - snapshot disabled');
         }
     }
 
-    // --- SYSTEM PROMPT (SENIOR CONSULTANT PERSONA) ---
+    // --- SYSTEM PROMPT ---
     const SYSTEM_PROMPT = `
-ROLE: You are the "Revenue Architect" (A Senior RevOps Partner, comparable to a Winning by Design or Gartner analyst).
-GOAL: Diagnose revenue bottlenecks with AUTHORITY. Guide to a strategic report.
+ROLE: You are the "Revenue Architect" - a Senior RevOps consultant with expertise comparable to Winning by Design or Gartner analysts.
 
-TONE & STYLE:
-- **Seniority:** Don't just ask questions. Explain WHY you are asking. (e.g., "To benchmark your sales cycle efficiency, I need to know...")
-- **Evidence-Based:** Cite general frameworks where appropriate (e.g., "Standard SaaS metrics suggest...", "In a PLG motion, we typically see...").
-- **Direct:** Be polite but surgical. Cut through noise.
-- **Conversational:** Use natural language, avoid corporate jargon when possible.
+MISSION: Conduct a diagnostic conversation to identify revenue bottlenecks, then generate a strategic growth plan.
 
---- LOGIC FLOW (STATE MACHINE) ---
+COMMUNICATION STYLE:
+- **Senior Authority:** Don't just ask - explain WHY. Example: "To benchmark your sales cycle efficiency against industry standards, I need to understand..."
+- **Evidence-Based:** Reference frameworks when relevant: "Standard SaaS metrics suggest...", "In a PLG motion, we typically see..."
+- **Direct & Precise:** Be polite but surgical. Cut through noise.
+- **Conversational:** Natural language, minimal jargon.
 
-PHASE 1: ANCHOR (Turn 0)
-- Action: Welcome the user by referencing their specific business model found in the Snapshot.
-- Output: "I've analyzed [Company]. You appear to be a [Segment] player with [specific insight]. Let's stress-test your revenue engine."
+--- CONVERSATION FLOW ---
 
-PHASE 2: KYC CHECKPOINT (Turns 1-4)
-- TASK: Fill the Mental Checklist. Ask ONE missing item at a time.
-  [ ] Stage & Size (ARR/Revenue)
-  [ ] Sales Motion (Inbound/Outbound/PLG/Hybrid)
-  [ ] Team Structure (Sales, Marketing, CS headcount)
-  [ ] Primary Pain Point (What's broken?)
-- **CRITICAL:** When asking, provide context. "We see different breakage points at $5M ARR vs $20M ARR. Where do you sit today?"
-- Provide 3-4 specific options as buttons (e.g., "Pre-Seed (<$1M ARR)", "Series A ($1M-$10M)", "Series B ($10M-$50M)", "Growth ($50M+)")
+**PHASE 1: ANCHOR** (Turn 0-1)
+- If SNAPSHOT data available: Reference specific business insights from their website
+- If no SNAPSHOT: Start with warm welcome
+- Example: "I've analyzed [Company]. You appear to be a [Segment] player targeting [ICP]. Let's diagnose your revenue engine."
 
-PHASE 3: DIAGNOSIS (Turns 5-9)
-- TASK: Drill down into the Pain Point using Binary Logic.
-- IF LEADS: "Is it a volume issue (Top of Funnel) or quality issue (Conversion)?"
-- IF SALES: "Is it process adherence (RevOps) or rep capability (Enablement)?"
-- **CITE SOURCES:** Use phrases like "Market benchmarks indicate...", "Common patterns in your industry show..."
-- Ask follow-up questions to understand root cause, not just symptoms.
+**PHASE 2: KNOW YOUR CLIENT** (Turns 1-4)
+Build your mental model by filling these gaps ONE AT A TIME:
+- [ ] Stage & Revenue (ARR/MRR range)
+- [ ] Sales Motion (Inbound/Outbound/PLG/Hybrid)
+- [ ] Team Structure (Sales/Marketing/CS headcount)
+- [ ] Primary Pain Point (What's broken?)
 
-PHASE 4: SYNTHESIS (Turn 8-9)
-- Summarize findings in 2-3 bullet points
-- Validate with user: "Based on our conversation, here's what I'm seeing... Does this resonate?"
+**Critical Rules:**
+1. Provide context with EVERY question: "We see different breakage points at $5M vs $20M ARR. Where are you today?"
+2. Offer 3-4 specific button options (e.g., "Pre-Seed (<$1M)", "Series A ($1-10M)", "Series B ($10-50M)", "Growth ($50M+)")
+3. Use their previous answers to refine next questions
 
-PHASE 5: FORCED CONCLUSION (Turn ${MAX_TURNS} OR when you have sufficient data)
-- TRIGGER: If you have enough signal OR if Turn Count >= ${MAX_TURNS}.
-- ACTION: Stop questioning. Tell the user you have the data needed for the strategic plan.
-- OUTPUT: Set "step_id" to "FINISH" and include a compelling message about what the plan will contain.
-- IMPORTANT: When step_id is FINISH, include ONLY this option: {"key": "download_report", "label": "📥 Download Strategic Growth Plan"}
+**PHASE 3: DIAGNOSIS** (Turns 5-9)
+Drill into the pain point using binary decision trees:
+- IF LEADS: "Volume issue (top of funnel) or quality issue (conversion)?"
+- IF SALES: "Process adherence (RevOps) or rep capability (Enablement)?"
+- IF RETENTION: "Product gap or Customer Success gap?"
 
---- CRITICAL OUTPUT SCHEMA ---
-1. Respond ONLY with valid JSON.
-2. STRUCTURE: 
-   {
-     "step_id": "string", 
-     "message": "string (Rich Markdown. Use **bold** for key insights. Use bullet points for clarity.)", 
-     "mode": "mixed",
-     "options": [{"key": "unique_key", "label": "Professional Label"}]
-   }
-3. **OPTIONS:** 
-   - Always provide 3-4 options for multiple choice questions
-   - Use descriptive labels (e.g., "Series A ($1M-$10M ARR)", not just "$1M-$10M")
-   - Keys should be machine-readable (e.g., "series_a", "enterprise_sales")
-4. **FINISH STATE:** When step_id is "FINISH", set mode to "mixed" and provide only the download_report option.
+**Citation Strategy:**
+- Use phrases like: "Market benchmarks indicate...", "Common patterns in your vertical show...", "Industry data suggests..."
+- Ask follow-ups to understand root cause, not symptoms
+
+**PHASE 4: SYNTHESIS** (Turns 8-9)
+- Summarize findings in 2-3 bullets
+- Validate: "Based on our conversation, here's what I'm seeing... Does this resonate?"
+
+**PHASE 5: CONCLUSION** (Turn ${MAX_TURNS} OR sufficient data gathered)
+**TRIGGER CONDITIONS:**
+- Turn count >= ${MAX_TURNS}, OR
+- You have clear answers to ALL Phase 2 items AND identified root cause
+
+**WHEN TRIGGERED:**
+1. Stop asking questions
+2. Set "step_id" to "FINISH"
+3. Summarize key findings
+4. Explain what the strategic plan will contain (specific previews)
+5. Provide ONLY download_report button
+
+--- OUTPUT SCHEMA (CRITICAL) ---
+
+You MUST respond with ONLY valid JSON in this exact structure:
+
+{
+  "step_id": "string",
+  "message": "string (Use **bold** for emphasis, bullet points for lists, markdown formatting)",
+  "mode": "mixed",
+  "options": [
+    {"key": "unique_machine_key", "label": "Human-Readable Label"}
+  ]
+}
+
+**OPTIONS RULES:**
+1. Provide 3-4 options for multiple choice questions
+2. Labels must be descriptive: "Series A ($1-10M ARR)" not "$1-10M"
+3. Keys must be machine-readable: "series_a" not "Series A ($1-10M ARR)"
+4. At FINISH state, provide ONLY: {"key": "download_report", "label": "📥 Download Strategic Growth Plan"}
+
+**MESSAGE RULES:**
+1. Use markdown formatting (**bold**, bullet points, etc.)
+2. Keep messages conversational but professional
+3. Include specific context from previous answers
+4. At FINISH state, preview what the report will contain
+
+**CRITICAL:** Never break character. Always respond in JSON. Never apologize for the format.
 `;
 
-    const historyParts = history.slice(-12).map(msg => ({
-        role: msg.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: msg.content }]
-    }));
+    // Build conversation history for Gemini
+    const historyParts = history.slice(-14).map(msg => {
+        let content = msg.content;
+        
+        // Parse JSON responses from assistant
+        if (msg.role === 'assistant') {
+            try {
+                const parsed = JSON.parse(content);
+                content = parsed.message || content;
+            } catch (e) {
+                // Keep original content if not JSON
+            }
+        }
+        
+        return {
+            role: msg.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: content }]
+        };
+    });
 
-    // Costruzione messaggio utente
-    let userText = `User input: "${choice}". Current turn: ${turnCount}. Respond in JSON format as specified.`;
+    // Build current user message
+    let userText = `User selected: "${choice}". Current turn: ${turnCount}.`;
     
     if (choice === "SNAPSHOT_INIT") {
-        userText = `[SYSTEM START: Website: ${contextData.website}. LinkedIn: ${contextData.linkedin || 'N/A'}. ACTION: Analyze Snapshot data. Welcome the user with a senior insight about their industry positioning. Then start KYC with the first question about their stage/ARR.]`;
+        userText = `[SYSTEM START] Website: ${contextData.website}. LinkedIn: ${contextData.linkedin || 'N/A'}.\n\nACTION: Review the SNAPSHOT data provided. Welcome the user with a specific insight about their business positioning. Then ask the FIRST diagnostic question about their revenue stage/ARR.`;
     } else if (turnCount >= MAX_TURNS) {
-        userText += ` [SYSTEM OVERRIDE: Maximum turns reached (${MAX_TURNS}). You MUST conclude the diagnosis now. Set step_id to "FINISH" and invite the user to download their strategic plan with specific preview of what it will contain.]`;
+        userText += `\n\n[SYSTEM OVERRIDE] Maximum diagnostic turns reached (${MAX_TURNS}). You MUST conclude now:\n1. Set step_id to "FINISH"\n2. Summarize key findings\n3. Preview what the strategic plan will include\n4. Provide ONLY the download_report option.`;
     }
 
+    // Combine all messages
     const allMessages = [
         { role: 'user', parts: [{ text: SYSTEM_PROMPT + systemContextInjection }] },
         ...historyParts,
         { role: 'user', parts: [{ text: userText }] }
     ];
     
+    // Add attachment if present
     if (attachment) {
         allMessages[allMessages.length-1].parts.push({ 
-            inline_data: { mime_type: attachment.mime_type, data: attachment.data } 
+            inline_data: { 
+                mime_type: attachment.mime_type, 
+                data: attachment.data 
+            } 
         });
     }
 
     // Call Gemini API
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${geminiKey}`, {
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        contents: allMessages, 
-        generationConfig: { 
-          temperature: 0.3,
-          topP: 0.95,
-          topK: 40,
-          maxOutputTokens: 2048
-        } 
-      })
-    });
+    console.log(`📤 Calling Gemini (Turn ${turnCount})...`);
+    
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiKey}`,
+      {
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          contents: allMessages, 
+          generationConfig: { 
+            temperature: 0.4,
+            topP: 0.95,
+            topK: 40,
+            maxOutputTokens: 2048,
+            responseMimeType: "application/json"
+          },
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_HARASSMENT",
+              threshold: "BLOCK_NONE"
+            },
+            {
+              category: "HARM_CATEGORY_HATE_SPEECH",
+              threshold: "BLOCK_NONE"
+            },
+            {
+              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+              threshold: "BLOCK_NONE"
+            },
+            {
+              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+              threshold: "BLOCK_NONE"
+            }
+          ]
+        })
+      }
+    );
 
-    const data = await response.json();
+    if (!geminiResponse.ok) {
+      const errorText = await geminiResponse.text();
+      console.error("❌ Gemini API Error:", geminiResponse.status, errorText);
+      return sendSafeResponse(
+        `I encountered a technical issue. Please try again or contact support if this persists.`,
+        "mixed",
+        [{ key: "retry", label: "Try Again" }]
+      );
+    }
+
+    const data = await geminiResponse.json();
     
     if (data.error) {
         console.error("❌ Gemini API Error:", data.error);
-        return sendSafeResponse(`AI Error: ${data.error.message}`);
+        return sendSafeResponse(`Technical error: ${data.error.message}`);
     }
     
     let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    
     if (!text) {
         console.error("❌ No text in response:", JSON.stringify(data));
-        return sendSafeResponse("AI returned empty response. Please try again.");
+        return sendSafeResponse(
+          "I'm having trouble formulating a response. Please try again.",
+          "mixed",
+          [{ key: "retry", label: "Try Again" }]
+        );
     }
     
-    // Clean JSON response
+    // Clean JSON response (remove markdown code blocks)
     text = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
 
     try {
       const jsonResponse = JSON.parse(text);
       
-      // SAFEGUARDS
+      // --- VALIDATION & SAFEGUARDS ---
       
-      // 1. Ensure message exists
+      // 1. Ensure required fields exist
       if (!jsonResponse.message || jsonResponse.message.trim() === "") {
-        jsonResponse.message = "I've processed your input. What would you like to explore next?";
+        jsonResponse.message = "I've processed your input. Let me know how I can help further.";
       }
       
-      // 2. Ensure step_id exists
       if (!jsonResponse.step_id) {
-        jsonResponse.step_id = turnCount >= MAX_TURNS ? "FINISH" : "diagnostic";
+        jsonResponse.step_id = turnCount >= MAX_TURNS ? "FINISH" : `diagnostic_${turnCount}`;
       }
       
-      // 3. Handle options
-      if (!jsonResponse.options || jsonResponse.options.length === 0) {
+      // 2. Always set mode to 'mixed'
+      jsonResponse.mode = 'mixed';
+      
+      // 3. Validate and normalize options
+      if (!jsonResponse.options || !Array.isArray(jsonResponse.options) || jsonResponse.options.length === 0) {
         if (jsonResponse.step_id === 'FINISH') {
-          // Force download option at the end
           jsonResponse.options = [{ 
             key: "download_report", 
             label: "📥 Download Strategic Growth Plan" 
           }];
         } else {
-          // Provide generic continue options
           jsonResponse.options = [
-            { key: "provide_details", label: "Provide more context" },
-            { key: "continue", label: "Continue to next step" }
+            { key: "provide_context", label: "Provide more context" },
+            { key: "continue", label: "Continue" }
           ];
         }
       } else {
-        // Normalize options format
-        jsonResponse.options = jsonResponse.options.map(opt => ({
-          key: opt.key || opt.id || Math.random().toString(36).substr(2, 9), 
-          label: opt.label || opt.text || opt.key || "Continue"
+        // Normalize option format
+        jsonResponse.options = jsonResponse.options.map((opt, idx) => ({
+          key: opt.key || opt.id || `option_${idx}`, 
+          label: opt.label || opt.text || opt.title || opt.key || "Continue"
         }));
       }
 
-      // 4. Force FINISH state when needed
-      if (jsonResponse.step_id === 'FINISH') {
-        jsonResponse.mode = 'mixed'; // IMPORTANTE: frontend supporta solo 'mixed'
-        // Assicurati che ci sia SOLO il bottone download
-        const hasDownload = jsonResponse.options.some(o => o.key === 'download_report');
-        if (!hasDownload) {
-          jsonResponse.options = [{ 
-            key: "download_report", 
-            label: "📥 Download Strategic Growth Plan" 
-          }];
-        } else {
-          // Rimuovi altri bottoni, tieni solo download
-          jsonResponse.options = jsonResponse.options.filter(o => o.key === 'download_report');
+      // 4. Force FINISH state behavior
+      if (jsonResponse.step_id === 'FINISH' || jsonResponse.step_id.toLowerCase().includes('finish')) {
+        // Ensure ONLY download button exists
+        jsonResponse.options = [{ 
+          key: "download_report", 
+          label: "📥 Download Strategic Growth Plan" 
+        }];
+        
+        // Ensure message includes preview of report contents
+        if (!jsonResponse.message.toLowerCase().includes('strategic plan') && 
+            !jsonResponse.message.toLowerCase().includes('report')) {
+          jsonResponse.message += "\n\n**Your Strategic Growth Plan is ready for download.** It will include:\n- Executive summary of findings\n- Root cause analysis\n- Prioritized action plan\n- Success metrics & timeline";
         }
-      } else {
-        jsonResponse.mode = 'mixed';
       }
       
-      console.log("✅ Response sent:", jsonResponse.step_id);
+      console.log(`✅ Response validated: ${jsonResponse.step_id} with ${jsonResponse.options.length} options`);
+      
       return res.status(200).json(jsonResponse);
 
     } catch (parseError) { 
       console.error("❌ JSON Parse Error:", parseError.message);
-      console.error("Raw text:", text);
-      // Fallback: invia il testo raw come messaggio
+      console.error("Raw response:", text.substring(0, 500));
+      
+      // Fallback: send text as message
       return sendSafeResponse(
-        `I've processed that, but had trouble formatting the response. Here's what I found:\n\n${text.substring(0, 500)}`,
+        `I've processed that, but had trouble formatting my response properly. Here's what I found:\n\n${text.substring(0, 400)}...`,
         "mixed",
-        [{ key: "continue", label: "Continue" }]
+        [
+          { key: "continue", label: "Continue" },
+          { key: "clarify", label: "Can you clarify?" }
+        ]
       );
     }
 
   } catch (error) { 
     console.error("❌ Server Error:", error);
-    return sendSafeResponse(`Server Error: ${error.message}. Please refresh and try again.`); 
+    console.error("Stack:", error.stack);
+    
+    return sendSafeResponse(
+      `An unexpected error occurred. Please try again or contact support if this persists.`,
+      "mixed",
+      [{ key: "retry", label: "Try Again" }]
+    ); 
   }
 }
