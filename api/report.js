@@ -1,6 +1,7 @@
-// ADVANCED PDF REPORT GENERATOR
-// This version generates actual PDF files using jsPDF
-// For Vercel deployment, install: npm install jspdf
+// PDF REPORT GENERATOR using jsPDF
+// Install: npm install jspdf
+
+import { jsPDF } from 'jspdf';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,6 +12,8 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  const log = (msg) => console.log(`[${new Date().toISOString().split('T')[1].split('.')[0]}] ${msg}`);
 
   try {
     const { history = [], diagnosticData = {} } = req.body;
@@ -24,7 +27,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'No conversation history' });
     }
 
-    console.log(`📊 Generating PDF report from ${history.length} items`);
+    log(`📊 Generating PDF report from ${history.length} messages`);
 
     // Build conversation summary
     const conversationSummary = history
@@ -40,164 +43,24 @@ export default async function handler(req, res) {
       })
       .join('\n\n');
 
-    const formattedDate = new Date().toLocaleDateString('en-US', { 
-      year: 'numeric', month: 'long', day: 'numeric' 
-    });
-
-    // Structured report prompt for JSON output
-    const REPORT_PROMPT = `
-Analyze this diagnostic conversation and generate a STRUCTURED report in JSON format.
-
-CONVERSATION:
-${conversationSummary}
-
-Respond with ONLY valid JSON in this exact structure:
-
-{
-  "company_name": "string (extract from conversation or use 'Client Company')",
-  "date": "${formattedDate}",
-  "executive_summary": {
-    "current_situation": "string (2-3 sentences)",
-    "challenge_identified": "string (2-3 sentences)",
-    "strategic_recommendation": "string (2-3 sentences)",
-    "expected_outcome": "string with metrics if possible"
-  },
-  "company_profile": {
-    "stage": "string",
-    "revenue": "string",
-    "model": "string",
-    "gtm_motion": "string",
-    "team_size": "string"
-  },
-  "primary_challenge": {
-    "title": "string (3-5 words)",
-    "description": "string (detailed paragraph)",
-    "evidence": ["string", "string", "string"],
-    "contributing_factors": ["string", "string"]
-  },
-  "benchmarks": [
-    {"metric": "string", "current": "string", "benchmark": "string", "gap": "string"}
-  ],
-  "immediate_actions": [
-    {
-      "title": "string",
-      "objective": "string",
-      "rationale": "string",
-      "steps": ["string", "string", "string"],
-      "success_metric": "string",
-      "owner": "string"
-    }
-  ],
-  "foundation_initiatives": [
-    {
-      "title": "string",
-      "objective": "string",
-      "deliverables": ["string", "string"],
-      "resources": "string"
-    }
-  ],
-  "strategic_initiatives": [
-    {
-      "title": "string",
-      "vision": "string",
-      "approach": "string",
-      "milestones": ["string", "string", "string"],
-      "investment": "string",
-      "roi": "string"
-    }
-  ],
-  "roadmap": [
-    {"phase": "string", "timeline": "string", "focus": "string", "activities": "string", "success": "string"}
-  ],
-  "kpis": {
-    "leading": [{"metric": "string", "current": "string", "target": "string"}],
-    "lagging": [{"metric": "string", "current": "string", "target": "string", "by": "string"}],
-    "north_star": {"metric": "string", "current": "string", "target": "string", "timeframe": "string"}
-  },
-  "risks": [
-    {"risk": "string", "likelihood": "string", "impact": "string", "mitigation": "string"}
-  ],
-  "resources": {
-    "team": ["string"],
-    "technology": ["string"],
-    "budget": {"30_days": "string", "90_days": "string", "12_months": "string"}
-  },
-  "next_steps": {
-    "this_week": ["string", "string", "string"],
-    "first_30_days": ["string", "string", "string"]
-  }
-}
-
-IMPORTANT:
-- Use ACTUAL information from the conversation
-- Be specific and actionable
-- Include real metrics where discussed
-- Use "To be validated" only when info truly wasn't discussed
-- Ensure all arrays have at least 2-3 items
-`;
-
-    const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${geminiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: REPORT_PROMPT }] }],
-          generationConfig: {
-            temperature: 0.5,
-            topP: 0.95,
-            maxOutputTokens: 8192,
-            responseMimeType: "application/json"
-          },
-          safetySettings: [
-            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-          ]
-        })
-      }
-    );
-
-    if (!geminiResponse.ok) {
-      console.error(`Gemini Error: ${geminiResponse.status}`);
-      return res.status(500).json({ error: 'Failed to generate report' });
-    }
-
-    const data = await geminiResponse.json();
-    let reportJson = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    // Get structured data from Gemini
+    const reportData = await generateReportData(geminiKey, conversationSummary, diagnosticData);
     
-    if (!reportJson) {
-      return res.status(500).json({ error: 'No content returned' });
+    if (!reportData) {
+      return res.status(500).json({ error: 'Failed to generate report data' });
     }
 
-    // Clean and parse JSON
-    reportJson = reportJson.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    // Generate PDF
+    const pdfBase64 = generatePDF(reportData);
     
-    let reportData;
-    try {
-      reportData = JSON.parse(reportJson);
-    } catch (e) {
-      console.error('JSON parse error:', e);
-      // Fallback to markdown
-      return res.status(200).json({ 
-        report: reportJson,
-        filename: `Report_${new Date().toISOString().split('T')[0]}.md`,
-        format: 'markdown'
-      });
-    }
+    const filename = `Panoramica_Strategic_Growth_Plan_${new Date().toISOString().split('T')[0]}.pdf`;
 
-    // Generate professional markdown from structured data
-    const markdownReport = generateMarkdownReport(reportData);
-    
-    const filename = `Panoramica_Strategic_Growth_Plan_${new Date().toISOString().split('T')[0]}.md`;
-
-    console.log(`✅ Report generated successfully`);
+    log(`✅ PDF generated successfully`);
     
     return res.status(200).json({ 
-      report: markdownReport,
-      structured_data: reportData,
+      pdf: pdfBase64,
       filename: filename,
+      format: 'pdf',
       generated_at: new Date().toISOString()
     });
 
@@ -207,216 +70,366 @@ IMPORTANT:
   }
 }
 
-function generateMarkdownReport(data) {
-  const d = data;
+async function generateReportData(apiKey, conversation, diagnosticData) {
+  const prompt = `
+Analyze this diagnostic conversation and extract structured data for a report.
+
+CONVERSATION:
+${conversation}
+
+ADDITIONAL CONTEXT:
+${JSON.stringify(diagnosticData)}
+
+Respond with ONLY valid JSON:
+
+{
+  "company_name": "string",
+  "date": "${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}",
+  "executive_summary": "2-3 paragraph summary of situation, challenge, and recommendation",
+  "company_profile": {
+    "stage": "string",
+    "revenue": "string", 
+    "model": "string",
+    "gtm_motion": "string",
+    "team_size": "string"
+  },
+  "primary_challenge": {
+    "title": "3-5 word title",
+    "description": "detailed paragraph",
+    "evidence": ["point 1", "point 2", "point 3"],
+    "root_cause": "string"
+  },
+  "benchmarks": [
+    {"metric": "string", "current": "string", "benchmark": "string", "gap": "string"}
+  ],
+  "recommendations": {
+    "immediate": [
+      {"title": "string", "description": "string", "owner": "string", "timeline": "string"}
+    ],
+    "short_term": [
+      {"title": "string", "description": "string", "owner": "string", "timeline": "string"}
+    ],
+    "strategic": [
+      {"title": "string", "description": "string", "owner": "string", "timeline": "string"}
+    ]
+  },
+  "kpis": [
+    {"metric": "string", "current": "string", "target": "string", "timeline": "string"}
+  ],
+  "next_steps": ["step 1", "step 2", "step 3"]
+}
+
+Use ACTUAL information from conversation. Be specific and actionable.
+`;
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.5,
+            maxOutputTokens: 4096,
+            responseMimeType: "application/json"
+          }
+        })
+      }
+    );
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    if (!text) return null;
+    
+    return JSON.parse(text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim());
+  } catch (e) {
+    console.error('Gemini error:', e);
+    return null;
+  }
+}
+
+function generatePDF(data) {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 20;
+  const contentWidth = pageWidth - (margin * 2);
+  let y = margin;
+
+  // Colors
+  const lime = [205, 255, 0];
+  const dark = [3, 3, 3];
+  const grey = [128, 128, 128];
+  const white = [255, 255, 255];
+
+  // Helper functions
+  const addPage = () => {
+    doc.addPage();
+    y = margin;
+  };
+
+  const checkPageBreak = (needed = 30) => {
+    if (y + needed > pageHeight - margin) {
+      addPage();
+      return true;
+    }
+    return false;
+  };
+
+  const drawText = (text, x, yPos, options = {}) => {
+    const { 
+      size = 10, 
+      color = dark, 
+      style = 'normal',
+      maxWidth = contentWidth,
+      align = 'left'
+    } = options;
+    
+    doc.setFontSize(size);
+    doc.setTextColor(...color);
+    doc.setFont('helvetica', style);
+    
+    const lines = doc.splitTextToSize(text, maxWidth);
+    doc.text(lines, x, yPos, { align });
+    
+    return lines.length * (size * 0.4);
+  };
+
+  const drawSection = (title) => {
+    checkPageBreak(25);
+    y += 8;
+    doc.setFillColor(...lime);
+    doc.rect(margin, y, 3, 8, 'F');
+    drawText(title.toUpperCase(), margin + 8, y + 6, { size: 14, style: 'bold' });
+    y += 15;
+  };
+
+  const drawSubsection = (title) => {
+    checkPageBreak(15);
+    y += 5;
+    drawText(title, margin, y, { size: 11, style: 'bold' });
+    y += 7;
+  };
+
+  const drawParagraph = (text) => {
+    checkPageBreak(20);
+    const height = drawText(text, margin, y, { size: 10, color: grey });
+    y += height + 5;
+  };
+
+  const drawBullet = (text) => {
+    checkPageBreak(10);
+    doc.setFillColor(...lime);
+    doc.circle(margin + 2, y - 1, 1.5, 'F');
+    const height = drawText(text, margin + 8, y, { size: 10, maxWidth: contentWidth - 10 });
+    y += height + 3;
+  };
+
+  // ═══════════════════════════════════════════════════════════════
+  // COVER PAGE
+  // ═══════════════════════════════════════════════════════════════
   
-  return `
-<div align="center">
-
-# STRATEGIC GROWTH PLAN
-
-### ${d.company_name || 'Client Company'}
-
-**${d.date}**
-
-*Prepared by Revenue Architect | Panoramica*
-
----
-
-</div>
-
-## Executive Summary
-
-### Current Situation
-${d.executive_summary?.current_situation || 'Analysis in progress.'}
-
-### Challenge Identified
-${d.executive_summary?.challenge_identified || 'To be determined.'}
-
-### Strategic Recommendation
-${d.executive_summary?.strategic_recommendation || 'Recommendations pending.'}
-
-### Expected Outcome
-${d.executive_summary?.expected_outcome || 'Outcomes to be quantified.'}
-
----
-
-## Company Profile
-
-| Attribute | Current State |
-|-----------|---------------|
-| **Company Stage** | ${d.company_profile?.stage || 'To be validated'} |
-| **Revenue Range** | ${d.company_profile?.revenue || 'Not disclosed'} |
-| **Business Model** | ${d.company_profile?.model || 'To be validated'} |
-| **Go-to-Market** | ${d.company_profile?.gtm_motion || 'To be validated'} |
-| **Team Size** | ${d.company_profile?.team_size || 'To be validated'} |
-
----
-
-## Diagnostic Findings
-
-### Primary Challenge: ${d.primary_challenge?.title || 'Revenue Optimization'}
-
-${d.primary_challenge?.description || 'Detailed analysis pending.'}
-
-### Supporting Evidence
-
-${(d.primary_challenge?.evidence || []).map((e, i) => `${i + 1}. ${e}`).join('\n')}
-
-### Contributing Factors
-
-${(d.primary_challenge?.contributing_factors || []).map(f => `- ${f}`).join('\n')}
-
----
-
-## Industry Benchmark Comparison
-
-| Metric | Current State | Industry Benchmark | Gap Analysis |
-|--------|---------------|-------------------|--------------|
-${(d.benchmarks || []).map(b => `| ${b.metric} | ${b.current} | ${b.benchmark} | ${b.gap} |`).join('\n')}
-
-*Sources: Bessemer Venture Partners, OpenView Partners, Gartner Research*
-
----
-
-## Strategic Recommendations
-
-### Phase 1: Immediate Actions (Days 1-30)
-
-${(d.immediate_actions || []).map((action, i) => `
-#### ${i + 1}. ${action.title}
-
-**Objective:** ${action.objective}
-
-**Rationale:** ${action.rationale}
-
-**Implementation Steps:**
-${(action.steps || []).map((s, j) => `${j + 1}. ${s}`).join('\n')}
-
-**Success Metric:** ${action.success_metric}
-**Owner:** ${action.owner}
-`).join('\n---\n')}
-
----
-
-### Phase 2: Foundation Building (Days 31-60)
-
-${(d.foundation_initiatives || []).map((init, i) => `
-#### ${i + 1}. ${init.title}
-
-**Objective:** ${init.objective}
-
-**Key Deliverables:**
-${(init.deliverables || []).map(d => `- ${d}`).join('\n')}
-
-**Resources Required:** ${init.resources}
-`).join('\n---\n')}
-
----
-
-### Phase 3: Strategic Transformation (Days 61-90+)
-
-${(d.strategic_initiatives || []).map((init, i) => `
-#### ${i + 1}. ${init.title}
-
-**Vision:** ${init.vision}
-
-**Approach:** ${init.approach}
-
-**Key Milestones:**
-${(init.milestones || []).map((m, j) => `- Week ${8 + j * 2}: ${m}`).join('\n')}
-
-**Investment Required:** ${init.investment}
-**Expected ROI:** ${init.roi}
-`).join('\n---\n')}
-
----
-
-## Implementation Roadmap
-
-| Phase | Timeline | Focus Area | Key Activities | Success Criteria |
-|-------|----------|------------|----------------|------------------|
-${(d.roadmap || []).map(r => `| ${r.phase} | ${r.timeline} | ${r.focus} | ${r.activities} | ${r.success} |`).join('\n')}
-
----
-
-## Success Metrics & KPIs
-
-### Leading Indicators (Track Weekly)
-
-| Metric | Current | Target |
-|--------|---------|--------|
-${(d.kpis?.leading || []).map(k => `| ${k.metric} | ${k.current} | ${k.target} |`).join('\n')}
-
-### Lagging Indicators (Track Monthly)
-
-| Metric | Current | Target | Timeline |
-|--------|---------|--------|----------|
-${(d.kpis?.lagging || []).map(k => `| ${k.metric} | ${k.current} | ${k.target} | ${k.by} |`).join('\n')}
-
-### North Star Metric
-
-**${d.kpis?.north_star?.metric || 'Primary Growth Metric'}**
-- Current: ${d.kpis?.north_star?.current || 'Baseline TBD'}
-- Target: ${d.kpis?.north_star?.target || 'Target TBD'}
-- Timeframe: ${d.kpis?.north_star?.timeframe || '90 days'}
-
----
-
-## Risk Mitigation
-
-| Risk | Likelihood | Impact | Mitigation Strategy |
-|------|------------|--------|---------------------|
-${(d.risks || []).map(r => `| ${r.risk} | ${r.likelihood} | ${r.impact} | ${r.mitigation} |`).join('\n')}
-
----
-
-## Resource Requirements
-
-### Team
-${(d.resources?.team || []).map(t => `- ${t}`).join('\n')}
-
-### Technology & Tools
-${(d.resources?.technology || []).map(t => `- ${t}`).join('\n')}
-
-### Budget Estimate
-
-| Timeframe | Investment |
-|-----------|------------|
-| First 30 Days | ${d.resources?.budget?.['30_days'] || 'TBD'} |
-| First 90 Days | ${d.resources?.budget?.['90_days'] || 'TBD'} |
-| 12 Months | ${d.resources?.budget?.['12_months'] || 'TBD'} |
-
----
-
-## Recommended Next Steps
-
-### This Week
-${(d.next_steps?.this_week || []).map((s, i) => `${i + 1}. ${s}`).join('\n')}
-
-### First 30 Days
-${(d.next_steps?.first_30_days || []).map((s, i) => `${i + 1}. ${s}`).join('\n')}
-
----
-
-## Methodology
-
-This Strategic Growth Plan was developed using:
-
-- **Winning by Design** Revenue Architecture Framework
-- **MEDDICC** Sales Qualification Methodology
-- **Industry Benchmarks** from Bessemer, OpenView, and Gartner
-- **AI-Powered Diagnostics** by Panoramica
-
----
-
-<div align="center">
-
-*This document is confidential and intended solely for the use of ${d.company_name || 'the client'}.*
-
-**Generated by Panoramica Revenue Architect**
-${d.date}
-
-</div>
-`.trim();
+  // Background
+  doc.setFillColor(...dark);
+  doc.rect(0, 0, pageWidth, pageHeight, 'F');
+  
+  // Logo area
+  doc.setFillColor(...lime);
+  doc.rect(margin, 40, 50, 12, 'F');
+  doc.setTextColor(...dark);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('PANORAMICA', margin + 5, 48);
+  
+  // Title
+  doc.setTextColor(...white);
+  doc.setFontSize(36);
+  doc.text('Strategic', margin, 90);
+  doc.text('Growth Plan', margin, 105);
+  
+  // Company name
+  doc.setFontSize(18);
+  doc.setTextColor(...lime);
+  doc.text(data.company_name || 'Client Company', margin, 130);
+  
+  // Date
+  doc.setFontSize(12);
+  doc.setTextColor(...grey);
+  doc.text(data.date, margin, 145);
+  
+  // Footer line
+  doc.setDrawColor(...lime);
+  doc.setLineWidth(0.5);
+  doc.line(margin, pageHeight - 30, pageWidth - margin, pageHeight - 30);
+  
+  doc.setFontSize(9);
+  doc.setTextColor(...grey);
+  doc.text('Prepared by Revenue Architect | Panoramica', margin, pageHeight - 22);
+  doc.text('CONFIDENTIAL', pageWidth - margin, pageHeight - 22, { align: 'right' });
+
+  // ═══════════════════════════════════════════════════════════════
+  // CONTENT PAGES
+  // ═══════════════════════════════════════════════════════════════
+  addPage();
+
+  // Executive Summary
+  drawSection('Executive Summary');
+  drawParagraph(data.executive_summary || 'Executive summary not available.');
+
+  // Company Profile
+  drawSection('Company Profile');
+  
+  const profile = data.company_profile || {};
+  const profileItems = [
+    ['Stage', profile.stage || 'Not specified'],
+    ['Revenue', profile.revenue || 'Not disclosed'],
+    ['Business Model', profile.model || 'Not specified'],
+    ['GTM Motion', profile.gtm_motion || 'Not specified'],
+    ['Team Size', profile.team_size || 'Not specified']
+  ];
+
+  profileItems.forEach(([label, value]) => {
+    checkPageBreak(8);
+    drawText(`${label}:`, margin, y, { size: 10, style: 'bold' });
+    drawText(value, margin + 40, y, { size: 10, color: grey });
+    y += 6;
+  });
+
+  // Primary Challenge
+  drawSection('Diagnostic Findings');
+  
+  const challenge = data.primary_challenge || {};
+  drawSubsection(challenge.title || 'Primary Challenge');
+  drawParagraph(challenge.description || 'Challenge description not available.');
+  
+  if (challenge.evidence?.length) {
+    y += 3;
+    drawText('Supporting Evidence:', margin, y, { size: 10, style: 'bold' });
+    y += 6;
+    challenge.evidence.forEach(e => drawBullet(e));
+  }
+  
+  if (challenge.root_cause) {
+    y += 3;
+    drawText('Root Cause:', margin, y, { size: 10, style: 'bold' });
+    y += 6;
+    drawParagraph(challenge.root_cause);
+  }
+
+  // Benchmarks
+  if (data.benchmarks?.length) {
+    drawSection('Industry Benchmarks');
+    
+    // Table header
+    checkPageBreak(30);
+    doc.setFillColor(240, 240, 240);
+    doc.rect(margin, y, contentWidth, 8, 'F');
+    doc.setFontSize(9);
+    doc.setTextColor(...dark);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Metric', margin + 2, y + 5.5);
+    doc.text('Current', margin + 50, y + 5.5);
+    doc.text('Benchmark', margin + 90, y + 5.5);
+    doc.text('Gap', margin + 130, y + 5.5);
+    y += 10;
+    
+    doc.setFont('helvetica', 'normal');
+    data.benchmarks.forEach(b => {
+      checkPageBreak(8);
+      doc.setTextColor(...grey);
+      doc.text(b.metric || '-', margin + 2, y + 4);
+      doc.text(b.current || '-', margin + 50, y + 4);
+      doc.text(b.benchmark || '-', margin + 90, y + 4);
+      doc.text(b.gap || '-', margin + 130, y + 4);
+      y += 7;
+    });
+  }
+
+  // Recommendations
+  drawSection('Strategic Recommendations');
+  
+  const recs = data.recommendations || {};
+  
+  if (recs.immediate?.length) {
+    drawSubsection('Immediate Actions (Days 1-30)');
+    recs.immediate.forEach((r, i) => {
+      checkPageBreak(20);
+      drawText(`${i + 1}. ${r.title}`, margin, y, { size: 10, style: 'bold' });
+      y += 5;
+      drawParagraph(r.description);
+      if (r.owner) {
+        drawText(`Owner: ${r.owner} | Timeline: ${r.timeline || 'Immediate'}`, margin, y, { size: 9, color: grey });
+        y += 6;
+      }
+    });
+  }
+  
+  if (recs.short_term?.length) {
+    drawSubsection('Foundation Building (Days 31-60)');
+    recs.short_term.forEach((r, i) => {
+      checkPageBreak(20);
+      drawText(`${i + 1}. ${r.title}`, margin, y, { size: 10, style: 'bold' });
+      y += 5;
+      drawParagraph(r.description);
+    });
+  }
+  
+  if (recs.strategic?.length) {
+    drawSubsection('Strategic Initiatives (Days 61-90+)');
+    recs.strategic.forEach((r, i) => {
+      checkPageBreak(20);
+      drawText(`${i + 1}. ${r.title}`, margin, y, { size: 10, style: 'bold' });
+      y += 5;
+      drawParagraph(r.description);
+    });
+  }
+
+  // KPIs
+  if (data.kpis?.length) {
+    drawSection('Success Metrics & KPIs');
+    
+    data.kpis.forEach(kpi => {
+      checkPageBreak(15);
+      drawText(kpi.metric, margin, y, { size: 10, style: 'bold' });
+      y += 5;
+      drawText(`Current: ${kpi.current} → Target: ${kpi.target} (${kpi.timeline})`, margin, y, { size: 10, color: grey });
+      y += 8;
+    });
+  }
+
+  // Next Steps
+  if (data.next_steps?.length) {
+    drawSection('Recommended Next Steps');
+    data.next_steps.forEach((step, i) => {
+      checkPageBreak(10);
+      drawText(`${i + 1}.`, margin, y, { size: 10, style: 'bold', color: lime });
+      drawText(step, margin + 8, y, { size: 10 });
+      y += 8;
+    });
+  }
+
+  // Final page footer
+  checkPageBreak(30);
+  y = pageHeight - 40;
+  doc.setDrawColor(...lime);
+  doc.line(margin, y, pageWidth - margin, y);
+  y += 8;
+  doc.setFontSize(9);
+  doc.setTextColor(...grey);
+  doc.text('This Strategic Growth Plan was generated by Panoramica Revenue Architect.', margin, y);
+  y += 5;
+  doc.text('For implementation support, contact your account manager.', margin, y);
+
+  // Convert to base64
+  return doc.output('datauristring').split(',')[1];
 }
