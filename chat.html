@@ -648,7 +648,19 @@
             setTimeout(() => {
                 modal.classList.add('hidden');
                 addAIMessage("**Demo Mode Active**\n\nI'm the Revenue Architect — a strategic advisor built to diagnose revenue bottlenecks and deliver actionable growth strategies.\n\nLet's begin your diagnostic session.");
-                updatePhase(1);
+                
+                // Show initial options for demo mode
+                optionsContainer.innerHTML = '';
+                const btn = document.createElement('button');
+                btn.className = "msg-anim btn-option w-full text-left bg-pano-card border border-pano-border hover:border-pano-lime/50 p-4 rounded-xl transition-all group flex items-center justify-between";
+                btn.onclick = () => handleOption('start_diagnostic', 'Start Diagnostic Session');
+                btn.innerHTML = `
+                    <span class="text-sm font-medium text-white">Start Diagnostic Session</span>
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" class="text-pano-grey group-hover:text-pano-lime group-hover:translate-x-1 transition-all shrink-0 ml-3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
+                    </svg>
+                `;
+                optionsContainer.appendChild(btn);
             }, 400);
         }
 
@@ -930,41 +942,54 @@
         // TURN RENDERING
         // ═══════════════════════════════════════════════════════════════
         function renderTurn(stepData) {
+            console.log('renderTurn called with:', stepData); // Debug
+            
             optionsContainer.innerHTML = '';
             inputBar.classList.remove('opacity-50', 'pointer-events-none');
             
             const msg = stepData.message || "I've processed that. What would you like to do next?";
             addAIMessage(msg);
 
-            if (stepData.options && stepData.options.length > 0) {
-                stepData.options.forEach((opt, idx) => {
-                    const btn = document.createElement('button');
-                    btn.style.animationDelay = `${idx * 0.08}s`;
-                    btn.onclick = () => handleOption(opt.key, opt.label);
-                    
-                    if (opt.key === 'download_report') {
-                        btn.className = "msg-anim w-full bg-pano-lime text-black border-2 border-pano-lime p-5 rounded-xl transition-all font-bold flex items-center justify-between shadow-glow hover:bg-pano-lime-soft hover:scale-[1.01]";
-                        btn.innerHTML = `
-                            <div class="flex items-center gap-3">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
-                                </svg>
-                                <span>${opt.label}</span>
-                            </div>
-                            <span class="text-sm opacity-70">PDF</span>
-                        `;
-                    } else {
-                        btn.className = "msg-anim btn-option w-full text-left bg-pano-card border border-pano-border hover:border-pano-lime/50 p-4 rounded-xl transition-all group flex items-center justify-between";
-                        btn.innerHTML = `
-                            <span class="text-sm font-medium text-white">${opt.label}</span>
-                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" class="text-pano-grey group-hover:text-pano-lime group-hover:translate-x-1 transition-all shrink-0 ml-3">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
-                            </svg>
-                        `;
-                    }
-                    optionsContainer.appendChild(btn);
-                });
+            // Ensure options exist
+            let options = stepData.options;
+            if (!options || !Array.isArray(options) || options.length === 0) {
+                console.log('No options in response, adding defaults'); // Debug
+                options = [
+                    { key: "continue", label: "Continue" },
+                    { key: "tell_more", label: "Tell me more" },
+                    { key: "different_topic", label: "Ask about something else" }
+                ];
             }
+
+            console.log('Rendering options:', options); // Debug
+
+            options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.style.animationDelay = `${idx * 0.08}s`;
+                btn.onclick = () => handleOption(opt.key, opt.label);
+                
+                if (opt.key === 'download_report') {
+                    btn.className = "msg-anim w-full bg-pano-lime text-black border-2 border-pano-lime p-5 rounded-xl transition-all font-bold flex items-center justify-between shadow-glow hover:bg-pano-lime-soft hover:scale-[1.01]";
+                    btn.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
+                            </svg>
+                            <span>${opt.label}</span>
+                        </div>
+                        <span class="text-sm opacity-70">PDF</span>
+                    `;
+                } else {
+                    btn.className = "msg-anim btn-option w-full text-left bg-pano-card border border-pano-border hover:border-pano-lime/50 p-4 rounded-xl transition-all group flex items-center justify-between";
+                    btn.innerHTML = `
+                        <span class="text-sm font-medium text-white">${opt.label}</span>
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" class="text-pano-grey group-hover:text-pano-lime group-hover:translate-x-1 transition-all shrink-0 ml-3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
+                        </svg>
+                    `;
+                }
+                optionsContainer.appendChild(btn);
+            });
 
             // Show text input in mixed mode
             if (stepData.mode === 'mixed' || stepData.allow_text) {
