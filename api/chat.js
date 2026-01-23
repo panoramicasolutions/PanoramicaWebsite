@@ -318,33 +318,46 @@ BENCHMARKS TO REFERENCE
 - Sales Cycle: <$15K=14-30d, $15-50K=30-90d, $50K+=90-180d
 
 ═══════════════════════════════════════════════════════════════════════════════
-OUTPUT FORMAT (CRITICAL)
+OUTPUT FORMAT (CRITICAL - MUST FOLLOW EXACTLY)
 ═══════════════════════════════════════════════════════════════════════════════
 
 Respond ONLY with valid JSON:
 
 {
   "step_id": "diagnostic" | "validation" | "FINISH",
-  "message": "markdown string",
+  "message": "markdown string with your response",
   "mode": "mixed",
-  "options": [{"key": "snake_case", "label": "Label"}],
+  "options": [
+    {"key": "option_1_snake_case", "label": "First option for user to click"},
+    {"key": "option_2_snake_case", "label": "Second option"},
+    {"key": "option_3_snake_case", "label": "Third option"},
+    {"key": "option_4_snake_case", "label": "Fourth option (optional)"}
+  ],
   "confidence_update": {
     "pillar1_company": {"stage": N, "revenue": N, "team": N},
     "pillar2_gtm": {"motion": N, "icp": N, "channels": N},
     "pillar3_diagnosis": {"pain_point": N, "root_cause": N, "factors": N},
     "pillar4_solution": {"validated": N, "next_steps": N, "recommendations": N}
   },
-  "reasoning": "Why scores changed"
+  "reasoning": "Brief explanation of score changes"
 }
 
-RULES:
-- ALWAYS include confidence_update
-- Only INCREASE scores (cumulative)
-- When total >= ${CONFIDENCE_THRESHOLD}: step_id = "FINISH"
-- At FINISH: options = [{"key": "download_report", "label": "📥 Download Strategic Growth Plan"}]
-- Turn >= ${HARD_TURN_CAP}: FORCE FINISH
+CRITICAL RULES:
+1. ALWAYS include 3-4 options in the "options" array - NEVER leave it empty
+2. Options should be specific choices related to your question, NOT generic "continue"
+3. Each option needs both "key" (snake_case) and "label" (user-friendly text)
+4. ALWAYS include confidence_update with current scores
+5. Only INCREASE scores (information is cumulative)
+6. When total >= ${CONFIDENCE_THRESHOLD}: step_id = "FINISH"
+7. At FINISH: options = [{"key": "download_report", "label": "📥 Download Strategic Growth Plan"}]
+8. Turn >= ${HARD_TURN_CAP}: FORCE FINISH
 
-COMMUNICATION: Senior consultant, explain WHY you ask, reference benchmarks.
+EXAMPLE OPTIONS FORMAT:
+- For company stage: [{"key": "seed_stage", "label": "Seed/Pre-seed"}, {"key": "series_a", "label": "Series A"}, ...]
+- For problems: [{"key": "pipeline_issue", "label": "Not enough leads"}, {"key": "conversion_issue", "label": "Low conversion rate"}, ...]
+- For yes/no: [{"key": "yes_correct", "label": "Yes, that's right"}, {"key": "partially", "label": "Partially correct"}, {"key": "no_different", "label": "No, it's different"}]
+
+COMMUNICATION: Senior consultant tone, explain WHY you ask, reference benchmarks naturally.
 `;
 
     // Build history
@@ -359,11 +372,53 @@ COMMUNICATION: Senior consultant, explain WHY you ask, reference benchmarks.
     // Build user message
     let userText = "";
     if (choice === "SNAPSHOT_INIT") {
-      userText = `[START] Website: ${contextData.website}\n${systemContextInjection}\nACTION: Welcome, share insight if available, ask first question targeting lowest pillar, include confidence_update.`;
+      userText = `[SESSION START]
+Website: ${contextData?.website || 'Not provided'}
+LinkedIn: ${contextData?.linkedin || 'Not provided'}
+
+${systemContextInjection || '[No external data available - proceed with questions]'}
+
+YOUR TASK:
+1. Welcome the client professionally
+2. If web data available, mention ONE specific insight about their business
+3. Ask your FIRST diagnostic question (target the lowest-confidence pillar)
+4. IMPORTANT: Provide exactly 3-4 clickable options for the user to choose from
+
+Example response format:
+{
+  "message": "Welcome! I've analyzed [company]. I noticed [insight]. To understand your situation better, what's your current company stage?",
+  "options": [
+    {"key": "pre_seed", "label": "Pre-seed / Bootstrapped"},
+    {"key": "seed", "label": "Seed ($500K-$2M raised)"},
+    {"key": "series_a", "label": "Series A ($2M-$15M raised)"},
+    {"key": "series_b_plus", "label": "Series B+ or Profitable"}
+  ],
+  ...
+}`;
     } else if (confidence.ready_for_finish) {
-      userText = `[FINISH REQUIRED] Input: "${choice}" | Score: ${confidence.total_score}/100\nSummarize findings, preview report, set step_id="FINISH", only download option.`;
+      userText = `[FINISH REQUIRED]
+User input: "${choice}"
+Current Score: ${confidence.total_score}/100
+
+REQUIRED ACTIONS:
+1. Summarize key findings from the diagnostic
+2. Set step_id to "FINISH"
+3. Preview what the Strategic Growth Plan will contain
+4. Provide ONLY the download option: [{"key": "download_report", "label": "📥 Download Strategic Growth Plan"}]`;
     } else {
-      userText = `Input: "${choice}" | Turn: ${turnCount} | Score: ${confidence.total_score}\nAnalyze response, update confidence, ask next question targeting lowest pillar.`;
+      userText = `[CONTINUE DIAGNOSTIC]
+User selected: "${choice}"
+Turn: ${turnCount}/${HARD_TURN_CAP}
+Current Score: ${confidence.total_score}/100
+
+ANALYZE & RESPOND:
+1. What new information did this response provide?
+2. Update confidence scores based on new info
+3. Identify the LOWEST scoring pillar that needs attention
+4. Ask a strategic question targeting that gap
+5. IMPORTANT: Provide 3-4 specific, clickable options for the user
+
+Remember: Each option should be a meaningful choice, not generic "continue" buttons.`;
     }
 
     const allMessages = [
@@ -383,7 +438,7 @@ COMMUNICATION: Senior consultant, explain WHY you ask, reference benchmarks.
     log('📤', `Gemini call (Turn ${turnCount}, Score: ${confidence.total_score})`);
     
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${geminiKey}`,
       {
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' },
@@ -452,13 +507,49 @@ COMMUNICATION: Senior consultant, explain WHY you ask, reference benchmarks.
       if (!json.message) json.message = "Processing...";
       json.mode = 'mixed';
       
-      // Handle options
-      if (!json.options?.length) {
-        json.options = confidence.ready_for_finish 
-          ? [{ key: "download_report", label: "📥 Download Strategic Growth Plan" }]
-          : [{ key: "continue", label: "Continue" }];
+      // Handle options - ALWAYS ensure we have meaningful options
+      if (!json.options || !Array.isArray(json.options) || json.options.length === 0) {
+        // Generate contextual default options based on confidence state
+        if (confidence.ready_for_finish) {
+          json.options = [{ key: "download_report", label: "📥 Download Strategic Growth Plan" }];
+        } else if (confidence.pillar1_company.score < 10) {
+          // Need more company info
+          json.options = [
+            { key: "early_stage", label: "We're early stage (Pre-seed/Seed)" },
+            { key: "growth_stage", label: "We're in growth mode (Series A/B)" },
+            { key: "established", label: "We're established ($10M+ ARR)" },
+            { key: "tell_more", label: "Let me explain our situation" }
+          ];
+        } else if (confidence.pillar2_gtm.score < 10) {
+          // Need GTM info
+          json.options = [
+            { key: "inbound_led", label: "Mostly inbound/content marketing" },
+            { key: "outbound_led", label: "Outbound sales driven" },
+            { key: "product_led", label: "Product-led growth (PLG)" },
+            { key: "mixed_motion", label: "Mix of multiple channels" }
+          ];
+        } else if (confidence.pillar3_diagnosis.score < 15) {
+          // Need diagnosis info
+          json.options = [
+            { key: "pipeline_problem", label: "Pipeline/lead generation issues" },
+            { key: "conversion_problem", label: "Conversion/close rate issues" },
+            { key: "retention_problem", label: "Churn/retention issues" },
+            { key: "scaling_problem", label: "Scaling/capacity issues" }
+          ];
+        } else {
+          // Generic continue options
+          json.options = [
+            { key: "continue", label: "Continue diagnostic" },
+            { key: "clarify", label: "Let me clarify something" },
+            { key: "different_topic", label: "Ask about something else" }
+          ];
+        }
       } else {
-        json.options = json.options.map((o, i) => ({ key: o.key || `opt_${i}`, label: o.label || "Continue" }));
+        // Clean up existing options
+        json.options = json.options.map((o, i) => ({ 
+          key: o.key || `opt_${i}`, 
+          label: o.label || "Continue" 
+        }));
       }
 
       // Force FINISH if ready
