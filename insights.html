@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insights - Panoramica Solutions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { 'pano-bg': '#050505', 'pano-lime': '#DCEE6A', 'pano-grey': '#A0A0A0', 'pano-border': '#262626' },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>body { background-color: #050505; color: white; }</style>
+</head>
+<body class="antialiased">
+
+    <nav class="fixed w-full z-50 bg-black/90 backdrop-blur-md border-b border-[#222]">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html"><img src="PanoramicaChiaro.png" alt="Panoramica" class="h-6 md:h-8 w-auto object-contain"></a>
+            <div class="hidden md:flex gap-8 text-sm font-medium text-gray-300">
+                <a href="index.html" class="hover:text-white transition">Home</a>
+                <a href="#" class="text-white">Insights</a>
+            </div>
+            <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" class="px-5 py-2.5 bg-pano-lime text-black font-bold text-sm rounded hover:bg-white transition">Book Audit</a>
+        </div>
+    </nav>
+
+    <header class="pt-40 pb-20 px-6 text-center">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6">Operational <span class="text-pano-lime">Insights</span></h1>
+        <p class="text-pano-grey text-lg max-w-2xl mx-auto">Strategies, frameworks, and technical deep-dives for revenue leaders.</p>
+    </header>
+
+    <section class="max-w-7xl mx-auto px-6 pb-24">
+        <div id="blog-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            </div>
+    </section>
+
+    <script>
+        fetch('posts.json')
+            .then(response => response.json())
+            .then(posts => {
+                const grid = document.getElementById('blog-grid');
+                posts.forEach(post => {
+                    const card = `
+                        <a href="article.html?id=${post.id}" class="group block bg-[#0F0F0F] border border-pano-border rounded-xl overflow-hidden hover:border-pano-lime transition duration-300">
+                            <div class="h-48 overflow-hidden">
+                                <img src="${post.image}" alt="${post.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-80 group-hover:opacity-100">
+                            </div>
+                            <div class="p-6">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-xs font-bold text-pano-lime uppercase tracking-widest">${post.category}</span>
+                                    <span class="text-xs text-pano-grey">${post.date}</span>
+                                </div>
+                                <h2 class="text-xl font-bold text-white mb-3 group-hover:text-pano-lime transition">${post.title}</h2>
+                                <p class="text-sm text-pano-grey line-clamp-3">${post.excerpt}</p>
+                                <div class="mt-4 text-sm font-bold text-white flex items-center gap-2">
+                                    Read Article <span class="group-hover:translate-x-1 transition">→</span>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                    grid.innerHTML += card;
+                });
+            });
+    </script>
+</body>
+</html>
