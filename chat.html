@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- PDF Generation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -220,40 +222,40 @@
                     </div>
                 </div>
 
-<form id="context-form" onsubmit="handleContextSubmit(event)" class="space-y-5">
-    <div>
-        <label class="block text-xs font-medium text-pano-grey-light uppercase tracking-wider mb-2">Company Website</label>
-        <input type="url" id="company-website" required placeholder="https://yourcompany.com" 
-               class="w-full bg-pano-panel border border-pano-border rounded-xl px-4 py-3.5 text-white text-sm focus:border-pano-lime focus:outline-none focus:ring-2 focus:ring-pano-lime/20 transition-all placeholder:text-gray-600">
-        <span id="website-error" class="text-red-400 text-xs hidden mt-2 block">Please enter a valid URL (https://...)</span>
-    </div>
+                <form id="context-form" onsubmit="handleContextSubmit(event)" class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-medium text-pano-grey-light uppercase tracking-wider mb-2">Company Website</label>
+                        <input type="url" id="company-website" required placeholder="https://yourcompany.com" 
+                               class="w-full bg-pano-panel border border-pano-border rounded-xl px-4 py-3.5 text-white text-sm focus:border-pano-lime focus:outline-none focus:ring-2 focus:ring-pano-lime/20 transition-all placeholder:text-gray-600">
+                        <span id="website-error" class="text-red-400 text-xs hidden mt-2 block">Please enter a valid URL (https://...)</span>
+                    </div>
 
-    <div>
-        <label class="block text-xs font-medium text-pano-grey-light uppercase tracking-wider mb-2">
-            Business Description <span class="text-pano-lime text-[10px] ml-1">(CRITICAL)</span>
-        </label>
-        <textarea id="company-description" rows="2" placeholder="Ex: B2B SaaS platform helping agencies automate reporting..." 
-               class="w-full bg-pano-panel border border-pano-border rounded-xl px-4 py-3.5 text-white text-sm focus:border-pano-lime focus:outline-none focus:ring-2 focus:ring-pano-lime/20 transition-all placeholder:text-gray-600 resize-none custom-scrollbar"></textarea>
-    </div>
-    
-    <div>
-        <label class="block text-xs font-medium text-pano-grey-light uppercase tracking-wider mb-2">LinkedIn Company Page <span class="text-pano-grey">(Optional)</span></label>
-        <input type="url" id="company-linkedin" placeholder="https://linkedin.com/company/..." 
-               class="w-full bg-pano-panel border border-pano-border rounded-xl px-4 py-3.5 text-white text-sm focus:border-pano-lime focus:outline-none focus:ring-2 focus:ring-pano-lime/20 transition-all placeholder:text-gray-600">
-    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-pano-grey-light uppercase tracking-wider mb-2">
+                            Business Description <span class="text-pano-lime text-[10px] ml-1">(CRITICAL)</span>
+                        </label>
+                        <textarea id="company-description" rows="2" placeholder="Ex: B2B SaaS platform helping agencies automate reporting..." 
+                               class="w-full bg-pano-panel border border-pano-border rounded-xl px-4 py-3.5 text-white text-sm focus:border-pano-lime focus:outline-none focus:ring-2 focus:ring-pano-lime/20 transition-all placeholder:text-gray-600 resize-none custom-scrollbar"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-medium text-pano-grey-light uppercase tracking-wider mb-2">LinkedIn Company Page <span class="text-pano-grey">(Optional)</span></label>
+                        <input type="url" id="company-linkedin" placeholder="https://linkedin.com/company/..." 
+                               class="w-full bg-pano-panel border border-pano-border rounded-xl px-4 py-3.5 text-white text-sm focus:border-pano-lime focus:outline-none focus:ring-2 focus:ring-pano-lime/20 transition-all placeholder:text-gray-600">
+                    </div>
 
-    <div class="pt-4 flex gap-3">
-        <button type="button" onclick="closeModalAndStartDemo()" class="flex-1 bg-transparent border border-pano-border text-pano-grey font-semibold py-4 rounded-xl hover:text-white hover:border-pano-border-hover hover:bg-white/5 transition-all">
-            Demo Mode
-        </button>
-        <button type="submit" id="submit-context" class="flex-[2] bg-pano-lime text-black font-bold py-4 rounded-xl hover:bg-pano-lime-soft transition-all shadow-glow flex items-center justify-center gap-2 group">
-            <span>Start Analysis</span>
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="transform group-hover:translate-x-1 transition-transform">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
-            </svg>
-        </button>
-    </div>
-</form>
+                    <div class="pt-4 flex gap-3">
+                        <button type="button" onclick="closeModalAndStartDemo()" class="flex-1 bg-transparent border border-pano-border text-pano-grey font-semibold py-4 rounded-xl hover:text-white hover:border-pano-border-hover hover:bg-white/5 transition-all">
+                            Demo Mode
+                        </button>
+                        <button type="submit" id="submit-context" class="flex-[2] bg-pano-lime text-black font-bold py-4 rounded-xl hover:bg-pano-lime-soft transition-all shadow-glow flex items-center justify-center gap-2 group">
+                            <span>Start Analysis</span>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="transform group-hover:translate-x-1 transition-transform">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
 
                 <p class="text-center text-[11px] text-gray-600 mt-6">
                     Your data is analyzed in real-time and never stored.
@@ -325,7 +327,7 @@
         </div>
         
         <div class="flex items-center gap-3">
-            <span id="turn-counter" class="text-[10px] font-mono text-pano-grey hidden">TURN 0/10</span>
+            <span id="turn-counter" class="text-[10px] font-mono text-pano-grey hidden">TURN 0/15</span>
             <button onclick="location.reload()" class="text-xs font-medium text-pano-grey hover:text-white transition-colors border border-pano-border px-4 py-2 rounded-lg hover:border-pano-border-hover hover:bg-white/5">
                 Reset
             </button>
@@ -416,7 +418,7 @@
         const MAX_RETRIES = 3;
         const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
         const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
-        const MAX_TURNS = 12;
+        const MAX_TURNS = 15;
 
         // ═══════════════════════════════════════════════════════════════
         // STATE
@@ -483,11 +485,11 @@
         }
 
         function updateProgress(turn) {
-            const progress = Math.min((turn / 15) * 100, 100);
+            const progress = Math.min((turn / MAX_TURNS) * 100, 100);
             progressBar.style.width = `${progress}%`;
             
             turnCounter.classList.remove('hidden');
-            turnCounter.textContent = `TURN ${turn}/15`;
+            turnCounter.textContent = `TURN ${turn}/${MAX_TURNS}`;
         }
 
         function updateConfidenceDisplay(state) {
@@ -676,6 +678,7 @@
             e.preventDefault();
             const submitBtn = document.getElementById('submit-context');
             const website = document.getElementById('company-website').value.trim();
+            const description = document.getElementById('company-description').value.trim();
             const linkedin = document.getElementById('company-linkedin').value.trim();
             const errorSpan = document.getElementById('website-error');
 
@@ -715,7 +718,7 @@
                         body: JSON.stringify({ 
                             choice: "SNAPSHOT_INIT", 
                             history: [],
-                            contextData: { website, linkedin },
+                            contextData: { website, description, linkedin },
                             confidenceState: confidenceState
                         }),
                         signal: controller.signal
@@ -730,6 +733,7 @@
                 });
 
                 diagnosticData.website = website;
+                diagnosticData.description = description;
                 diagnosticData.linkedin = linkedin;
                 
                 // Update confidence from response
@@ -756,13 +760,13 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // REPORT DOWNLOAD
+        // REPORT DOWNLOAD WITH CLIENT-SIDE PDF GENERATION
         // ═══════════════════════════════════════════════════════════════
         async function downloadReport() {
             if (isProcessing) return;
             isProcessing = true;
 
-            showLoadingState('GENERATING PDF REPORT...');
+            showLoadingState('GENERATING STRATEGIC GROWTH PLAN...');
             updateStatus(true, 'GENERATING');
 
             try {
@@ -787,38 +791,20 @@
 
                 const data = await response.json();
                 
-                // Handle PDF download
+                // Check if server returned PDF
                 if (data.pdf_base64) {
-                    const byteCharacters = atob(data.pdf_base64);
-                    const byteNumbers = new Array(byteCharacters.length);
-                    for (let i = 0; i < byteCharacters.length; i++) {
-                        byteNumbers[i] = byteCharacters.charCodeAt(i);
-                    }
-                    const byteArray = new Uint8Array(byteNumbers);
-                    const blob = new Blob([byteArray], { type: 'application/pdf' });
-                    
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = data.filename || 'Strategic_Growth_Plan.pdf';
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                } else if (data.report) {
-                    // Fallback to markdown
-                    const blob = new Blob([data.report], { type: 'text/markdown' });
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = data.filename || 'Strategic_Growth_Plan.md';
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
+                    downloadBase64PDF(data.pdf_base64, data.filename || 'Strategic_Growth_Plan.pdf');
+                } 
+                // Otherwise generate PDF client-side from markdown
+                else if (data.report) {
+                    await generateClientSidePDF(data.report, data.filename || 'Strategic_Growth_Plan');
+                } 
+                else {
+                    throw new Error('No report content received');
                 }
 
-                addAIMessage("✅ **Report Generated Successfully**\n\nYour Strategic Growth Plan has been downloaded. It contains:\n\n- Executive summary of findings\n- Detailed root cause analysis\n- Prioritized 90-day action plan\n- Implementation roadmap with KPIs\n- Risk mitigation strategies\n\nFeel free to start a new session if you need further analysis.");
+                // Show success message
+                addAIMessage("✅ **Report Generated Successfully**\n\nYour Strategic Growth Plan has been downloaded. It contains:\n\n- Executive summary of findings\n- Detailed root cause analysis\n- Prioritized 90-day action plan\n- Key metrics to track\n- Risk mitigation strategies\n\nFeel free to start a new session if you need further analysis.");
                 
                 optionsContainer.innerHTML = `
                     <button onclick="location.reload()" class="w-full btn-option bg-pano-card border border-pano-border hover:border-pano-lime/50 p-5 rounded-xl transition-all group flex items-center justify-between">
@@ -851,6 +837,396 @@
             } finally {
                 isProcessing = false;
             }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // HELPER: Download Base64 PDF
+        // ═══════════════════════════════════════════════════════════════
+        function downloadBase64PDF(base64, filename) {
+            const byteCharacters = atob(base64);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: 'application/pdf' });
+            
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // CLIENT-SIDE PDF GENERATION
+        // ═══════════════════════════════════════════════════════════════
+        async function generateClientSidePDF(markdown, baseFilename) {
+            showLoadingState('CONVERTING TO PDF...');
+            
+            // Convert markdown to styled HTML
+            const styledHTML = convertMarkdownToStyledHTML(markdown);
+            
+            // Create temporary container
+            const container = document.createElement('div');
+            container.id = 'pdf-container';
+            container.innerHTML = styledHTML;
+            container.style.position = 'absolute';
+            container.style.left = '-9999px';
+            container.style.top = '0';
+            container.style.width = '210mm'; // A4 width
+            document.body.appendChild(container);
+            
+            // PDF generation options
+            const options = {
+                margin: [15, 15, 15, 15], // mm
+                filename: `${baseFilename}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 2,
+                    useCORS: true,
+                    letterRendering: true,
+                    logging: false
+                },
+                jsPDF: { 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    orientation: 'portrait',
+                    compress: true
+                },
+                pagebreak: { 
+                    mode: ['avoid-all', 'css', 'legacy'],
+                    before: '.page-break-before',
+                    after: '.page-break-after',
+                    avoid: ['h2', 'h3', 'table', 'blockquote', '.avoid-break']
+                }
+            };
+            
+            try {
+                // Generate and download PDF
+                await html2pdf().set(options).from(container).save();
+                console.log('PDF generated successfully');
+            } catch (error) {
+                console.error('PDF generation error:', error);
+                // Fallback: download as markdown
+                downloadMarkdown(markdown, baseFilename);
+            } finally {
+                // Clean up
+                document.body.removeChild(container);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // MARKDOWN TO STYLED HTML CONVERTER
+        // ═══════════════════════════════════════════════════════════════
+        function convertMarkdownToStyledHTML(markdown) {
+            // Parse markdown using marked.js (already loaded)
+            let html = '';
+            
+            if (typeof marked !== 'undefined') {
+                marked.setOptions({
+                    breaks: true,
+                    gfm: true,
+                    tables: true,
+                    headerIds: false
+                });
+                html = marked.parse(markdown);
+            } else {
+                // Fallback basic conversion
+                html = basicMarkdownToHTML(markdown);
+            }
+            
+            // Extract company name and date for header
+            const companyMatch = markdown.match(/^#\s*Strategic Growth Plan\s*\n##\s*([^\|]+)/m);
+            const companyName = companyMatch ? companyMatch[1].trim() : 'Company';
+            const dateStr = new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            // Return complete styled document
+            return `
+                <style>
+                    * {
+                        box-sizing: border-box;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    
+                    body, .pdf-content {
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        font-size: 10pt;
+                        line-height: 1.5;
+                        color: #1a1a1a;
+                        background: white;
+                    }
+                    
+                    .pdf-content {
+                        padding: 0;
+                        max-width: 100%;
+                    }
+                    
+                    /* Header Branding */
+                    .report-header {
+                        background: linear-gradient(135deg, #030303 0%, #0a0a0a 100%);
+                        color: white;
+                        padding: 30px;
+                        margin: -15mm -15mm 20px -15mm;
+                        width: calc(100% + 30mm);
+                    }
+                    
+                    .report-header h1 {
+                        font-size: 24pt;
+                        font-weight: 700;
+                        margin: 0 0 5px 0;
+                        color: white;
+                        border: none;
+                        padding: 0;
+                    }
+                    
+                    .report-header .subtitle {
+                        font-size: 11pt;
+                        color: #CDFF00;
+                        font-weight: 500;
+                    }
+                    
+                    .report-header .meta {
+                        font-size: 9pt;
+                        color: #888;
+                        margin-top: 10px;
+                    }
+                    
+                    .brand-bar {
+                        width: 60px;
+                        height: 4px;
+                        background: #CDFF00;
+                        margin-bottom: 15px;
+                        border-radius: 2px;
+                    }
+                    
+                    /* Typography */
+                    h1 {
+                        font-size: 20pt;
+                        font-weight: 700;
+                        color: #000;
+                        margin: 30px 0 15px 0;
+                        padding-bottom: 8px;
+                        border-bottom: 2px solid #CDFF00;
+                    }
+                    
+                    h2 {
+                        font-size: 14pt;
+                        font-weight: 600;
+                        color: #111;
+                        margin: 25px 0 12px 0;
+                        padding-bottom: 6px;
+                        border-bottom: 1px solid #e5e5e5;
+                        page-break-after: avoid;
+                    }
+                    
+                    h3 {
+                        font-size: 11pt;
+                        font-weight: 600;
+                        color: #333;
+                        margin: 18px 0 10px 0;
+                        page-break-after: avoid;
+                    }
+                    
+                    p {
+                        margin: 0 0 10px 0;
+                        text-align: justify;
+                    }
+                    
+                    strong {
+                        font-weight: 600;
+                        color: #000;
+                    }
+                    
+                    em {
+                        font-style: italic;
+                        color: #555;
+                    }
+                    
+                    /* Lists */
+                    ul, ol {
+                        margin: 10px 0;
+                        padding-left: 20px;
+                    }
+                    
+                    li {
+                        margin-bottom: 5px;
+                    }
+                    
+                    li::marker {
+                        color: #CDFF00;
+                    }
+                    
+                    /* Blockquotes */
+                    blockquote {
+                        border-left: 3px solid #CDFF00;
+                        background: #f9f9f9;
+                        padding: 12px 15px;
+                        margin: 15px 0;
+                        font-style: italic;
+                        color: #555;
+                        border-radius: 0 6px 6px 0;
+                        page-break-inside: avoid;
+                    }
+                    
+                    blockquote p {
+                        margin: 0;
+                    }
+                    
+                    /* Tables */
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 15px 0;
+                        font-size: 9pt;
+                        page-break-inside: avoid;
+                    }
+                    
+                    thead {
+                        background: #f5f5f5;
+                    }
+                    
+                    th {
+                        font-weight: 600;
+                        text-align: left;
+                        padding: 10px 12px;
+                        border: 1px solid #ddd;
+                        background: #f5f5f5;
+                    }
+                    
+                    td {
+                        padding: 8px 12px;
+                        border: 1px solid #ddd;
+                        vertical-align: top;
+                    }
+                    
+                    tr:nth-child(even) {
+                        background: #fafafa;
+                    }
+                    
+                    /* Horizontal Rules */
+                    hr {
+                        border: none;
+                        border-top: 1px solid #e5e5e5;
+                        margin: 25px 0;
+                    }
+                    
+                    /* Code */
+                    code {
+                        background: #f5f5f5;
+                        padding: 2px 6px;
+                        border-radius: 3px;
+                        font-family: 'JetBrains Mono', monospace;
+                        font-size: 9pt;
+                    }
+                    
+                    /* Footer */
+                    .report-footer {
+                        margin-top: 30px;
+                        padding-top: 15px;
+                        border-top: 1px solid #e5e5e5;
+                        font-size: 8pt;
+                        color: #888;
+                        text-align: center;
+                    }
+                    
+                    /* Page Break Helpers */
+                    .page-break-before {
+                        page-break-before: always;
+                    }
+                    
+                    .page-break-after {
+                        page-break-after: always;
+                    }
+                    
+                    .avoid-break {
+                        page-break-inside: avoid;
+                    }
+                </style>
+                
+                <div class="pdf-content">
+                    <div class="report-header">
+                        <div class="brand-bar"></div>
+                        <h1>Strategic Growth Plan</h1>
+                        <div class="subtitle">${companyName}</div>
+                        <div class="meta">Generated by Revenue Architect | ${dateStr}</div>
+                    </div>
+                    
+                    <div class="report-body">
+                        ${html}
+                    </div>
+                    
+                    <div class="report-footer">
+                        <p>This report was generated by Revenue Architect by Panoramica.</p>
+                        <p>Confidential — For internal use only</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // FALLBACK: Basic Markdown to HTML
+        // ═══════════════════════════════════════════════════════════════
+        function basicMarkdownToHTML(markdown) {
+            return markdown
+                // Headers
+                .replace(/^######\s+(.*)$/gm, '<h6>$1</h6>')
+                .replace(/^#####\s+(.*)$/gm, '<h5>$1</h5>')
+                .replace(/^####\s+(.*)$/gm, '<h4>$1</h4>')
+                .replace(/^###\s+(.*)$/gm, '<h3>$1</h3>')
+                .replace(/^##\s+(.*)$/gm, '<h2>$1</h2>')
+                .replace(/^#\s+(.*)$/gm, '<h1>$1</h1>')
+                // Bold
+                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                // Italic
+                .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+                // Blockquotes
+                .replace(/^>\s+(.*)$/gm, '<blockquote><p>$1</p></blockquote>')
+                // Unordered lists
+                .replace(/^[\-\*]\s+(.*)$/gm, '<li>$1</li>')
+                // Checkboxes
+                .replace(/^[\-\*]\s+\[\s*\]\s+(.*)$/gm, '<li>☐ $1</li>')
+                .replace(/^[\-\*]\s+\[x\]\s+(.*)$/gm, '<li>☑ $1</li>')
+                // Horizontal rules
+                .replace(/^---+$/gm, '<hr>')
+                .replace(/^\*\*\*+$/gm, '<hr>')
+                // Line breaks
+                .replace(/\n\n+/g, '</p><p>')
+                // Wrap in paragraphs
+                .replace(/^(?!<[holubt]|<\/|<li|<hr|<block)/gm, '<p>')
+                // Clean up
+                .replace(/<p><\/p>/g, '')
+                .replace(/<p>(<h[1-6]>)/g, '$1')
+                .replace(/(<\/h[1-6]>)<\/p>/g, '$1')
+                .replace(/<p>(<hr>)/g, '$1')
+                .replace(/(<hr>)<\/p>/g, '$1')
+                .replace(/<p>(<blockquote>)/g, '$1')
+                .replace(/(<\/blockquote>)<\/p>/g, '$1');
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // FALLBACK: Download as Markdown
+        // ═══════════════════════════════════════════════════════════════
+        function downloadMarkdown(markdown, baseFilename) {
+            const blob = new Blob([markdown], { type: 'text/markdown' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${baseFilename}.md`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            console.log('Downloaded as markdown (PDF generation failed)');
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -950,7 +1326,7 @@
         // TURN RENDERING
         // ═══════════════════════════════════════════════════════════════
         function renderTurn(stepData) {
-            console.log('renderTurn called with:', stepData); // Debug
+            console.log('renderTurn called with:', stepData);
             
             optionsContainer.innerHTML = '';
             inputBar.classList.remove('opacity-50', 'pointer-events-none');
@@ -961,15 +1337,15 @@
             // Ensure options exist
             let options = stepData.options;
             if (!options || !Array.isArray(options) || options.length === 0) {
-                console.log('No options in response, adding defaults'); // Debug
+                console.log('No options in response, adding defaults');
                 options = [
-                    { key: "continue", label: "Continue" },
-                    { key: "tell_more", label: "Tell me more" },
-                    { key: "different_topic", label: "Ask about something else" }
+                    { key: "tell_more", label: "Let me explain further" },
+                    { key: "continue_discovery", label: "Ask the next question" },
+                    { key: "different_topic", label: "Let's discuss something else" }
                 ];
             }
 
-            console.log('Rendering options:', options); // Debug
+            console.log('Rendering options:', options);
 
             options.forEach((opt, idx) => {
                 const btn = document.createElement('button');
