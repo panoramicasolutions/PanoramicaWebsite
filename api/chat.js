@@ -1,475 +1,570 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// REVENUE ARCHITECT - v6.0 FINAL
+// REVENUE ARCHITECT - v7.0 SCRIPTED FLOW
 // 
-// Complete rewrite fixing:
-// - Context loss between turns
-// - Phases advancing too fast
-// - Shallow non-technical questions
-// - "Add context" loop bug
-// - Missing references/links
+// Core change: The conversation flow is SCRIPTED, not improvised.
+// Each turn has a SPECIFIC question ID. The LLM formats the message
+// but CANNOT skip questions or invent its own flow.
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SECTION 1: PHASE DEFINITIONS
+// SECTION 1: THE CONVERSATION SCRIPT
+// Each step defines exactly what to ask and what options to show.
+// The LLM's job is to FORMAT the question with context, NOT to decide what to ask.
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const PHASES = {
-  welcome:     { order: 0, next: 'company',   minQuestions: 0, label: 'Welcome' },
-  company:     { order: 1, next: 'gtm',       minQuestions: 3, label: 'Company Context' },
-  gtm:         { order: 2, next: 'sales',     minQuestions: 3, label: 'Go-to-Market' },
-  sales:       { order: 3, next: 'diagnosis',  minQuestions: 3, label: 'Sales Engine' },
-  diagnosis:   { order: 4, next: 'pre_finish', minQuestions: 2, label: 'Diagnosis' },
-  pre_finish:  { order: 5, next: 'finish',     minQuestions: 0, label: 'Summary' },
-  finish:      { order: 6, next: null,          minQuestions: 0, label: 'Report' },
-  add_context: { order: -1, next: null,         minQuestions: 0, label: 'Adding Context' }
-};
+const SCRIPT = [
+  // ── PHASE: WELCOME ──────────────────────────────────────────────────────────
+  {
+    id: 'welcome',
+    phase: 'welcome',
+    instruction: `You just scraped the user's website. Create a WELCOME message that:
+1. Greets them and names their company
+2. References 3-4 SPECIFIC things from their website (headlines, pricing, features)
+3. Makes 3 bold assumptions about their business based on the data
+4. Asks: "Did I get this right? What should I correct?"
 
-// Questions bank per phase - each question has a depth level
-// The agent will pick from these and adapt to context
-const QUESTION_BANK = {
-  company: [
-    { id: 'c1', topic: 'stage_and_model', depth: 1, prompt: 'What stage is the company at? Business model? (SaaS, services, marketplace, etc.)' },
-    { id: 'c2', topic: 'revenue_details', depth: 1, prompt: 'Revenue details: current MRR/ARR, growth rate month-over-month, trajectory' },
-    { id: 'c3', topic: 'team_structure', depth: 1, prompt: 'Team: how many people, key roles, any recent hires or gaps' },
-    { id: 'c4', topic: 'funding_runway', depth: 2, prompt: 'Funding status and runway: bootstrapped, raised, profitable?' },
-    { id: 'c5', topic: 'unit_economics', depth: 2, prompt: 'Unit economics: LTV, CAC, gross margin, payback period' },
-    { id: 'c6', topic: 'tech_product', depth: 2, prompt: 'Product maturity: MVP, product-market fit achieved, retention metrics' },
-    { id: 'c7', topic: 'competitive_landscape', depth: 3, prompt: 'Competitive landscape: main competitors, differentiation, moat' }
-  ],
-  gtm: [
-    { id: 'g1', topic: 'icp_definition', depth: 1, prompt: 'ICP: who is the ideal buyer? Job title, company size, industry, budget' },
-    { id: 'g2', topic: 'channels_mix', depth: 1, prompt: 'Acquisition channels: what channels are you using? Which work best?' },
-    { id: 'g3', topic: 'sales_motion', depth: 1, prompt: 'Sales motion: inbound, outbound, PLG, partner, or mixed?' },
-    { id: 'g4', topic: 'messaging_positioning', depth: 2, prompt: 'Positioning: painkiller or vitamin? How do you describe the value in one sentence?' },
-    { id: 'g5', topic: 'content_strategy', depth: 2, prompt: 'Content/marketing: what content do you produce? SEO, social, paid ads?' },
-    { id: 'g6', topic: 'deal_metrics', depth: 2, prompt: 'Deal metrics: average deal size, sales cycle length, conversion rates at each stage' },
-    { id: 'g7', topic: 'pipeline_coverage', depth: 3, prompt: 'Pipeline: current pipeline value, coverage ratio, pipeline velocity' },
-    { id: 'g8', topic: 'attribution', depth: 3, prompt: 'Attribution: do you know which channel generates the best ROI? How do you track?' }
-  ],
-  sales: [
-    { id: 's1', topic: 'sales_process', depth: 1, prompt: 'Sales process: what are the stages from first touch to close? Is it documented?' },
-    { id: 's2', topic: 'founder_involvement', depth: 1, prompt: 'Who closes deals? Founder, sales team, or self-serve? What percentage each?' },
-    { id: 's3', topic: 'bottlenecks', depth: 1, prompt: 'Where do deals get stuck or die? Most common objections?' },
-    { id: 's4', topic: 'win_loss', depth: 2, prompt: 'Win/loss analysis: win rate, why you win vs lose, lost deal follow-up?' },
-    { id: 's5', topic: 'tools_crm', depth: 2, prompt: 'Tools: CRM used, automation, data quality, reporting cadence' },
-    { id: 's6', topic: 'onboarding_churn', depth: 2, prompt: 'Post-sale: onboarding process, time to value, churn rate, expansion revenue' },
-    { id: 's7', topic: 'sales_enablement', depth: 3, prompt: 'Enablement: playbooks, training, call recordings, objection handlers?' },
-    { id: 's8', topic: 'forecasting', depth: 3, prompt: 'Forecasting: how do you predict revenue? Accuracy of forecasts?' }
-  ],
-  diagnosis: [
-    { id: 'd1', topic: 'pain_validation', depth: 1, prompt: 'Validate the diagnosed problems: do they resonate? What is most urgent?' },
-    { id: 'd2', topic: 'priority_ranking', depth: 1, prompt: 'Priority: if you could fix only ONE thing in the next 90 days, what would it be?' },
-    { id: 'd3', topic: 'resources_constraints', depth: 2, prompt: 'Constraints: budget, team capacity, timeline, political blockers?' },
-    { id: 'd4', topic: 'past_attempts', depth: 2, prompt: 'What have you already tried to fix these problems? What worked/didn\'t?' }
-  ]
-};
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// SECTION 2: MASTER SYSTEM PROMPT
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function buildMasterPrompt(session) {
-  const p = session.profile;
-  const phase = session.currentPhase;
-  
-  return `
-═══════════════════════════════════════════════════════════════════════════════
-REVENUE ARCHITECT - SYSTEM INSTRUCTIONS (v6.0)
-═══════════════════════════════════════════════════════════════════════════════
-
-You are the **Revenue Architect**, a senior Revenue Operations strategist with 15+ years of experience working with 200+ B2B companies from seed stage to $100M+ ARR. You diagnose revenue bottlenecks and deliver actionable growth strategies.
-
-═══════════════════════════════════════════════════════════════════════════════
-1. IDENTITY & TONE
-═══════════════════════════════════════════════════════════════════════════════
-
-PERSONA:
-- Senior consultant, strategic thinker
-- Direct, specific, never generic
-- Back every insight with a CONCRETE real-world example
-- Think in systems: every problem has upstream causes and downstream effects
-
-TONE:
-- Professional but warm (trusted advisor, not cold analyst)
-- Use "you/your" language, address the user directly
-- Be confident in your analysis but open to correction
-- NEVER say "interesting" or "great question" — add value instead
-
-LANGUAGE: Always respond in the SAME language the user uses. If they write Italian, you respond in Italian. If English, respond in English.
-
-RESPONSE DEPTH:
-- MINIMUM 4-5 sentences per response
-- ALWAYS include at least ONE concrete real-world example with specifics
-- When relevant, include industry benchmarks (cite the source mentally)
-- When recommending tools/frameworks, include brief reasoning
-- Provide links to relevant resources when applicable (use real, well-known URLs like HubSpot blog, Gartner, SaaStr, First Round Review, Lenny's Newsletter, etc.)
-
-═══════════════════════════════════════════════════════════════════════════════
-2. CURRENT SESSION STATE
-═══════════════════════════════════════════════════════════════════════════════
-
-CURRENT PHASE: ${phase.toUpperCase()}
-TURN COUNT: ${session.turnCount}
-QUESTIONS ASKED THIS PHASE: ${session.phaseQuestionCount} / ${PHASES[phase]?.minQuestions || 0} minimum
-
-COMPLETE BUSINESS PROFILE (everything learned so far):
-─────────────────────────────────────────────────────
-
-COMPANY:
-- Name: ${p.companyName || '❓ NOT YET KNOWN'}
-- Website: ${p.website || '❓'}
-- Industry: ${p.industry || '❓ NOT YET KNOWN'}
-- Business Model: ${p.businessModel || '❓ NOT YET KNOWN'}
-- Stage: ${p.stage || '❓ NOT YET KNOWN'}
-- Revenue: ${p.revenue || '❓ NOT YET KNOWN'}
-- Revenue Growth: ${p.revenueGrowth || '❓'}
-- Team Size: ${p.teamSize || '❓ NOT YET KNOWN'}
-- Team Roles: ${p.teamRoles || '❓'}
-- Funding: ${p.funding || '❓'}
-- Founded: ${p.founded || '❓'}
-
-PRODUCT:
-- Description: ${p.productDescription || '❓ NOT YET KNOWN'}
-- Product Stage: ${p.productStage || '❓'}
-- Key Features: ${p.keyFeatures || '❓'}
-- Pricing Model: ${p.pricingModel || '❓'}
-- Pricing Range: ${p.pricingRange || '❓'}
-
-GO-TO-MARKET:
-- ICP Title: ${p.icpTitle || '❓ NOT YET KNOWN'}
-- ICP Company Size: ${p.icpCompanySize || '❓'}
-- ICP Industry: ${p.icpIndustry || '❓'}
-- ICP Pain Points: ${p.icpPainPoints || '❓'}
-- Sales Motion: ${p.salesMotion || '❓ NOT YET KNOWN'}
-- Primary Channels: ${p.channels || '❓ NOT YET KNOWN'}
-- Best Channel: ${p.bestChannel || '❓'}
-- Avg Deal Size: ${p.avgDealSize || '❓'}
-- Sales Cycle: ${p.salesCycle || '❓'}
-- CAC: ${p.cac || '❓'}
-- LTV: ${p.ltv || '❓'}
-
-SALES ENGINE:
-- Sales Process: ${p.salesProcess || '❓ NOT YET KNOWN'}
-- Process Documented: ${p.processDocumented || '❓'}
-- Who Closes Deals: ${p.whoCloses || '❓ NOT YET KNOWN'}
-- Founder Involvement: ${p.founderInvolvement || '❓'}
-- Win Rate: ${p.winRate || '❓'}
-- Main Objections: ${p.mainObjections || '❓'}
-- Lost Deal Reasons: ${p.lostDealReasons || '❓'}
-- CRM Used: ${p.crm || '❓'}
-- Churn Rate: ${p.churnRate || '❓'}
-- Main Bottleneck: ${p.mainBottleneck || '❓ NOT YET KNOWN'}
-
-DIAGNOSIS:
-- Problems Identified: ${p.diagnosedProblems?.length > 0 ? p.diagnosedProblems.join(' | ') : '❓ NOT YET DIAGNOSED'}
-- Root Causes: ${p.rootCauses?.length > 0 ? p.rootCauses.join(' | ') : '❓'}
-- User Validated: ${p.validatedProblems?.length > 0 ? p.validatedProblems.join(' | ') : '❓'}
-- User Priority: ${p.userPriority || '❓'}
-- Past Attempts: ${p.pastAttempts || '❓'}
-- Constraints: ${p.constraints || '❓'}
-
-─────────────────────────────────────────────────────
-CONVERSATION HISTORY SUMMARY (what happened so far):
-${session.conversationLog.length > 0 ? session.conversationLog.map((entry, i) => `  Turn ${i + 1}: ${entry}`).join('\n') : '  No history yet.'}
-─────────────────────────────────────────────────────
-
-SCRAPED DATA FROM WEBSITE:
-${session.scrapedSummary || 'No data scraped yet.'}
-
-QUESTIONS ALREADY ASKED (DO NOT REPEAT THESE):
-${session.questionsAsked.length > 0 ? session.questionsAsked.map(q => `  ✓ ${q}`).join('\n') : '  None yet.'}
-
-═══════════════════════════════════════════════════════════════════════════════
-3. PHASE-SPECIFIC INSTRUCTIONS
-═══════════════════════════════════════════════════════════════════════════════
-
-${getPhaseInstructions(phase, session)}
-
-═══════════════════════════════════════════════════════════════════════════════
-4. OUTPUT FORMAT (STRICT JSON)
-═══════════════════════════════════════════════════════════════════════════════
-
-You MUST output valid JSON with this structure:
-
-{
-  "message": "Your response in markdown format. Include examples, benchmarks, links where relevant.",
-  
-  "profile_updates": {
-    "fieldName": "value learned from this turn"
+Be confident, specific, reference exact quotes from the website.
+Minimum 5 sentences.`,
+    options: [
+      { key: 'correct', label: 'Yes, that\'s mostly correct' },
+      { key: 'partial', label: 'Partially right — let me clarify' },
+      { key: 'wrong', label: 'Actually, our situation is quite different' }
+    ],
+    saves: ['companyName', 'industry', 'productDescription', 'pricingRange'],
+    mode: 'mixed'
   },
-  
-  "question_asked": "Brief description of the question you asked (for tracking)",
-  
-  "insight_logged": "One-sentence summary of what you learned this turn",
-  
-  "phase_complete": false,
-  
-  "options": [
-    {"key": "unique_key", "label": "Specific actionable label (not generic)"}
-  ]
-}
 
-OPTION RULES:
-- 4-5 options per turn
-- NEVER use generic labels like "Continue", "Next", "Tell me more"
-- Each option should be a SPECIFIC answer to your question
-- Include one "other/custom" option for free text
-- If phase is diagnosis: include validation options (agree/disagree/partial)
+  // ── PHASE: COMPANY ──────────────────────────────────────────────────────────
+  {
+    id: 'company_model',
+    phase: 'company',
+    instruction: `Based on what you know so far, ask about their BUSINESS MODEL.
+    
+Specifically ask:
+- What is their business model? (SaaS, services, marketplace, agency, etc.)
+- Is it B2B, B2C, or B2B2C?
+- Subscription, one-time, usage-based?
 
-═══════════════════════════════════════════════════════════════════════════════
-5. CRITICAL RULES
-═══════════════════════════════════════════════════════════════════════════════
+Include a relevant insight: "Based on your website, it looks like [X]. Companies with this model typically [Y]."
+Include a benchmark or reference when possible.
+Ask ONE clear question. Minimum 4 sentences.`,
+    options: [
+      { key: 'saas_subscription', label: 'SaaS with monthly/annual subscription' },
+      { key: 'saas_usage', label: 'SaaS with usage-based pricing' },
+      { key: 'services', label: 'Professional services / consulting' },
+      { key: 'marketplace', label: 'Marketplace / platform' },
+      { key: 'other_model', label: 'Different model — let me explain' }
+    ],
+    saves: ['businessModel'],
+    mode: 'mixed'
+  },
+  {
+    id: 'company_stage',
+    phase: 'company',
+    instruction: `Now ask about their COMPANY STAGE and REVENUE.
 
-1. NEVER repeat a question already asked (check the list above)
-2. NEVER skip to diagnosis before having enough data (❓ marks above = gaps)
-3. ALWAYS reference the profile data when making observations
-4. When user says "all of the above" → acknowledge EACH option specifically
-5. Include at least ONE relevant link per response when discussing strategies
-6. Set phase_complete: true ONLY when minQuestions for current phase are met
-7. If many ❓ remain in the profile → you need more questions, not less
-8. In profile_updates, use the EXACT field names from the profile above
-`;
-}
+Ask specifically:
+- What stage are they at? (pre-revenue, early, growth, scaling)
+- Current MRR or ARR?
+- Monthly growth rate?
 
-function getPhaseInstructions(phase, session) {
-  switch (phase) {
-    case 'welcome':
-      return `
-PHASE: WELCOME
-─────────────
-Create a personalized welcome using ALL scraped data available.
+Include context: "Given that you're a [business model from previous answer], companies at different stages face very different challenges. For example, pre-PMF companies need [X] while post-PMF need [Y]."
+Minimum 4 sentences. ONE clear question.`,
+    options: [
+      { key: 'pre_revenue', label: 'Pre-revenue — still building/validating' },
+      { key: 'early_0_10k', label: '€0-€10K MRR — first customers' },
+      { key: 'growing_10_50k', label: '€10K-€50K MRR — growing' },
+      { key: 'scaling_50_200k', label: '€50K-€200K MRR — scaling' },
+      { key: 'mature_200k_plus', label: '€200K+ MRR — optimizing' }
+    ],
+    saves: ['stage', 'revenue', 'revenueGrowth'],
+    mode: 'mixed'
+  },
+  {
+    id: 'company_team',
+    phase: 'company',
+    instruction: `Ask about their TEAM COMPOSITION.
 
-STRUCTURE:
-1. Greeting + company name
-2. What you found on their website (reference SPECIFIC headlines, pricing, social proof)
-3. LinkedIn data if available
-4. 3-4 BOLD assumptions with evidence ("I see X on your site, which tells me Y")
-5. End with: "Did I get this right? What should I correct?"
+Ask specifically:
+- How many people on the team?
+- How is the team split? (tech, sales, marketing, ops)
+- Any key roles missing?
 
-After this message, set phase_complete: true to advance to Company phase.
-Options should be: confirm / partially correct / mostly wrong
-`;
+Include context: "At [their stage/revenue], the typical team structure for a [their model] is [X]. A common mistake is [Y]."
+Reference like: "According to SaaStr data, companies at $X MRR typically have Y employees."
+Minimum 4 sentences.`,
+    options: [
+      { key: 'solo', label: 'Solo founder or 1-2 people' },
+      { key: 'small_3_5', label: '3-5 people, mostly technical' },
+      { key: 'growing_5_15', label: '5-15 people, mixed roles' },
+      { key: 'mid_15_50', label: '15-50 people, structured teams' },
+      { key: 'large_50plus', label: '50+ people' }
+    ],
+    saves: ['teamSize', 'teamRoles'],
+    mode: 'mixed'
+  },
+  {
+    id: 'company_funding',
+    phase: 'company',
+    instruction: `Ask about FUNDING and FINANCIAL HEALTH.
 
-    case 'company':
-      return `
-PHASE: COMPANY DISCOVERY (need ${PHASES.company.minQuestions} questions minimum)
-─────────────────────────
-Currently asked: ${session.phaseQuestionCount} questions in this phase.
-${session.phaseQuestionCount < PHASES.company.minQuestions ? `⚠️ NEED ${PHASES.company.minQuestions - session.phaseQuestionCount} MORE QUESTIONS before advancing.` : '✅ Minimum met. Can advance when ready.'}
+Ask:
+- Are you bootstrapped or funded?
+- If funded, what round? How much runway?
+- If bootstrapped, are you profitable?
 
-GOAL: Fill in ALL company fields marked ❓ in the profile.
+Include: "This matters because it determines how aggressively you can invest in growth. Bootstrapped companies typically need [X approach] while VC-backed need [Y approach]."
+Minimum 4 sentences.`,
+    options: [
+      { key: 'bootstrapped_profitable', label: 'Bootstrapped and profitable' },
+      { key: 'bootstrapped_burning', label: 'Bootstrapped but burning cash' },
+      { key: 'pre_seed', label: 'Pre-seed / seed funded' },
+      { key: 'series_a_plus', label: 'Series A or later' },
+      { key: 'other_funding', label: 'Other situation' }
+    ],
+    saves: ['funding'],
+    mode: 'mixed'
+  },
 
-TOPICS STILL NEEDED:
-${!session.profile.stage ? '- Company stage (pre-revenue, seed, growth, etc.)' : ''}
-${!session.profile.revenue ? '- Revenue details (MRR/ARR, growth rate)' : ''}
-${!session.profile.teamSize ? '- Team size and composition' : ''}
-${!session.profile.businessModel ? '- Business model details' : ''}
-${!session.profile.funding ? '- Funding status' : ''}
-${!session.profile.productDescription ? '- Product description in their words' : ''}
+  // ── PHASE: GO-TO-MARKET ─────────────────────────────────────────────────────
+  {
+    id: 'gtm_icp',
+    phase: 'gtm',
+    instruction: `Transition to GO-TO-MARKET analysis. Start with ICP (Ideal Customer Profile).
 
-APPROACH:
-1. Acknowledge what user just said with a SPECIFIC insight
-2. Connect it to a real-world example: "Companies at your stage typically face X. For example, [Company] dealt with..."
-3. Ask ONE targeted question about the MOST important missing field
-4. Include relevant benchmarks: "The median B2B SaaS at your stage has X% gross margin (source: OpenView Partners)"
+First, summarize what you've learned about the company in 2 sentences.
+Then ask about their ICP:
+- Who is the ideal buyer? (Job title, seniority)
+- What size companies? (SMB, mid-market, enterprise)
+- What industry or vertical?
+- What's their biggest pain point that your product solves?
 
-When ALL critical fields have values → set phase_complete: true
-`;
+Include: "A well-defined ICP is the foundation of scalable revenue. Without it, you're spreading resources too thin."
+Reference a framework or resource (e.g., "The ICP framework from Winning by Design suggests...")
+Minimum 5 sentences.`,
+    options: [
+      { key: 'smb_owner', label: 'SMB owners / solopreneurs' },
+      { key: 'mid_manager', label: 'Mid-market managers/directors' },
+      { key: 'enterprise_vp', label: 'Enterprise VP/C-level' },
+      { key: 'technical_ic', label: 'Technical individual contributors' },
+      { key: 'not_clear', label: 'Not clearly defined yet' }
+    ],
+    saves: ['icpTitle', 'icpCompanySize', 'icpIndustry', 'icpPainPoints'],
+    mode: 'mixed'
+  },
+  {
+    id: 'gtm_motion',
+    phase: 'gtm',
+    instruction: `Ask about their SALES MOTION and PRIMARY CHANNELS.
 
-    case 'gtm':
-      return `
-PHASE: GO-TO-MARKET DISCOVERY (need ${PHASES.gtm.minQuestions} questions minimum)
-─────────────────────────────
-Currently asked: ${session.phaseQuestionCount} questions in this phase.
-${session.phaseQuestionCount < PHASES.gtm.minQuestions ? `⚠️ NEED ${PHASES.gtm.minQuestions - session.phaseQuestionCount} MORE QUESTIONS before advancing.` : '✅ Minimum met. Can advance when ready.'}
+Ask:
+- Is your go-to-market primarily inbound, outbound, product-led, or a mix?
+- What are your top 3 acquisition channels?
+- Which channel generates the most qualified leads?
+- Are you running any paid acquisition? Budget?
 
-GOAL: Understand the complete go-to-market motion.
+Include: "For a [their model] selling to [their ICP], the most effective motion is typically [X]. Companies like [example] have scaled using [Y approach]."
+Mention specific tools/platforms relevant to their motion.
+Minimum 5 sentences.`,
+    options: [
+      { key: 'inbound_content', label: 'Inbound: content marketing, SEO, blog' },
+      { key: 'inbound_paid', label: 'Inbound: paid ads (Google, Meta, LinkedIn)' },
+      { key: 'outbound_cold', label: 'Outbound: cold email, LinkedIn prospecting' },
+      { key: 'plg', label: 'Product-led: free trial, freemium, self-serve' },
+      { key: 'referral_network', label: 'Referrals, partnerships, word of mouth' },
+      { key: 'mixed', label: 'Mix of multiple channels' }
+    ],
+    saves: ['salesMotion', 'channels', 'bestChannel'],
+    mode: 'mixed'
+  },
+  {
+    id: 'gtm_metrics',
+    phase: 'gtm',
+    instruction: `Ask about their KEY GTM METRICS.
 
-TOPICS STILL NEEDED:
-${!session.profile.icpTitle ? '- ICP: WHO is the ideal buyer (title, seniority)' : ''}
-${!session.profile.icpCompanySize ? '- ICP: WHAT companies (size, industry, budget)' : ''}
-${!session.profile.salesMotion ? '- Sales motion type (inbound/outbound/PLG/hybrid)' : ''}
-${!session.profile.channels ? '- Acquisition channels and which works best' : ''}
-${!session.profile.avgDealSize ? '- Average deal size and sales cycle' : ''}
-${!session.profile.pricingModel ? '- Pricing model and strategy' : ''}
+Ask:
+- Average deal size (ACV)?
+- Average sales cycle length?
+- Conversion rate from lead to customer?
+- Do you know your CAC (Customer Acquisition Cost)?
 
-APPROACH:
-1. Build on company context already gathered
-2. Use GTM-specific frameworks: "Based on your deal size of X, the typical motion is Y"
-3. Include benchmarks: "PLG companies typically see 2-5% free-to-paid conversion (source: Lenny Rachitsky)"
-4. Reference relevant tools: "For outbound at your stage, tools like Apollo.io or Lemlist are common"
-5. Include links to GTM resources when relevant
+Include benchmarks: "For B2B [their model] at [their stage], typical benchmarks are: ACV of [X], sales cycle of [Y], CAC of [Z]. LTV:CAC should be >3x."
+This data is critical for the diagnosis. Push for specifics, not vague answers.
+Minimum 4 sentences.`,
+    options: [
+      { key: 'low_touch', label: 'Low touch: <€1K ACV, <2 week cycle' },
+      { key: 'mid_touch', label: 'Mid touch: €1K-€10K ACV, 1-3 month cycle' },
+      { key: 'high_touch', label: 'High touch: €10K+ ACV, 3-6+ month cycle' },
+      { key: 'dont_know', label: 'Don\'t track these metrics yet' },
+      { key: 'mixed_deals', label: 'Mix of deal sizes' }
+    ],
+    saves: ['avgDealSize', 'salesCycle', 'cac', 'ltv'],
+    mode: 'mixed'
+  },
 
-When ALL critical GTM fields have values → set phase_complete: true
-`;
+  // ── PHASE: SALES ENGINE ─────────────────────────────────────────────────────
+  {
+    id: 'sales_process',
+    phase: 'sales',
+    instruction: `Transition to SALES ENGINE analysis.
 
-    case 'sales':
-      return `
-PHASE: SALES ENGINE DISCOVERY (need ${PHASES.sales.minQuestions} questions minimum)
-──────────────────────────────
-Currently asked: ${session.phaseQuestionCount} questions in this phase.
-${session.phaseQuestionCount < PHASES.sales.minQuestions ? `⚠️ NEED ${PHASES.sales.minQuestions - session.phaseQuestionCount} MORE QUESTIONS before advancing.` : '✅ Minimum met. Can advance when ready.'}
+Summarize GTM findings in 2 sentences first.
+Then ask about their SALES PROCESS:
+- What does the sales process look like from first contact to close?
+- How many stages/steps?
+- Is it documented or just "in the founder's head"?
+- Do you use a CRM? Which one?
 
-GOAL: Map the entire sales engine and find the bottleneck.
+Include: "A documented, repeatable sales process is what separates companies that scale from those that stall. The 'Founder-Led Sales Trap' is when only the founder can close deals because the process isn't codified."
+Minimum 5 sentences.`,
+    options: [
+      { key: 'no_process', label: 'No formal process — mostly ad hoc' },
+      { key: 'basic_process', label: 'Basic process: demo → proposal → close' },
+      { key: 'documented', label: 'Well-documented multi-stage pipeline' },
+      { key: 'complex_enterprise', label: 'Complex enterprise with procurement' },
+      { key: 'self_serve', label: 'Mostly self-serve / product-led' }
+    ],
+    saves: ['salesProcess', 'processDocumented', 'crm'],
+    mode: 'mixed'
+  },
+  {
+    id: 'sales_who_closes',
+    phase: 'sales',
+    instruction: `Ask WHO CLOSES DEALS and the FOUNDER'S ROLE in sales.
 
-TOPICS STILL NEEDED:
-${!session.profile.salesProcess ? '- Sales process (stages, documentation)' : ''}
-${!session.profile.whoCloses ? '- Who closes deals (founder, team, self-serve)' : ''}
-${!session.profile.mainBottleneck ? '- Main bottleneck (where deals die)' : ''}
-${!session.profile.winRate ? '- Win rate and lost deal reasons' : ''}
-${!session.profile.crm ? '- CRM and tools used' : ''}
-${!session.profile.churnRate ? '- Churn rate and retention' : ''}
+Ask:
+- Who is closing deals right now? Founder, sales team, or self-serve?
+- What percentage does the founder close vs. the team?
+- Can deals close WITHOUT the founder being involved?
+- If you have salespeople, what's their close rate vs. the founder's?
 
-APPROACH:
-1. Look for the "Founder-Led Sales Trap" pattern
-2. Use specific diagnostic questions: "When a deal stalls, what specifically happens?"
-3. Include real examples: "A client at $400K ARR had founder closing 90% of deals..."
-4. Reference frameworks: "The MEDDIC qualification framework could help here"
-5. Suggest tools when relevant: "Gong or Chorus for call recording, HubSpot for pipeline tracking"
+Include: "This is one of the most critical diagnostics. If the founder closes >60% of deals, you have a scaling ceiling. A client I worked with had the founder at 85% of closes — we had to build a sales playbook before anything else could scale."
+Minimum 5 sentences. Push for specific percentages.`,
+    options: [
+      { key: 'founder_all', label: 'Founder closes 100% of deals' },
+      { key: 'founder_most', label: 'Founder closes 60-90%, team assists' },
+      { key: 'mixed_closing', label: 'Split ~50/50 between founder and team' },
+      { key: 'team_closes', label: 'Sales team closes most, founder on big deals only' },
+      { key: 'no_sales_team', label: 'No dedicated sales team yet' }
+    ],
+    saves: ['whoCloses', 'founderInvolvement'],
+    mode: 'mixed'
+  },
+  {
+    id: 'sales_bottleneck',
+    phase: 'sales',
+    instruction: `Ask about BOTTLENECKS and LOST DEALS.
 
-When ALL critical sales fields have values → set phase_complete: true
-`;
+Ask:
+- Where do most deals get stuck or die in your pipeline?
+- What are the top 3 reasons you lose deals?
+- What's your win rate? (% of qualified opportunities that close)
+- What's your current churn rate?
 
-    case 'diagnosis':
-      return `
-PHASE: DIAGNOSIS (need ${PHASES.diagnosis.minQuestions} questions minimum)
-──────────────────
-Currently asked: ${session.phaseQuestionCount} questions in this phase.
+Include: "The #1 revenue leak for companies at your stage is usually [X]. Based on what you've told me about [their process/who closes], I'd guess the bottleneck might be [hypothesis]. Let me check..."
+Be specific to their situation. Minimum 5 sentences.`,
+    options: [
+      { key: 'not_enough_leads', label: 'Not enough qualified leads entering pipeline' },
+      { key: 'leads_go_cold', label: 'Leads go cold — slow follow-up or no nurture' },
+      { key: 'stuck_negotiation', label: 'Deals stall in negotiation/procurement' },
+      { key: 'price_objection', label: 'Price is the main objection' },
+      { key: 'no_urgency', label: 'Prospects don\'t see enough urgency to buy' },
+      { key: 'churn_problem', label: 'We close deals but churn is killing growth' }
+    ],
+    saves: ['mainBottleneck', 'winRate', 'lostDealReasons', 'churnRate'],
+    mode: 'mixed'
+  },
+  {
+    id: 'sales_tools',
+    phase: 'sales',
+    instruction: `Ask about their TECH STACK and OPERATIONAL SETUP.
 
-GOAL: Present your diagnosis and validate with user.
+Ask:
+- What tools do you use for sales/marketing? (CRM, email, analytics)
+- How do you track pipeline and forecasts?
+- Do you have any automation set up?
+- What data do you trust/not trust?
 
-INSTRUCTIONS:
-1. Synthesize ALL profile data into a clear diagnosis
-2. Identify TOP 3 revenue blockers with root causes
-3. Present them in priority order with:
-   - What the problem is
-   - Why it's happening (root cause)
-   - Revenue impact estimate
-   - What good looks like (benchmark)
-4. State your CORE HYPOTHESIS
-5. Ask user to validate: "Does this resonate?"
-6. Include links to relevant frameworks/resources for each problem
+Include: "At [their stage], the essential stack is typically [X, Y, Z]. Common mistake: buying enterprise tools too early, or worse, running everything from spreadsheets."
+Recommend specific tools relevant to their situation.
+Minimum 4 sentences.`,
+    options: [
+      { key: 'spreadsheets', label: 'Mostly spreadsheets and manual tracking' },
+      { key: 'basic_crm', label: 'Basic CRM (HubSpot Free, Pipedrive, etc.)' },
+      { key: 'full_stack', label: 'Full stack: CRM + automation + analytics' },
+      { key: 'too_many_tools', label: 'Too many tools, nothing connected' },
+      { key: 'minimal', label: 'Minimal tooling — need recommendations' }
+    ],
+    saves: ['crm', 'tools'],
+    mode: 'mixed'
+  },
 
-DO NOT ask more discovery questions. PRESENT YOUR FINDINGS.
-After user validates → set phase_complete: true
-`;
+  // ── PHASE: DIAGNOSIS ────────────────────────────────────────────────────────
+  {
+    id: 'diagnosis_present',
+    phase: 'diagnosis',
+    instruction: `NOW PRESENT YOUR DIAGNOSIS. You have gathered enough information.
 
-    case 'pre_finish':
-      return `
-PHASE: PRE-FINISH SUMMARY
-──────────────────────────
-Present the complete summary and offer report generation.
+DO NOT ask another discovery question. Instead:
 
-STRUCTURE:
-1. Company snapshot (2-3 sentences)
-2. Top 3 diagnosed problems (prioritized)
-3. Core hypothesis
-4. Preview of what the report will contain
-5. Offer to generate OR add more context
+1. Start with: "Based on our conversation, here is my diagnosis."
+2. Identify the TOP 3 revenue problems, ranked by impact
+3. For EACH problem explain:
+   - What the problem is (specific, not vague)
+   - Root cause (WHY it's happening)
+   - Revenue impact (quantify if possible)
+   - What "good" looks like (benchmark)
+4. State your CORE HYPOTHESIS in one sentence
+5. End with: "Does this diagnosis resonate? What would you adjust?"
 
-Options MUST include:
-- {"key": "generate_report", "label": "📥 Generate Strategic Growth Plan"}
-- {"key": "add_context", "label": "Wait, I want to add important context"}
-- {"key": "correct_diagnosis", "label": "One of the findings needs correction"}
-`;
+Use the FULL profile data. Be SPECIFIC — reference actual numbers they gave you.
+This should be your longest message — minimum 8-10 sentences.
+Include relevant links to frameworks or resources for each problem.`,
+    options: [
+      { key: 'resonates_strongly', label: '🎯 This resonates strongly — spot on' },
+      { key: 'mostly_right', label: 'Mostly right but I\'d adjust the priority' },
+      { key: 'missed_something', label: 'You missed an important issue' },
+      { key: 'wrong_root_cause', label: 'Right problems, wrong root causes' }
+    ],
+    saves: ['diagnosedProblems', 'rootCauses'],
+    mode: 'mixed'
+  },
+  {
+    id: 'diagnosis_validate',
+    phase: 'diagnosis',
+    instruction: `The user just responded to your diagnosis. 
 
-    case 'add_context':
-      return `
-PHASE: ADD CONTEXT (user wants to add more information)
-───────────────────
-The user clicked "add context" or "correct something" AFTER the diagnosis.
+If they agreed: Confirm and move to priorities.
+If they disagreed: Acknowledge, ask what's different, ADJUST your diagnosis.
+If they added something: Incorporate it and present UPDATED diagnosis.
 
-YOUR TASK:
-1. Ask SPECIFICALLY what they want to add or correct
-2. Listen to their input
-3. Update the profile with new information
-4. After they've added their context, present an UPDATED diagnosis
-5. Then offer report generation again
+Then ask: "If you could only fix ONE of these problems in the next 90 days, which would it be? And what have you already tried?"
 
-DO NOT:
-- Re-ask questions you already asked
-- Ignore their correction
-- Loop back to the beginning
-- Offer report immediately without addressing their input
+Minimum 5 sentences. Reference their specific feedback.`,
+    options: [
+      { key: 'fix_problem_1', label: 'Priority #1 from your diagnosis' },
+      { key: 'fix_problem_2', label: 'Priority #2 from your diagnosis' },
+      { key: 'fix_problem_3', label: 'Priority #3 from your diagnosis' },
+      { key: 'different_priority', label: 'Actually, my top priority is different' }
+    ],
+    saves: ['validatedProblems', 'userPriority', 'pastAttempts'],
+    mode: 'mixed'
+  },
 
-After addressing their input and updating diagnosis → move to pre_finish
-`;
+  // ── PHASE: PRE-FINISH ───────────────────────────────────────────────────────
+  {
+    id: 'pre_finish',
+    phase: 'pre_finish',
+    instruction: `Present the FINAL SUMMARY before report generation.
 
-    default:
-      return 'Continue the conversation naturally based on context.';
+Structure:
+1. "Here's the complete picture:" 
+2. Company snapshot (3 sentences)
+3. The 3 diagnosed problems (1 sentence each)
+4. Your recommended priority order
+5. Preview: "Your Strategic Growth Plan will include: executive summary, diagnostic findings, 90-day roadmap with weekly actions, metrics to track, and tool recommendations."
+6. "Ready to generate?"
+
+Make it feel like a premium deliverable is coming. Minimum 6 sentences.`,
+    options: [
+      { key: 'generate_report', label: '📥 Generate Strategic Growth Plan' },
+      { key: 'add_context', label: 'Wait, I want to add important context first' },
+      { key: 'adjust_diagnosis', label: 'I want to adjust one of the findings' }
+    ],
+    saves: [],
+    mode: 'buttons'
   }
-}
+];
+
+// ── ADD CONTEXT STEPS (separate flow) ───────────────────────────────────────
+const ADD_CONTEXT_STEPS = [
+  {
+    id: 'add_context_ask',
+    phase: 'add_context',
+    instruction: `The user wants to ADD MORE CONTEXT or CORRECT something.
+
+Ask them: "Of course! What would you like to add or correct? You can:
+- Add context about a specific area (team, product, market, etc.)
+- Correct something I got wrong in the diagnosis
+- Share additional challenges or constraints
+
+Tell me everything that's relevant."
+
+Be welcoming and open. Do NOT offer the report again yet.
+Minimum 3 sentences.`,
+    options: [
+      { key: 'add_about_team', label: 'More about our team/org structure' },
+      { key: 'add_about_market', label: 'More about our market/competition' },
+      { key: 'add_about_product', label: 'More about our product/roadmap' },
+      { key: 'add_about_challenges', label: 'Additional challenges we face' },
+      { key: 'correct_finding', label: 'Correct something in the diagnosis' }
+    ],
+    saves: [],
+    mode: 'mixed'
+  },
+  {
+    id: 'add_context_process',
+    phase: 'add_context',
+    instruction: `The user just shared additional context. 
+
+1. Acknowledge SPECIFICALLY what they said (quote them)
+2. Explain how this changes or enriches your understanding
+3. If it changes the diagnosis, explain how
+4. Ask: "Is there anything else you'd like to add, or shall I update the diagnosis and generate your report?"
+
+Be thorough. This information matters. Minimum 5 sentences.`,
+    options: [
+      { key: 'more_to_add', label: 'I have more to add' },
+      { key: 'update_and_generate', label: '📥 Update diagnosis and generate report' },
+      { key: 'show_updated_diagnosis', label: 'Show me the updated diagnosis first' }
+    ],
+    saves: [],
+    mode: 'mixed'
+  },
+  {
+    id: 'add_context_updated_diagnosis',
+    phase: 'add_context',
+    instruction: `Present an UPDATED diagnosis incorporating the new context.
+
+1. "Based on the additional context you've shared, here's my updated assessment:"
+2. Present updated top 3 problems (adjusted if needed)
+3. Highlight what CHANGED from the original diagnosis
+4. "Ready to generate the updated Strategic Growth Plan?"
+
+Minimum 6 sentences. Show that the new info actually mattered.`,
+    options: [
+      { key: 'generate_report', label: '📥 Generate Updated Strategic Growth Plan' },
+      { key: 'more_changes', label: 'One more adjustment needed' }
+    ],
+    saves: ['diagnosedProblems', 'rootCauses'],
+    mode: 'buttons'
+  }
+];
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SECTION 3: SESSION MANAGEMENT
+// SECTION 2: SESSION MANAGEMENT
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function createSession() {
   return {
+    currentStepIndex: 0,
     currentPhase: 'welcome',
+    isInAddContext: false,
+    addContextStepIndex: 0,
     turnCount: 0,
-    phaseQuestionCount: 0,
     
-    // Detailed profile - every field tracked
     profile: {
-      companyName: '',
-      website: '',
-      industry: '',
-      businessModel: '',
-      stage: '',
-      revenue: '',
-      revenueGrowth: '',
-      teamSize: '',
-      teamRoles: '',
-      funding: '',
-      founded: '',
-      productDescription: '',
-      productStage: '',
-      keyFeatures: '',
-      pricingModel: '',
-      pricingRange: '',
-      icpTitle: '',
-      icpCompanySize: '',
-      icpIndustry: '',
-      icpPainPoints: '',
-      salesMotion: '',
-      channels: '',
-      bestChannel: '',
-      avgDealSize: '',
-      salesCycle: '',
-      cac: '',
-      ltv: '',
-      salesProcess: '',
-      processDocumented: '',
-      whoCloses: '',
-      founderInvolvement: '',
-      winRate: '',
-      mainObjections: '',
-      lostDealReasons: '',
-      crm: '',
-      churnRate: '',
-      mainBottleneck: '',
-      diagnosedProblems: [],
-      rootCauses: [],
-      validatedProblems: [],
-      userPriority: '',
-      pastAttempts: '',
-      constraints: ''
+      companyName: '', website: '', industry: '', businessModel: '',
+      stage: '', revenue: '', revenueGrowth: '',
+      teamSize: '', teamRoles: '', funding: '', founded: '',
+      productDescription: '', productStage: '', keyFeatures: '',
+      pricingModel: '', pricingRange: '',
+      icpTitle: '', icpCompanySize: '', icpIndustry: '', icpPainPoints: '',
+      salesMotion: '', channels: '', bestChannel: '',
+      avgDealSize: '', salesCycle: '', cac: '', ltv: '',
+      salesProcess: '', processDocumented: '',
+      whoCloses: '', founderInvolvement: '',
+      winRate: '', mainObjections: '', lostDealReasons: '',
+      crm: '', churnRate: '', mainBottleneck: '', tools: '',
+      diagnosedProblems: [], rootCauses: [], validatedProblems: [],
+      userPriority: '', pastAttempts: '', constraints: '',
+      additionalContext: ''
     },
     
-    // Tracking
-    questionsAsked: [],
-    conversationLog: [],
     scrapedSummary: '',
-    
-    // Phase history for add_context
-    phaseBeforeAddContext: '',
-    addContextReason: ''
+    conversationLog: [],
+    allUserInputs: []
   };
 }
 
+function buildFullContext(session) {
+  const p = session.profile;
+  const lines = [];
+  
+  lines.push('════════════════════════════════════════════════════');
+  lines.push('FULL BUSINESS PROFILE (everything learned so far)');
+  lines.push('════════════════════════════════════════════════════');
+  
+  const sections = {
+    'COMPANY': [
+      ['Company Name', p.companyName],
+      ['Website', p.website],
+      ['Industry', p.industry],
+      ['Business Model', p.businessModel],
+      ['Stage', p.stage],
+      ['Revenue', p.revenue],
+      ['Growth Rate', p.revenueGrowth],
+      ['Team Size', p.teamSize],
+      ['Team Roles', p.teamRoles],
+      ['Funding', p.funding],
+    ],
+    'PRODUCT': [
+      ['Description', p.productDescription],
+      ['Pricing Model', p.pricingModel],
+      ['Pricing Range', p.pricingRange],
+    ],
+    'GO-TO-MARKET': [
+      ['ICP (Buyer)', p.icpTitle],
+      ['ICP Company Size', p.icpCompanySize],
+      ['ICP Industry', p.icpIndustry],
+      ['ICP Pain Points', p.icpPainPoints],
+      ['Sales Motion', p.salesMotion],
+      ['Channels', p.channels],
+      ['Best Channel', p.bestChannel],
+      ['Avg Deal Size', p.avgDealSize],
+      ['Sales Cycle', p.salesCycle],
+      ['CAC', p.cac],
+      ['LTV', p.ltv],
+    ],
+    'SALES ENGINE': [
+      ['Sales Process', p.salesProcess],
+      ['Documented?', p.processDocumented],
+      ['Who Closes', p.whoCloses],
+      ['Founder Role', p.founderInvolvement],
+      ['Win Rate', p.winRate],
+      ['Main Bottleneck', p.mainBottleneck],
+      ['Lost Deal Reasons', p.lostDealReasons],
+      ['Churn Rate', p.churnRate],
+      ['CRM/Tools', p.crm || p.tools],
+    ],
+    'DIAGNOSIS': [
+      ['Problems', (p.diagnosedProblems || []).join(' | ')],
+      ['Root Causes', (p.rootCauses || []).join(' | ')],
+      ['Validated', (p.validatedProblems || []).join(' | ')],
+      ['User Priority', p.userPriority],
+      ['Past Attempts', p.pastAttempts],
+      ['Constraints', p.constraints],
+      ['Additional Context', p.additionalContext],
+    ]
+  };
+  
+  for (const [section, fields] of Object.entries(sections)) {
+    lines.push(`\n── ${section} ──`);
+    for (const [label, value] of fields) {
+      const v = Array.isArray(value) ? (value.length > 0 ? value.join(', ') : '') : (value || '');
+      lines.push(`  ${label}: ${v || '❓ UNKNOWN'}`);
+    }
+  }
+  
+  if (session.scrapedSummary) {
+    lines.push('\n── SCRAPED DATA ──');
+    lines.push(session.scrapedSummary);
+  }
+  
+  if (session.conversationLog.length > 0) {
+    lines.push('\n── CONVERSATION HISTORY ──');
+    session.conversationLog.forEach((entry, i) => {
+      lines.push(`  Turn ${i + 1}: ${entry}`);
+    });
+  }
+  
+  lines.push('\n════════════════════════════════════════════════════');
+  
+  return lines.join('\n');
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
-// SECTION 4: SCRAPING UTILITIES
+// SECTION 3: SCRAPING
 // ═══════════════════════════════════════════════════════════════════════════════
 
 async function scrapeWebsite(url) {
@@ -477,36 +572,25 @@ async function scrapeWebsite(url) {
     const targetUrl = new URL(url.startsWith('http') ? url : `https://${url}`);
     const controller = new AbortController();
     setTimeout(() => controller.abort(), 12000);
-    
     const response = await fetch(targetUrl.href, {
       headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
       signal: controller.signal
     });
-    
     const html = await response.text();
     
-    const extract = (regex, fallback = '') => {
-      const match = html.match(regex);
-      return match ? match[1].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim() : fallback;
-    };
-    
-    const extractAll = (regex, limit = 6) => {
-      return [...html.matchAll(regex)]
-        .map(m => m[1].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim())
-        .filter(t => t.length > 2 && t.length < 200)
-        .slice(0, limit);
-    };
-    
+    const extract = (regex) => (html.match(regex) || [null, ''])[1].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+    const extractAll = (regex, limit = 6) =>
+      [...html.matchAll(regex)].map(m => m[1].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()).filter(t => t.length > 2 && t.length < 200).slice(0, limit);
+
     return {
       title: extract(/<title[^>]*>([^<]+)<\/title>/i),
-      description: extract(/<meta[^>]*name="description"[^>]*content="([^"]*)"/i) || 
+      description: extract(/<meta[^>]*name="description"[^>]*content="([^"]*)"/i) ||
                    extract(/<meta[^>]*content="([^"]*)"[^>]*name="description"/i),
       h1s: extractAll(/<h1[^>]*>([\s\S]*?)<\/h1>/gi),
       h2s: extractAll(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, 8),
       paragraphs: [...html.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)]
         .map(m => m[1].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim())
-        .filter(t => t.length > 40 && t.length < 500)
-        .slice(0, 5),
+        .filter(t => t.length > 40 && t.length < 500).slice(0, 4),
       pricing: [...new Set(html.match(/(\$|€|£)\s*\d+[,.]?\d*/g) || [])].slice(0, 5),
       socialProof: [
         ...(html.match(/(\d+[,.]?\d*[kK]?\+?)\s*(customers?|users?|companies|clients)/gi) || []),
@@ -519,94 +603,51 @@ async function scrapeWebsite(url) {
   }
 }
 
-async function scrapeLinkedIn(linkedinUrl, tavilyKey) {
-  if (!linkedinUrl || !tavilyKey) return null;
+async function scrapeLinkedIn(url, tavilyKey) {
+  if (!url || !tavilyKey) return null;
   try {
-    const slug = linkedinUrl.match(/linkedin\.com\/company\/([^\/\?]+)/i)?.[1];
+    const slug = url.match(/linkedin\.com\/company\/([^\/\?]+)/i)?.[1];
     if (!slug) return null;
-    
-    const response = await fetch("https://api.tavily.com/search", {
+    const resp = await fetch("https://api.tavily.com/search", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        api_key: tavilyKey,
-        query: `"${slug}" site:linkedin.com company employees industry`,
-        search_depth: "advanced",
-        max_results: 3,
-        include_answer: true
-      })
+      body: JSON.stringify({ api_key: tavilyKey, query: `"${slug}" site:linkedin.com company`, search_depth: "advanced", max_results: 3, include_answer: true })
     });
-    
-    if (!response.ok) return null;
-    const data = await response.json();
-    
+    if (!resp.ok) return null;
+    const data = await resp.json();
     return {
       companyName: slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
       employees: data.answer?.match(/(\d+[\-–]?\d*)\s*(employees?|people)/i)?.[0] || '',
       industry: data.answer?.match(/(?:industry|sector):\s*([^.]+)/i)?.[1]?.trim() || '',
       description: data.answer?.slice(0, 400) || ''
     };
-  } catch (e) {
-    console.log(`[LinkedIn] Failed: ${e.message}`);
-    return null;
-  }
-}
-
-function buildScrapedSummary(website, linkedin, contextData) {
-  let summary = '';
-  
-  if (contextData?.description) {
-    summary += `USER DESCRIPTION (HIGHEST PRIORITY): "${contextData.description}"\n\n`;
-  }
-  
-  if (website) {
-    summary += `WEBSITE (${contextData?.website || ''}):\n`;
-    summary += `  Title: ${website.title}\n`;
-    summary += `  Description: ${website.description}\n`;
-    summary += `  Headlines: ${website.h1s?.join(' | ') || 'None'}\n`;
-    summary += `  Sections: ${website.h2s?.join(' | ') || 'None'}\n`;
-    summary += `  Key Content: ${website.paragraphs?.slice(0, 2).join(' ') || 'None'}\n`;
-    summary += `  Pricing: ${website.pricing?.join(', ') || 'None found'}\n`;
-    summary += `  Social Proof: ${website.socialProof?.join(' | ') || 'None found'}\n\n`;
-  }
-  
-  if (linkedin) {
-    summary += `LINKEDIN:\n`;
-    summary += `  Company: ${linkedin.companyName}\n`;
-    summary += `  Employees: ${linkedin.employees || 'Unknown'}\n`;
-    summary += `  Industry: ${linkedin.industry || 'Unknown'}\n`;
-    summary += `  Description: ${linkedin.description || 'None'}\n`;
-  }
-  
-  return summary || 'No scraped data available.';
+  } catch (e) { return null; }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SECTION 5: LLM CALLER
+// SECTION 4: LLM CALL
 // ═══════════════════════════════════════════════════════════════════════════════
 
-async function callLLM(systemPrompt, userMessage, history, geminiKey) {
+async function callLLM(systemPrompt, history, geminiKey) {
   const messages = [
     { role: 'user', parts: [{ text: systemPrompt }] },
-    { role: 'model', parts: [{ text: 'Understood. I will follow all instructions precisely, output valid JSON, and never repeat questions.' }] }
+    { role: 'model', parts: [{ text: 'Understood. I will follow the instructions exactly and output valid JSON.' }] }
   ];
   
-  // Add conversation history (last 12 exchanges for full context)
-  const recentHistory = history.slice(-12);
-  for (const msg of recentHistory) {
+  // Add last 14 history entries for context
+  const recent = history.slice(-14);
+  for (const msg of recent) {
     let content = msg.content;
     if (msg.role === 'assistant') {
       try { content = JSON.parse(content).message || content; } catch {}
     }
     messages.push({
       role: msg.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: content }]
+      parts: [{ text: content.slice(0, 2000) }]
     });
   }
   
-  messages.push({ role: 'user', parts: [{ text: userMessage }] });
-  
-  const response = await fetch(
+  const resp = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
     {
       method: 'POST',
@@ -616,369 +657,251 @@ async function callLLM(systemPrompt, userMessage, history, geminiKey) {
         generationConfig: {
           temperature: 0.7,
           responseMimeType: "application/json",
-          maxOutputTokens: 2500
+          maxOutputTokens: 3000
         }
       })
     }
   );
   
-  if (!response.ok) throw new Error(`Gemini API: ${response.status}`);
-  
-  const data = await response.json();
+  if (!resp.ok) throw new Error(`Gemini: ${resp.status}`);
+  const data = await resp.json();
   let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!text) throw new Error("Empty response");
-  
   text = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
   return JSON.parse(text);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SECTION 6: PHASE TRANSITION LOGIC
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function shouldAdvancePhase(session, llmResponse) {
-  const phase = session.currentPhase;
-  const phaseConfig = PHASES[phase];
-  
-  if (!phaseConfig) return false;
-  
-  // Welcome always advances after first response
-  if (phase === 'welcome') return true;
-  
-  // Add context: advance when user has provided their input
-  if (phase === 'add_context') {
-    return llmResponse.phase_complete === true;
-  }
-  
-  // Check minimum questions met
-  if (session.phaseQuestionCount < phaseConfig.minQuestions) {
-    return false;
-  }
-  
-  // Check if LLM says phase is complete
-  if (llmResponse.phase_complete === true) {
-    return true;
-  }
-  
-  // Safety: force advance after too many questions in one phase
-  if (session.phaseQuestionCount >= phaseConfig.minQuestions + 3) {
-    return true;
-  }
-  
-  // Safety: force to pre_finish after turn 15
-  if (session.turnCount >= 15 && phase !== 'pre_finish' && phase !== 'finish') {
-    return true;
-  }
-  
-  return false;
-}
-
-function advancePhase(session) {
-  const current = session.currentPhase;
-  
-  // Special case: returning from add_context
-  if (current === 'add_context') {
-    session.currentPhase = 'pre_finish';
-    session.phaseQuestionCount = 0;
-    return;
-  }
-  
-  const nextPhase = PHASES[current]?.next;
-  if (nextPhase) {
-    session.currentPhase = nextPhase;
-    session.phaseQuestionCount = 0;
-  }
-}
-
-function updateProfile(session, updates) {
-  if (!updates || typeof updates !== 'object') return;
-  
-  for (const [key, value] of Object.entries(updates)) {
-    if (value && session.profile.hasOwnProperty(key)) {
-      // Arrays: append
-      if (Array.isArray(session.profile[key]) && Array.isArray(value)) {
-        session.profile[key] = [...new Set([...session.profile[key], ...value])];
-      } else if (Array.isArray(session.profile[key]) && typeof value === 'string') {
-        if (!session.profile[key].includes(value)) {
-          session.profile[key].push(value);
-        }
-      } else if (typeof value === 'string' && value.trim()) {
-        // Only update if new value is non-empty and adds information
-        if (!session.profile[key] || value.length > session.profile[key].length) {
-          session.profile[key] = value;
-        }
-      }
-    }
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// SECTION 7: OPTIONS VALIDATION
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function validateOptions(options, phase) {
-  if (!options || !Array.isArray(options) || options.length < 2) {
-    return getDefaultOptions(phase);
-  }
-  
-  // Remove garbage options
-  const filtered = options.filter(o => 
-    o.key && o.label && 
-    o.label.length > 5 &&
-    !['continue', 'next', 'ok', 'yes'].includes(o.key.toLowerCase())
-  );
-  
-  if (filtered.length < 2) return getDefaultOptions(phase);
-  
-  return filtered.slice(0, 5);
-}
-
-function getDefaultOptions(phase) {
-  const defaults = {
-    welcome: [
-      { key: 'confirm_correct', label: 'Yes, that\'s accurate' },
-      { key: 'partially_correct', label: 'Close, but let me clarify some things' },
-      { key: 'mostly_wrong', label: 'Actually, the situation is quite different' }
-    ],
-    company: [
-      { key: 'pre_revenue', label: 'We\'re pre-revenue or very early' },
-      { key: 'early_revenue', label: '$0-100K ARR range' },
-      { key: 'growth', label: '$100K-$1M ARR and growing' },
-      { key: 'scaling', label: 'Over $1M ARR, scaling up' },
-      { key: 'other_stage', label: 'Let me explain our situation' }
-    ],
-    gtm: [
-      { key: 'mostly_inbound', label: 'Mostly inbound (content, SEO, referrals)' },
-      { key: 'mostly_outbound', label: 'Mostly outbound (cold email, LinkedIn)' },
-      { key: 'product_led', label: 'Product-led (free trial, freemium)' },
-      { key: 'mixed_channels', label: 'Mix of multiple channels' },
-      { key: 'figuring_out', label: 'Still figuring out what works' }
-    ],
-    sales: [
-      { key: 'founder_closes', label: 'Founder still closes most deals' },
-      { key: 'team_closes', label: 'Sales team handles most deals' },
-      { key: 'self_serve', label: 'Mostly self-serve / product-led' },
-      { key: 'no_process', label: 'No formal sales process yet' },
-      { key: 'other_setup', label: 'Different setup - let me explain' }
-    ],
-    diagnosis: [
-      { key: 'resonates', label: 'Yes, this diagnosis resonates strongly' },
-      { key: 'partially_right', label: 'Partially right - let me refine' },
-      { key: 'missed_something', label: 'You missed an important issue' },
-      { key: 'wrong_priority', label: 'Right problems, wrong priority order' }
-    ],
-    pre_finish: [
-      { key: 'generate_report', label: '📥 Generate Strategic Growth Plan' },
-      { key: 'add_context', label: 'Wait, I want to add important context' },
-      { key: 'correct_diagnosis', label: 'One finding needs correction' }
-    ],
-    add_context: [
-      { key: 'done_adding', label: 'I\'ve shared everything, update the diagnosis' },
-      { key: 'more_to_add', label: 'I have more to add' },
-      { key: 'correct_specific', label: 'I need to correct a specific point' }
-    ]
-  };
-  
-  return defaults[phase] || defaults.company;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// SECTION 8: MAIN API HANDLER
+// SECTION 5: MAIN HANDLER
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default async function handler(req, res) {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const sendError = (msg) => res.status(200).json({
-    step_id: 'error',
-    message: msg || "Something went wrong. What's your main revenue challenge right now?",
-    mode: 'mixed',
-    options: [
-      { key: 'lead_gen', label: 'Not enough qualified leads' },
-      { key: 'conversion', label: 'Leads aren\'t converting' },
-      { key: 'scaling', label: 'Can\'t scale beyond founder selling' },
-      { key: 'churn', label: 'Losing customers too quickly' }
-    ],
-    allow_text: true,
-    session_data: null
-  });
-
   try {
     const { choice, history = [], contextData, sessionData: inputSession } = req.body;
     const geminiKey = process.env.GEMINI_API_KEY;
     const tavilyKey = process.env.TAVILY_API_KEY;
-    
-    if (!geminiKey) return sendError('Configuration error: API key missing.');
+    if (!geminiKey) return res.status(200).json({ message: 'API key missing', options: [], session_data: null });
 
-    // Initialize or restore session
     let session = inputSession || createSession();
-    session.turnCount = history.filter(h => h.role === 'user').length;
+    session.turnCount++;
     
-    console.log(`[v6] Phase: ${session.currentPhase} | Turn: ${session.turnCount} | Choice: ${choice?.slice(0, 50)}`);
-
-    // ─────────────────────────────────────────────────────
-    // HANDLE SPECIAL INPUTS
-    // ─────────────────────────────────────────────────────
-    
-    // "Add context" or "correct" from pre_finish
-    const isAddContext = ['add_context', 'correct_diagnosis', 'correct_something', 'add_more'].some(k => 
-      choice.toLowerCase().includes(k.toLowerCase())
-    );
-    
-    if (isAddContext && (session.currentPhase === 'pre_finish' || session.currentPhase === 'finish')) {
-      session.phaseBeforeAddContext = session.currentPhase;
-      session.addContextReason = choice;
-      session.currentPhase = 'add_context';
-      session.phaseQuestionCount = 0;
-      console.log('[v6] Entering add_context mode');
-    }
-    
-    // "Done adding" from add_context → go back to pre_finish
-    if (choice.toLowerCase().includes('done_adding') && session.currentPhase === 'add_context') {
-      session.currentPhase = 'pre_finish';
-      session.phaseQuestionCount = 0;
-      console.log('[v6] Returning to pre_finish from add_context');
-    }
-
-    // ─────────────────────────────────────────────────────
-    // WELCOME PHASE: SCRAPE & ANALYZE
-    // ─────────────────────────────────────────────────────
+    // ─── INITIAL SCRAPE ───────────────────────────────────────────────
     if (choice === 'SNAPSHOT_INIT' && contextData) {
       session.profile.website = contextData.website || '';
-      session.profile.companyName = contextData.description?.split(' ').slice(0, 4).join(' ') || '';
+      if (contextData.description) session.profile.productDescription = contextData.description;
       
       const websiteData = contextData.website ? await scrapeWebsite(contextData.website) : null;
       const linkedinData = contextData.linkedin ? await scrapeLinkedIn(contextData.linkedin, tavilyKey) : null;
       
-      session.scrapedSummary = buildScrapedSummary(websiteData, linkedinData, contextData);
-      
-      // Pre-fill profile from scraping
+      let scraped = '';
+      if (contextData.description) scraped += `USER DESCRIPTION: "${contextData.description}"\n`;
+      if (websiteData) {
+        scraped += `WEBSITE: ${websiteData.title}\n`;
+        scraped += `  Meta: ${websiteData.description}\n`;
+        scraped += `  H1: ${websiteData.h1s?.join(' | ')}\n`;
+        scraped += `  H2: ${websiteData.h2s?.join(' | ')}\n`;
+        scraped += `  Content: ${websiteData.paragraphs?.join(' ')}\n`;
+        scraped += `  Pricing: ${websiteData.pricing?.join(', ') || 'none found'}\n`;
+        scraped += `  Social proof: ${websiteData.socialProof?.join(' | ') || 'none'}\n`;
+        if (websiteData.pricing?.length > 0) session.profile.pricingRange = websiteData.pricing.join(', ');
+      }
       if (linkedinData) {
-        session.profile.companyName = linkedinData.companyName || session.profile.companyName;
+        scraped += `LINKEDIN: ${linkedinData.companyName}, ${linkedinData.employees || '?'} employees, ${linkedinData.industry || '?'}\n`;
+        if (linkedinData.companyName) session.profile.companyName = linkedinData.companyName;
         if (linkedinData.industry) session.profile.industry = linkedinData.industry;
         if (linkedinData.employees) session.profile.teamSize = linkedinData.employees;
       }
-      if (websiteData?.pricing?.length > 0) {
-        session.profile.pricingRange = websiteData.pricing.join(', ');
-      }
-      if (contextData.description) {
-        session.profile.productDescription = contextData.description;
+      session.scrapedSummary = scraped;
+    }
+
+    // ─── HANDLE "ADD CONTEXT" ─────────────────────────────────────────
+    if (choice === 'add_context' || choice === 'adjust_diagnosis' || choice === 'correct_finding' || choice === 'more_changes') {
+      session.isInAddContext = true;
+      session.addContextStepIndex = 0;
+    }
+    
+    if (choice === 'more_to_add') {
+      session.addContextStepIndex = 0; // Reset to ask again
+    }
+    
+    if (choice === 'show_updated_diagnosis') {
+      session.addContextStepIndex = 2; // Jump to updated diagnosis
+    }
+    
+    if (choice === 'update_and_generate' || (choice === 'generate_report' && session.isInAddContext)) {
+      session.isInAddContext = false;
+      // Return generate signal
+      return res.status(200).json({
+        step_id: 'FINISH',
+        message: '📥 Generating your Strategic Growth Plan...',
+        mode: 'buttons',
+        options: [{ key: 'generate_report', label: '📥 Generating...' }],
+        allow_text: false,
+        session_data: session,
+        current_phase: 'finish',
+        turn_count: session.turnCount,
+        confidence_state: calculateConfidence(session)
+      });
+    }
+
+    // ─── STORE USER INPUT ─────────────────────────────────────────────
+    if (choice !== 'SNAPSHOT_INIT') {
+      session.allUserInputs.push(choice);
+      session.conversationLog.push(`User: "${choice.slice(0, 100)}"`);
+      
+      // Store additional context if in add_context mode
+      if (session.isInAddContext && !['add_context', 'adjust_diagnosis', 'correct_finding', 'more_to_add', 'show_updated_diagnosis', 'more_changes'].includes(choice)) {
+        session.profile.additionalContext = (session.profile.additionalContext || '') + '\n' + choice;
       }
     }
 
-    // ─────────────────────────────────────────────────────
-    // BUILD PROMPT & CALL LLM
-    // ─────────────────────────────────────────────────────
-    const systemPrompt = buildMasterPrompt(session);
-    
-    let userMessage;
-    if (choice === 'SNAPSHOT_INIT') {
-      userMessage = `[NEW SESSION] Analyze all the scraped data and generate the welcome message. Follow the welcome phase instructions exactly.`;
-    } else if (session.currentPhase === 'add_context') {
-      userMessage = `[ADD CONTEXT MODE] The user wants to add or correct information.
-User said: "${choice}"
-Reason they came back: "${session.addContextReason}"
-
-Ask specifically what they want to add/correct. Do NOT re-offer the report until they're done.
-After they provide info, update profile_updates and set phase_complete: true.`;
+    // ─── GET CURRENT STEP ─────────────────────────────────────────────
+    let currentStep;
+    if (session.isInAddContext) {
+      currentStep = ADD_CONTEXT_STEPS[Math.min(session.addContextStepIndex, ADD_CONTEXT_STEPS.length - 1)];
+      session.addContextStepIndex++;
     } else {
-      userMessage = `[USER INPUT] "${choice}"
-
-Process this input. Update profile_updates with ANY new information learned.
-Current phase: ${session.currentPhase}
-Questions asked this phase: ${session.phaseQuestionCount}/${PHASES[session.currentPhase]?.minQuestions || 0} minimum
-
-Remember: check the profile for ❓ fields and ask about the most important missing one.`;
+      // Normal flow
+      if (choice !== 'SNAPSHOT_INIT' && session.currentStepIndex > 0) {
+        // Advance to next step (unless we're at welcome which auto-advances)
+        session.currentStepIndex = Math.min(session.currentStepIndex + 1, SCRIPT.length - 1);
+      } else if (choice === 'SNAPSHOT_INIT') {
+        session.currentStepIndex = 0;
+      }
+      currentStep = SCRIPT[session.currentStepIndex];
+      // Advance step index for next call
+      if (choice === 'SNAPSHOT_INIT') {
+        session.currentStepIndex = 1; // Next call will be company_model
+      }
     }
 
-    const llmResponse = await callLLM(systemPrompt, userMessage, history, geminiKey);
-
-    // ─────────────────────────────────────────────────────
-    // UPDATE SESSION FROM LLM RESPONSE
-    // ─────────────────────────────────────────────────────
+    session.currentPhase = currentStep.phase;
     
-    // Update profile
+    console.log(`[v7] Step: ${currentStep.id} | Phase: ${currentStep.phase} | Turn: ${session.turnCount}`);
+
+    // ─── BUILD LLM PROMPT ─────────────────────────────────────────────
+    const fullContext = buildFullContext(session);
+    
+    const prompt = `
+You are the Revenue Architect, a senior B2B revenue strategist.
+
+LANGUAGE RULE: Respond in the SAME language the user uses. If they write in Italian, respond entirely in Italian. If English, respond in English.
+
+${fullContext}
+
+════════════════════════════════════════════════════
+CURRENT STEP: ${currentStep.id}
+PHASE: ${currentStep.phase}
+════════════════════════════════════════════════════
+
+YOUR INSTRUCTION FOR THIS TURN:
+${currentStep.instruction}
+
+USER'S LAST INPUT: "${choice}"
+
+OUTPUT FORMAT (strict JSON):
+{
+  "message": "Your response in markdown. MINIMUM 4 sentences. Include examples and benchmarks.",
+  "profile_updates": { "fieldName": "value learned from user's input" }
+}
+
+RULES:
+1. Output ONLY the JSON object above
+2. In "message": follow the instruction EXACTLY
+3. In "profile_updates": extract ANY new info from the user's input and map to profile fields
+4. Be SPECIFIC — use actual numbers, names, data
+5. NEVER say "interesting" or "great question" — add value instead
+6. Include at least one benchmark, example, or reference per response
+7. The message MUST be at least 4 sentences long
+`;
+
+    // ─── CALL LLM ────────────────────────────────────────────────────
+    let llmResponse;
+    try {
+      llmResponse = await callLLM(prompt, history, geminiKey);
+    } catch (e) {
+      console.error(`[v7] LLM error: ${e.message}`);
+      llmResponse = {
+        message: "Let me continue our analysis. Could you tell me more about your current situation?",
+        profile_updates: {}
+      };
+    }
+
+    // ─── UPDATE PROFILE ───────────────────────────────────────────────
     if (llmResponse.profile_updates) {
-      updateProfile(session, llmResponse.profile_updates);
-    }
-    
-    // Track question
-    if (llmResponse.question_asked) {
-      session.questionsAsked.push(llmResponse.question_asked);
-      session.phaseQuestionCount++;
-    }
-    
-    // Log conversation insight
-    if (llmResponse.insight_logged) {
-      session.conversationLog.push(llmResponse.insight_logged);
-    } else {
-      session.conversationLog.push(`Turn ${session.turnCount}: User said "${choice.slice(0, 60)}" in ${session.currentPhase} phase`);
-    }
-
-    // ─────────────────────────────────────────────────────
-    // PHASE TRANSITION
-    // ─────────────────────────────────────────────────────
-    if (shouldAdvancePhase(session, llmResponse)) {
-      const oldPhase = session.currentPhase;
-      advancePhase(session);
-      console.log(`[v6] Phase transition: ${oldPhase} → ${session.currentPhase}`);
-    }
-
-    // ─────────────────────────────────────────────────────
-    // BUILD RESPONSE
-    // ─────────────────────────────────────────────────────
-    const options = validateOptions(llmResponse.options, session.currentPhase);
-    
-    // Calculate confidence
-    const filled = Object.entries(session.profile).filter(([k, v]) => {
-      if (Array.isArray(v)) return v.length > 0;
-      return v && v !== '';
-    }).length;
-    const total = Object.keys(session.profile).length;
-    const confidence = Math.round((filled / total) * 100);
-    
-    // Determine step_id for frontend
-    let stepId = 'discovery';
-    if (session.currentPhase === 'welcome') stepId = 'welcome';
-    if (session.currentPhase === 'pre_finish') stepId = 'pre_finish';
-    if (session.currentPhase === 'finish') stepId = 'FINISH';
-    if (session.currentPhase === 'add_context') stepId = 'add_context';
-
-    const response = {
-      step_id: stepId,
-      message: llmResponse.message,
-      mode: session.currentPhase === 'pre_finish' ? 'buttons' : 'mixed',
-      options,
-      allow_text: session.currentPhase !== 'pre_finish',
-      session_data: session,
-      current_phase: session.currentPhase,
-      turn_count: session.turnCount,
-      confidence_state: {
-        total: confidence,
-        company: Object.entries(session.profile).filter(([k]) => 
-          ['companyName','industry','businessModel','stage','revenue','teamSize','funding','productDescription'].includes(k)
-        ).filter(([,v]) => v && v !== '').length * 3,
-        gtm: Object.entries(session.profile).filter(([k]) => 
-          ['icpTitle','salesMotion','channels','avgDealSize','pricingModel'].includes(k)
-        ).filter(([,v]) => v && v !== '').length * 5,
-        diagnosis: Object.entries(session.profile).filter(([k]) => 
-          ['mainBottleneck','diagnosedProblems','rootCauses','validatedProblems'].includes(k)
-        ).filter(([,v]) => (Array.isArray(v) ? v.length > 0 : v && v !== '')).length * 7,
-        solution: session.profile.validatedProblems?.length > 0 ? 15 : 0
+      for (const [key, value] of Object.entries(llmResponse.profile_updates)) {
+        if (value && session.profile.hasOwnProperty(key)) {
+          if (Array.isArray(session.profile[key])) {
+            const newItems = Array.isArray(value) ? value : [value];
+            session.profile[key] = [...new Set([...session.profile[key], ...newItems])];
+          } else if (typeof value === 'string' && value.trim()) {
+            session.profile[key] = value;
+          }
+        }
       }
-    };
+    }
+    
+    // Log what the AI said
+    session.conversationLog.push(`AI (${currentStep.id}): Asked about ${currentStep.phase}`);
 
-    console.log(`[v6] Response: phase=${session.currentPhase}, confidence=${confidence}%, fields_filled=${filled}/${total}`);
+    // ─── BUILD RESPONSE ───────────────────────────────────────────────
+    const confidence = calculateConfidence(session);
+    
+    const response = {
+      step_id: currentStep.id,
+      message: llmResponse.message || "Let's continue our analysis.",
+      mode: currentStep.mode || 'mixed',
+      options: currentStep.options,
+      allow_text: currentStep.mode !== 'buttons',
+      session_data: session,
+      current_phase: currentStep.phase,
+      turn_count: session.turnCount,
+      confidence_state: confidence
+    };
     
     return res.status(200).json(response);
 
   } catch (error) {
-    console.error('[v6 FATAL]', error);
-    return sendError();
+    console.error('[v7 FATAL]', error);
+    return res.status(200).json({
+      step_id: 'error',
+      message: "Something went wrong. Let's continue — what's your biggest revenue challenge right now?",
+      mode: 'mixed',
+      options: [
+        { key: 'lead_gen', label: 'Not enough qualified leads' },
+        { key: 'conversion', label: 'Leads don\'t convert to customers' },
+        { key: 'scaling', label: 'Can\'t scale beyond founder-led sales' },
+        { key: 'churn', label: 'Customer churn is too high' }
+      ],
+      allow_text: true,
+      session_data: null
+    });
   }
+}
+
+function calculateConfidence(session) {
+  const p = session.profile;
+  let filled = 0;
+  const important = ['companyName','businessModel','stage','revenue','teamSize','icpTitle','salesMotion','channels','salesProcess','whoCloses','mainBottleneck','diagnosedProblems'];
+  
+  for (const key of important) {
+    const v = p[key];
+    if (Array.isArray(v) ? v.length > 0 : (v && v !== '')) filled++;
+  }
+  
+  const total = Math.round((filled / important.length) * 100);
+  
+  return {
+    total,
+    company: ['companyName','businessModel','stage','revenue','teamSize','funding'].filter(k => p[k] && p[k] !== '').length * 4,
+    gtm: ['icpTitle','salesMotion','channels','avgDealSize'].filter(k => p[k] && p[k] !== '').length * 6,
+    diagnosis: (['mainBottleneck'].filter(k => p[k] && p[k] !== '').length + (p.diagnosedProblems?.length > 0 ? 1 : 0) + (p.validatedProblems?.length > 0 ? 1 : 0)) * 10,
+    solution: p.validatedProblems?.length > 0 ? 15 : 0
+  };
 }
