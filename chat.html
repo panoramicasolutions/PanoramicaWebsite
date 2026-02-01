@@ -3,352 +3,277 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Revenue Architect | Panoramica</title>
+    <title>Revenue Architect</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { 'pano-bg':'#030303','pano-panel':'#0A0A0A','pano-card':'#0F0F0F','pano-lime':'#CDFF00','pano-lime-soft':'#B8E600','pano-grey':'#888888','pano-grey-light':'#A0A0A0','pano-border':'#1A1A1A','pano-border-hover':'#2A2A2A' },
-                    fontFamily: { sans:['Inter','system-ui','sans-serif'], mono:['JetBrains Mono','monospace'] },
-                    boxShadow: { 'glow':'0 0 40px rgba(205,255,0,0.15)','glow-sm':'0 0 20px rgba(205,255,0,0.1)','card':'0 4px 24px rgba(0,0,0,0.4)' }
-                }
-            }
-        }
+        tailwind.config={theme:{extend:{colors:{'p-bg':'#030303','p-panel':'#0A0A0A','p-card':'#0F0F0F','p-lime':'#CDFF00','p-lime2':'#B8E600','p-grey':'#888','p-greyL':'#A0A0A0','p-bdr':'#1A1A1A','p-bdr2':'#2A2A2A'},fontFamily:{sans:['Inter','system-ui'],mono:['JetBrains Mono','monospace']}}}}
     </script>
     <style>
         *{box-sizing:border-box}html,body{height:100%;margin:0;padding:0}
-        body{background:#030303;color:#fff;display:flex;flex-direction:column;overflow:hidden;font-feature-settings:'cv02','cv03','cv04','cv11'}
-        .custom-scrollbar::-webkit-scrollbar{width:6px}.custom-scrollbar::-webkit-scrollbar-track{background:transparent}.custom-scrollbar::-webkit-scrollbar-thumb{background:#2A2A2A;border-radius:3px}
+        body{background:#030303;color:#fff;display:flex;flex-direction:column;overflow:hidden}
+        .scr::-webkit-scrollbar{width:6px}.scr::-webkit-scrollbar-track{background:transparent}.scr::-webkit-scrollbar-thumb{background:#2A2A2A;border-radius:3px}
         .prose{font-size:.9375rem;line-height:1.7}.prose p{margin-bottom:1em;color:#E0E0E0}.prose p:last-child{margin-bottom:0}.prose strong{color:#fff;font-weight:600}.prose em{color:#B0B0B0}
         .prose ul,.prose ol{padding-left:1.5em;margin:1em 0;color:#C0C0C0}.prose li{margin-bottom:.5em}.prose li::marker{color:#CDFF00}
-        .prose a{color:#CDFF00;text-decoration:underline;text-underline-offset:2px}.prose a:hover{color:#fff}
-        .prose code{background:#1A1A1A;padding:.2em .4em;border-radius:4px;font-size:.85em;font-family:'JetBrains Mono',monospace}
-        .prose h1,.prose h2,.prose h3{color:#fff;font-weight:600;margin:1.5em 0 .75em}.prose h1{font-size:1.5em}.prose h2{font-size:1.25em}.prose h3{font-size:1.1em}
+        .prose a{color:#CDFF00;text-decoration:underline}.prose a:hover{color:#fff}
+        .prose code{background:#1A1A1A;padding:.2em .4em;border-radius:4px;font-size:.85em}
+        .prose h1,.prose h2,.prose h3{color:#fff;font-weight:600;margin:1.2em 0 .6em}.prose h1{font-size:1.4em}.prose h2{font-size:1.2em}.prose h3{font-size:1.05em}
         .prose blockquote{border-left:3px solid #CDFF00;padding-left:1em;margin:1em 0;color:#A0A0A0;font-style:italic}
         .prose hr{border:none;border-top:1px solid #2A2A2A;margin:1.5em 0}
-        @keyframes message-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}.msg-anim{animation:message-in .4s cubic-bezier(.16,1,.3,1) forwards}
-        @keyframes typing-dot{0%,60%,100%{opacity:.3;transform:scale(1)}30%{opacity:1;transform:scale(1.2)}}.typing-dot{animation:typing-dot 1.4s infinite;width:6px;height:6px;background:#CDFF00;border-radius:50%}.typing-dot:nth-child(2){animation-delay:.15s}.typing-dot:nth-child(3){animation-delay:.3s}
-        .btn-option{position:relative;overflow:hidden}.btn-option::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(205,255,0,.05),transparent);transition:left .5s ease}.btn-option:hover::before{left:100%}
-        .phase-dot{width:10px;height:10px;border-radius:50%;border:2px solid #333;transition:all .3s}.phase-dot.done{background:#22c55e;border-color:#22c55e}.phase-dot.active{background:#CDFF00;border-color:#CDFF00;box-shadow:0 0 8px rgba(205,255,0,.4)}.phase-dot.pending{background:transparent;border-color:#333}
-        .phase-line{height:2px;width:20px;transition:background .3s}.phase-line.done{background:#22c55e}.phase-line.active{background:linear-gradient(90deg,#22c55e,#CDFF00)}.phase-line.pending{background:#1A1A1A}
-        input:-webkit-autofill{-webkit-box-shadow:0 0 0 30px #0F0F0F inset !important;-webkit-text-fill-color:#fff !important}
+        @keyframes mi{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}.mi{animation:mi .4s cubic-bezier(.16,1,.3,1) forwards}
+        @keyframes td{0%,60%,100%{opacity:.3}30%{opacity:1}}.td{animation:td 1.4s infinite;width:6px;height:6px;background:#CDFF00;border-radius:50%}.td:nth-child(2){animation-delay:.15s}.td:nth-child(3){animation-delay:.3s}
+        .dot{width:10px;height:10px;border-radius:50%;border:2px solid #333;transition:all .3s}.dot.on{background:#22c55e;border-color:#22c55e}.dot.now{background:#CDFF00;border-color:#CDFF00;box-shadow:0 0 8px rgba(205,255,0,.4)}.dot.off{background:transparent}
+        .ln{height:2px;width:20px;transition:background .3s}.ln.on{background:#22c55e}.ln.now{background:linear-gradient(90deg,#22c55e,#CDFF00)}.ln.off{background:#1A1A1A}
     </style>
 </head>
-<body class="selection:bg-pano-lime selection:text-black">
+<body class="selection:bg-p-lime selection:text-black">
 
     <!-- Modal -->
-    <div id="context-modal" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 transition-all duration-500">
-        <div class="bg-pano-card border border-pano-border w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden relative">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-pano-lime/5 blur-[80px] rounded-full pointer-events-none"></div>
+    <div id="modal" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="bg-p-card border border-p-bdr w-full max-w-lg rounded-2xl shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-p-lime/5 blur-[80px] rounded-full pointer-events-none"></div>
             <div class="relative z-10 p-8">
                 <div class="flex items-start gap-4 mb-8">
-                    <div class="w-12 h-12 bg-pano-lime/10 border border-pano-lime/30 rounded-xl flex items-center justify-center text-pano-lime shrink-0">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5m.75-9l3-3 2.148 2.148A12.061 12.061 0 0116.5 7.605"/></svg>
+                    <div class="w-12 h-12 bg-p-lime/10 border border-p-lime/30 rounded-xl flex items-center justify-center text-p-lime shrink-0">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5"/></svg>
                     </div>
-                    <div>
-                        <h2 class="text-2xl font-bold text-white mb-1">Initialize Analysis</h2>
-                        <p class="text-pano-grey text-sm">Provide your digital footprint for a personalized revenue diagnostic.</p>
-                    </div>
+                    <div><h2 class="text-2xl font-bold mb-1">Initialize Analysis</h2><p class="text-p-grey text-sm">Provide your digital footprint for a personalized diagnostic.</p></div>
                 </div>
-                <form id="context-form" onsubmit="handleContextSubmit(event)" class="space-y-5">
+                <form id="form" onsubmit="init(event)" class="space-y-5">
                     <div>
-                        <label class="block text-xs font-medium text-pano-grey-light uppercase tracking-wider mb-2">Company Website</label>
-                        <input type="url" id="company-website" required placeholder="https://yourcompany.com" class="w-full bg-pano-panel border border-pano-border rounded-xl px-4 py-3.5 text-white text-sm focus:border-pano-lime focus:outline-none transition-all placeholder:text-gray-600">
-                        <span id="website-error" class="text-red-400 text-xs hidden mt-2 block">Enter a valid URL</span>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-pano-grey-light uppercase tracking-wider mb-2">Business Description <span class="text-pano-lime text-[10px] ml-1">IMPORTANT</span></label>
-                        <textarea id="company-description" rows="2" placeholder="Ex: B2B SaaS for agency reporting automation..." class="w-full bg-pano-panel border border-pano-border rounded-xl px-4 py-3.5 text-white text-sm focus:border-pano-lime focus:outline-none transition-all placeholder:text-gray-600 resize-none"></textarea>
+                        <label class="block text-xs font-medium text-p-greyL uppercase tracking-wider mb-2">Company Website</label>
+                        <input type="url" id="f-web" required placeholder="https://yourcompany.com" class="w-full bg-p-panel border border-p-bdr rounded-xl px-4 py-3.5 text-white text-sm focus:border-p-lime focus:outline-none placeholder:text-gray-600">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-pano-grey-light uppercase tracking-wider mb-2">LinkedIn <span class="text-pano-grey">(Optional)</span></label>
-                        <input type="url" id="company-linkedin" placeholder="https://linkedin.com/company/..." class="w-full bg-pano-panel border border-pano-border rounded-xl px-4 py-3.5 text-white text-sm focus:border-pano-lime focus:outline-none transition-all placeholder:text-gray-600">
+                        <label class="block text-xs font-medium text-p-greyL uppercase tracking-wider mb-2">Business Description <span class="text-p-lime text-[10px] ml-1">IMPORTANT</span></label>
+                        <textarea id="f-desc" rows="2" placeholder="Ex: B2B SaaS for agency reporting..." class="w-full bg-p-panel border border-p-bdr rounded-xl px-4 py-3.5 text-white text-sm focus:border-p-lime focus:outline-none placeholder:text-gray-600 resize-none"></textarea>
                     </div>
-                    <div class="pt-4 flex gap-3">
-                        <button type="button" onclick="startDemo()" class="flex-1 bg-transparent border border-pano-border text-pano-grey font-semibold py-4 rounded-xl hover:text-white hover:bg-white/5 transition-all">Demo</button>
-                        <button type="submit" id="submit-btn" class="flex-[2] bg-pano-lime text-black font-bold py-4 rounded-xl hover:bg-pano-lime-soft transition-all shadow-glow flex items-center justify-center gap-2 group">
-                            <span>Start Analysis</span>
-                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="group-hover:translate-x-1 transition-transform"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
-                        </button>
+                    <div>
+                        <label class="block text-xs font-medium text-p-greyL uppercase tracking-wider mb-2">LinkedIn <span class="text-p-grey">(Optional)</span></label>
+                        <input type="url" id="f-li" placeholder="https://linkedin.com/company/..." class="w-full bg-p-panel border border-p-bdr rounded-xl px-4 py-3.5 text-white text-sm focus:border-p-lime focus:outline-none placeholder:text-gray-600">
                     </div>
+                    <button type="submit" id="f-btn" class="w-full bg-p-lime text-black font-bold py-4 rounded-xl hover:bg-p-lime2 transition-all shadow-[0_0_40px_rgba(205,255,0,.15)] flex items-center justify-center gap-2">
+                        <span>Start Analysis</span>
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                    </button>
                 </form>
-                <p class="text-center text-[11px] text-gray-600 mt-6">Data analyzed in real-time. Never stored.</p>
             </div>
         </div>
     </div>
 
     <!-- Header -->
-    <header class="h-16 border-b border-pano-border bg-pano-bg/90 backdrop-blur-md flex items-center justify-between px-4 md:px-6 z-40 shrink-0">
-        <div class="flex items-center gap-3 md:gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-2 h-8 bg-pano-lime rounded-full"></div>
-                <div>
-                    <h1 class="font-bold text-sm tracking-wide text-white">REVENUE ARCHITECT</h1>
-                    <div class="flex items-center gap-2">
-                        <span id="status-dot" class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                        <span id="status-txt" class="text-[10px] text-pano-grey font-mono tracking-wider">READY</span>
-                    </div>
-                </div>
-            </div>
-            <div id="phase-bar" class="hidden md:flex items-center ml-6 pl-6 border-l border-pano-border">
-                <div class="flex items-center">
-                    <div class="flex flex-col items-center"><div id="d-welcome" class="phase-dot pending"></div><span class="text-[7px] text-pano-grey mt-1 font-mono">INIT</span></div>
-                    <div id="l-1" class="phase-line pending mx-0.5"></div>
-                    <div class="flex flex-col items-center"><div id="d-company" class="phase-dot pending"></div><span class="text-[7px] text-pano-grey mt-1 font-mono">CO</span></div>
-                    <div id="l-2" class="phase-line pending mx-0.5"></div>
-                    <div class="flex flex-col items-center"><div id="d-gtm" class="phase-dot pending"></div><span class="text-[7px] text-pano-grey mt-1 font-mono">GTM</span></div>
-                    <div id="l-3" class="phase-line pending mx-0.5"></div>
-                    <div class="flex flex-col items-center"><div id="d-sales" class="phase-dot pending"></div><span class="text-[7px] text-pano-grey mt-1 font-mono">SALES</span></div>
-                    <div id="l-4" class="phase-line pending mx-0.5"></div>
-                    <div class="flex flex-col items-center"><div id="d-diagnosis" class="phase-dot pending"></div><span class="text-[7px] text-pano-grey mt-1 font-mono">DX</span></div>
-                    <div id="l-5" class="phase-line pending mx-0.5"></div>
-                    <div class="flex flex-col items-center"><div id="d-finish" class="phase-dot pending"></div><span class="text-[7px] text-pano-grey mt-1 font-mono">DONE</span></div>
-                </div>
-                <div class="flex items-center gap-2 ml-4 pl-4 border-l border-pano-border">
-                    <div class="relative w-9 h-9">
-                        <svg class="w-9 h-9 transform -rotate-90" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#1A1A1A" stroke-width="3"/><circle id="score-ring" cx="18" cy="18" r="15" fill="none" stroke="#CDFF00" stroke-width="3" stroke-dasharray="0 94.2" stroke-linecap="round" class="transition-all duration-700"/></svg>
-                        <span id="score-num" class="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-white">0</span>
-                    </div>
-                    <div class="text-[9px] font-mono leading-tight"><div class="text-pano-grey">CONFIDENCE</div><div id="score-label" class="text-pano-lime">INIT</div></div>
-                </div>
+    <header class="h-14 border-b border-p-bdr bg-p-bg/90 backdrop-blur-md flex items-center justify-between px-4 md:px-6 z-40 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-2 h-7 bg-p-lime rounded-full"></div>
+            <div><h1 class="font-bold text-sm tracking-wide">REVENUE ARCHITECT</h1><span id="st" class="text-[10px] text-p-grey font-mono">READY</span></div>
+            <!-- Phase dots -->
+            <div id="ph" class="hidden md:flex items-center ml-4 pl-4 border-l border-p-bdr gap-0.5">
+                <div class="flex flex-col items-center"><div id="d0" class="dot off"></div><span class="text-[7px] text-p-grey mt-0.5 font-mono">INIT</span></div>
+                <div id="l1" class="ln off mx-0.5"></div>
+                <div class="flex flex-col items-center"><div id="d1" class="dot off"></div><span class="text-[7px] text-p-grey mt-0.5 font-mono">CO</span></div>
+                <div id="l2" class="ln off mx-0.5"></div>
+                <div class="flex flex-col items-center"><div id="d2" class="dot off"></div><span class="text-[7px] text-p-grey mt-0.5 font-mono">GTM</span></div>
+                <div id="l3" class="ln off mx-0.5"></div>
+                <div class="flex flex-col items-center"><div id="d3" class="dot off"></div><span class="text-[7px] text-p-grey mt-0.5 font-mono">SALES</span></div>
+                <div id="l4" class="ln off mx-0.5"></div>
+                <div class="flex flex-col items-center"><div id="d4" class="dot off"></div><span class="text-[7px] text-p-grey mt-0.5 font-mono">DX</span></div>
+                <div id="l5" class="ln off mx-0.5"></div>
+                <div class="flex flex-col items-center"><div id="d5" class="dot off"></div><span class="text-[7px] text-p-grey mt-0.5 font-mono">✓</span></div>
+                <div class="ml-3 pl-3 border-l border-p-bdr"><span id="conf" class="text-xs font-mono text-p-lime">0%</span></div>
             </div>
         </div>
         <div class="flex items-center gap-3">
-            <span id="turn-num" class="text-[10px] font-mono text-pano-grey hidden"></span>
-            <button onclick="location.reload()" class="text-xs font-medium text-pano-grey hover:text-white transition-colors border border-pano-border px-3 py-2 rounded-lg hover:bg-white/5">Reset</button>
+            <span id="tn" class="text-[10px] font-mono text-p-grey"></span>
+            <button onclick="location.reload()" class="text-xs text-p-grey hover:text-white border border-p-bdr px-3 py-1.5 rounded-lg hover:bg-white/5 transition">Reset</button>
         </div>
     </header>
+    <div class="w-full h-[2px] bg-p-panel"><div id="bar" class="h-full bg-gradient-to-r from-p-lime to-p-lime2 transition-all duration-700" style="width:0%"></div></div>
 
-    <div class="w-full h-[2px] bg-pano-panel"><div id="progress" class="h-full bg-gradient-to-r from-pano-lime to-pano-lime-soft transition-all duration-700" style="width:0%"></div></div>
-
-    <main id="chat-area" class="flex-1 overflow-y-auto custom-scrollbar scroll-smooth">
-        <div class="max-w-3xl mx-auto py-8 px-4 md:px-0 min-h-full flex flex-col justify-end">
-            <div id="messages" class="space-y-6"></div>
-            <div class="h-36"></div>
+    <!-- Chat -->
+    <main id="chat" class="flex-1 overflow-y-auto scr scroll-smooth">
+        <div class="max-w-3xl mx-auto py-6 px-4 md:px-0 min-h-full flex flex-col justify-end">
+            <div id="msgs" class="space-y-5"></div>
+            <div class="h-32"></div>
         </div>
     </main>
 
-    <div class="shrink-0 bg-gradient-to-t from-pano-bg via-pano-bg/95 to-transparent pt-12 pb-6 px-4 z-30">
-        <div class="max-w-3xl mx-auto space-y-4">
-            <div id="options" class="flex flex-col gap-2"></div>
-            <div id="input-bar" class="relative hidden opacity-0 transition-opacity duration-500">
-                <div class="bg-pano-card border border-pano-border rounded-xl flex items-center p-2 shadow-card focus-within:border-pano-lime/50 transition-all">
-                    <input type="text" id="text-input" class="flex-1 bg-transparent border-none text-white text-sm px-3 focus:ring-0 focus:outline-none placeholder:text-gray-600 h-10" placeholder="Type your response...">
-                    <button onclick="submitText()" class="p-2.5 bg-pano-lime text-black rounded-lg hover:bg-pano-lime-soft transition-all shadow-glow-sm">
+    <!-- Controls -->
+    <div class="shrink-0 bg-gradient-to-t from-p-bg via-p-bg/95 to-transparent pt-10 pb-5 px-4 z-30">
+        <div class="max-w-3xl mx-auto space-y-3">
+            <div id="opts" class="flex flex-col gap-2"></div>
+            <div id="inp" class="hidden opacity-0 transition-opacity duration-300">
+                <div class="bg-p-card border border-p-bdr rounded-xl flex items-center p-2 focus-within:border-p-lime/50 transition-all">
+                    <input type="text" id="ti" class="flex-1 bg-transparent border-none text-white text-sm px-3 focus:ring-0 focus:outline-none placeholder:text-gray-600 h-10" placeholder="Type your response...">
+                    <button onclick="sendText()" class="p-2.5 bg-p-lime text-black rounded-lg hover:bg-p-lime2 transition-all">
                         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
                     </button>
                 </div>
             </div>
-            <div class="text-center pt-2"><p class="text-[10px] text-gray-700 font-mono tracking-widest">PANORAMICA v7.0 • SCRIPTED FLOW</p></div>
+            <p class="text-center text-[10px] text-gray-700 font-mono tracking-widest pt-1">PANORAMICA v8.0</p>
         </div>
     </div>
 
     <script>
-    const API = "/api/chat";
-    const REPORT_API = "/api/report";
-    const PHASES_ORDER = ['welcome','company','gtm','sales','diagnosis','pre_finish','finish','add_context'];
-    const PHASE_DOTS = {welcome:'d-welcome',company:'d-company',gtm:'d-gtm',sales:'d-sales',diagnosis:'d-diagnosis',pre_finish:'d-finish',finish:'d-finish',add_context:'d-diagnosis'};
+    const API="/api/chat", RAPI="/api/report";
+    let H=[], S=null, busy=false, diag={}, lastMD='';
+    const $=id=>document.getElementById(id), chat=$('chat'), msgs=$('msgs'), opts=$('opts'), inp=$('inp'), ti=$('ti');
 
-    let history = [], session = null, busy = false, diagnosticData = {}, lastReport = '';
-    const $=id=>document.getElementById(id);
-    const chatArea=$('chat-area'), msgs=$('messages'), opts=$('options'), inputBar=$('input-bar'), textIn=$('text-input');
+    function scroll(){requestAnimationFrame(()=>chat.scrollTo({top:chat.scrollHeight,behavior:'smooth'}))}
+    function addU(t){const d=document.createElement('div');d.className='flex gap-3 flex-row-reverse mi';d.innerHTML=`<div class="w-8 h-8 rounded-xl bg-p-lime flex items-center justify-center shrink-0"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="text-black"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg></div><div class="max-w-[80%]"><div class="text-sm bg-p-panel border border-p-bdr p-3.5 rounded-2xl rounded-tr-md">${t.replace(/</g,'&lt;')}</div></div>`;msgs.appendChild(d);scroll()}
+    function addA(t){if(!t)return;const d=document.createElement('div');d.className='flex gap-3 mi';let h;try{marked.setOptions({breaks:true,gfm:true});h=marked.parse(t)}catch{h=t}d.innerHTML=`<div class="w-8 h-8 rounded-xl bg-p-panel border border-p-bdr flex items-center justify-center shrink-0"><span class="text-p-lime font-mono text-[10px] font-bold">RA</span></div><div class="flex-1 max-w-[85%]"><div class="prose bg-p-card border border-p-bdr p-4 rounded-2xl rounded-tl-md">${h}</div></div>`;msgs.appendChild(d);scroll()}
+    function typing(on){if(on){const d=document.createElement('div');d.id='typ';d.className='flex gap-3 mi';d.innerHTML=`<div class="w-8 h-8 rounded-xl bg-p-panel border border-p-bdr flex items-center justify-center shrink-0"><span class="text-p-lime font-mono text-[10px] font-bold">RA</span></div><div class="flex gap-1.5 items-center bg-p-card border border-p-bdr px-5 py-3 rounded-2xl"><div class="td"></div><div class="td"></div><div class="td"></div></div>`;msgs.appendChild(d);scroll()}else $('typ')?.remove()}
+    function loading(t){opts.innerHTML=`<div class="w-full bg-p-card border border-p-bdr p-4 rounded-xl flex items-center gap-3"><div class="w-4 h-4 border-2 border-p-lime border-t-transparent rounded-full animate-spin"></div><span class="text-xs font-mono text-p-lime uppercase tracking-widest">${t}</span></div>`}
 
-    function status(ok,t){$('status-dot').className=`w-1.5 h-1.5 ${ok?'bg-emerald-500':'bg-red-500 animate-pulse'} rounded-full`;const s=$('status-txt');s.textContent=t||(ok?'READY':'ERROR');s.className=`text-[10px] ${ok?'text-pano-grey':'text-red-400'} font-mono tracking-wider`}
-    function scroll(){requestAnimationFrame(()=>chatArea.scrollTo({top:chatArea.scrollHeight,behavior:'smooth'}))}
-    
-    function updatePhase(phase,conf){
-        $('phase-bar').classList.remove('hidden');
-        const phaseMap=['welcome','company','gtm','sales','diagnosis','finish'];
-        const dotMap={welcome:'d-welcome',company:'d-company',gtm:'d-gtm',sales:'d-sales',diagnosis:'d-diagnosis',pre_finish:'d-finish',finish:'d-finish',add_context:'d-diagnosis'};
-        const p=phase==='add_context'?'diagnosis':phase==='pre_finish'?'finish':phase;
-        const idx=phaseMap.indexOf(p);
-        phaseMap.forEach((ph,i)=>{const d=$(dotMap[ph]||'d-welcome');if(!d)return;d.classList.remove('done','active','pending');d.classList.add(i<idx?'done':i===idx?'active':'pending')});
-        for(let i=1;i<=5;i++){const l=$(`l-${i}`);if(!l)continue;l.classList.remove('done','active','pending');l.classList.add(i<idx?'done':i===idx?'active':'pending')}
-        if(conf){const s=conf.total||0,c=94.2;$('score-ring').setAttribute('stroke-dasharray',`${(s/100)*c} ${c}`);$('score-num').textContent=s;const sl=$('score-label');sl.textContent=s>=70?'READY':s>=40?'BUILDING':'GATHERING';sl.className=s>=70?'text-green-400':s>=40?'text-yellow-400':'text-pano-lime'}
-        $('progress').style.width=`${Math.max(conf?.total||0,(idx/6)*100)}%`;
-        const tn=$('turn-num');tn.classList.remove('hidden');tn.textContent=`T${session?.turnCount||0}`;
+    function updPhase(phase, conf){
+        $('ph').classList.remove('hidden');
+        const map={welcome:0,company:1,gtm:2,sales:3,diagnosis:4,pre_finish:5,finish:5,add_context:4};
+        const idx=map[phase]??0;
+        for(let i=0;i<6;i++){const d=$(`d${i}`);d.classList.remove('on','now','off');d.classList.add(i<idx?'on':i===idx?'now':'off')}
+        for(let i=1;i<=5;i++){const l=$(`l${i}`);l.classList.remove('on','now','off');l.classList.add(i<idx?'on':i===idx?'now':'off')}
+        const pct=conf?.total||Math.round((idx/5)*100);
+        $('bar').style.width=pct+'%';$('conf').textContent=pct+'%';
+        $('tn').textContent='T'+(S?.turnCount||0);
     }
 
-    function addUser(t){const d=document.createElement('div');d.className='flex gap-4 flex-row-reverse msg-anim';d.innerHTML=`<div class="w-9 h-9 rounded-xl bg-pano-lime flex items-center justify-center shrink-0"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="text-black"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg></div><div class="max-w-[80%]"><div class="text-sm bg-pano-panel border border-pano-border p-4 rounded-2xl rounded-tr-md">${t.replace(/</g,'&lt;')}</div></div>`;msgs.appendChild(d);scroll()}
-    function addAI(t){if(!t)return;const d=document.createElement('div');d.className='flex gap-4 msg-anim';let h;try{marked.setOptions({breaks:true,gfm:true});h=marked.parse(t)}catch{h=t.replace(/</g,'&lt;')}d.innerHTML=`<div class="w-9 h-9 rounded-xl bg-pano-panel border border-pano-border flex items-center justify-center shrink-0"><span class="text-pano-lime font-mono text-xs font-medium">RA</span></div><div class="flex-1 max-w-[85%]"><div class="prose bg-pano-card border border-pano-border p-5 rounded-2xl rounded-tl-md shadow-card">${h}</div></div>`;msgs.appendChild(d);scroll()}
-    function showTyping(){const d=document.createElement('div');d.id='typing';d.className='flex gap-4 msg-anim';d.innerHTML=`<div class="w-9 h-9 rounded-xl bg-pano-panel border border-pano-border flex items-center justify-center shrink-0"><span class="text-pano-lime font-mono text-xs font-medium">RA</span></div><div class="flex gap-1.5 items-center bg-pano-card border border-pano-border px-6 py-4 rounded-2xl"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;msgs.appendChild(d);scroll()}
-    function hideTyping(){$('typing')?.remove()}
-    function showLoading(t){opts.innerHTML=`<div class="w-full bg-pano-card border border-pano-border p-5 rounded-xl flex items-center gap-4"><div class="w-5 h-5 border-2 border-pano-lime border-t-transparent rounded-full animate-spin"></div><span class="text-xs font-mono text-pano-lime uppercase tracking-widest">${t}</span></div>`}
-
-    async function api(payload){
-        for(let i=0;i<3;i++){
-            try{
-                const c=new AbortController(),t=setTimeout(()=>c.abort(),60000);
-                const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:c.signal});
-                clearTimeout(t);if(!r.ok)throw new Error(`HTTP ${r.status}`);return await r.json();
-            }catch(e){if(i===2)throw e;await new Promise(r=>setTimeout(r,1000*(i+1)))}
-        }
-    }
-
-    function renderOptions(list, showInput){
-        opts.innerHTML='';
+    function showOpts(list, allowText){
+        opts.innerHTML='';inp.classList.add('hidden','opacity-0');
         (list||[]).forEach((o,i)=>{
-            const b=document.createElement('button');b.style.animationDelay=`${i*.08}s`;
+            const b=document.createElement('button');b.style.animationDelay=`${i*.06}s`;
             b.onclick=()=>pick(o.key,o.label);
-            if(o.key==='generate_report'||o.key==='download_report'||o.key==='update_and_generate'){
-                b.className='msg-anim w-full bg-pano-lime text-black border-2 border-pano-lime p-5 rounded-xl font-bold flex items-center justify-between shadow-glow hover:bg-pano-lime-soft hover:scale-[1.01] transition-all';
+            if(o.key==='generate_report'||o.key==='update_and_generate'){
+                b.className='mi w-full bg-p-lime text-black border-2 border-p-lime p-4 rounded-xl font-bold flex items-center justify-between hover:bg-p-lime2 hover:scale-[1.01] transition-all shadow-[0_0_30px_rgba(205,255,0,.15)]';
                 b.innerHTML=`<div class="flex items-center gap-3"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg><span>${o.label}</span></div><span class="text-sm opacity-70">PDF</span>`;
             }else{
-                b.className='msg-anim btn-option w-full text-left bg-pano-card border border-pano-border hover:border-pano-lime/50 p-4 rounded-xl transition-all group flex items-center justify-between';
-                b.innerHTML=`<span class="text-sm font-medium text-white">${o.label}</span><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" class="text-pano-grey group-hover:text-pano-lime group-hover:translate-x-1 transition-all shrink-0 ml-3"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>`;
+                b.className='mi w-full text-left bg-p-card border border-p-bdr hover:border-p-lime/50 p-3.5 rounded-xl transition-all group flex items-center justify-between';
+                b.innerHTML=`<span class="text-sm font-medium">${o.label}</span><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" class="text-p-grey group-hover:text-p-lime group-hover:translate-x-1 transition-all shrink-0 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>`;
             }
             opts.appendChild(b);
         });
-        if(showInput!==false){inputBar.classList.remove('hidden');setTimeout(()=>{inputBar.classList.remove('opacity-0');textIn.focus()},100)}
-        else inputBar.classList.add('hidden','opacity-0');
+        if(allowText!==false){inp.classList.remove('hidden');setTimeout(()=>{inp.classList.remove('opacity-0');ti.focus()},100)}
         scroll();
+    }
+
+    async function api(body){
+        for(let i=0;i<3;i++){try{
+            const c=new AbortController(),t=setTimeout(()=>c.abort(),60000);
+            const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:c.signal});
+            clearTimeout(t);if(!r.ok)throw new Error(`${r.status}`);return await r.json();
+        }catch(e){if(i===2)throw e;await new Promise(r=>setTimeout(r,1000*(i+1)))}}
     }
 
     async function pick(key, label){
         if(busy)return;
-        if(key==='generate_report'||key==='download_report'||key==='update_and_generate'){genReport();return}
+        if(key==='generate_report'||key==='update_and_generate'){genPDF();return}
         if(key==='restart'){location.reload();return}
-        if(key==='download_again'){genReport();return}
-        
-        busy=true;
-        addUser(label||key);showTyping();showLoading('PROCESSING...');inputBar.classList.add('opacity-50','pointer-events-none');
-        
+        if(key==='download_again'){genPDF();return}
+
+        busy=true;addU(label||key);typing(true);loading('ANALYZING...');
         try{
-            const data=await api({choice:key,history,sessionData:session,contextData:diagnosticData});
-            session=data.session_data;
-            history.push({role:'user',content:`User: ${key}`});
-            history.push({role:'assistant',content:JSON.stringify(data)});
-            hideTyping();
-            updatePhase(data.current_phase,data.confidence_state);
-            addAI(data.message);
-            renderOptions(data.options,data.allow_text!==false&&data.mode!=='buttons');
-            status(true,'READY');
+            const d=await api({choice:key,history:H,sessionData:S,contextData:diag});
+            S=d.session_data; H.push({role:'user',content:key},{role:'assistant',content:JSON.stringify(d)});
+            typing(false);updPhase(d.current_phase,d.confidence_state);
+            addA(d.message);showOpts(d.options,d.allow_text!==false&&d.mode!=='buttons');
+            $('st').textContent='READY';
         }catch(e){
-            console.error(e);hideTyping();status(false,'ERROR');
-            opts.innerHTML=`<div class="text-red-400 p-5 text-center bg-red-900/10 border border-red-900/50 rounded-xl"><span>Connection error</span><br><button onclick="pick('${key}','${label||key}')" class="underline mt-2">Retry</button></div>`;
-        }finally{busy=false;inputBar.classList.remove('opacity-50','pointer-events-none')}
-    }
-
-    async function submitText(){const t=textIn.value.trim();if(!t||busy)return;textIn.value='';await pick(t,t)}
-    textIn.addEventListener('keypress',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submitText()}});
-
-    function startDemo(){
-        $('context-modal').style.opacity='0';
-        setTimeout(()=>{$('context-modal').classList.add('hidden');addAI("**Demo Mode**\n\nI'm the Revenue Architect. Let's diagnose your revenue bottlenecks.");renderOptions([{key:'start',label:'Begin Revenue Diagnostic'}],false)},400);
-    }
-
-    async function handleContextSubmit(e){
-        e.preventDefault();
-        const w=$('company-website').value.trim(),d=$('company-description').value.trim(),l=$('company-linkedin').value.trim();
-        try{new URL(w)}catch{$('website-error').classList.remove('hidden');return}
-        $('website-error').classList.add('hidden');
-        const btn=$('submit-btn');btn.disabled=true;btn.innerHTML='<div class="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div><span>Scanning...</span>';
-        $('context-modal').style.opacity='0';setTimeout(()=>$('context-modal').classList.add('hidden'),400);
-        addAI("**Initializing**\n\nScanning your website and building a company profile...");showLoading('SCANNING...');status(true,'SCANNING');
-        diagnosticData={website:w,description:d,linkedin:l};
-        try{
-            const data=await api({choice:'SNAPSHOT_INIT',history:[],contextData:diagnosticData,sessionData:null});
-            session=data.session_data;history.push({role:'assistant',content:JSON.stringify(data)});
-            updatePhase(data.current_phase,data.confidence_state);addAI(data.message);
-            renderOptions(data.options,data.allow_text!==false&&data.mode!=='buttons');status(true,'READY');
-        }catch(err){console.error(err);status(false,'FAILED');opts.innerHTML=`<button onclick="location.reload()" class="w-full text-red-400 border border-red-900/50 bg-red-900/10 p-5 rounded-xl">Failed. Click to retry.</button>`}
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // PDF GENERATION — Fixed
-    // ═══════════════════════════════════════════════════════════════
-    function buildPDFHTML(md, company){
-        marked.setOptions({breaks:true,gfm:true,tables:true});
-        const html=marked.parse(md);
-        const date=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
-        return `<!DOCTYPE html><html><head><style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Arial,Helvetica,sans-serif;font-size:11pt;line-height:1.6;color:#1a1a1a;background:#fff}
-.hdr{background:linear-gradient(135deg,#030303,#111);color:#fff;padding:40px;margin-bottom:30px}
-.hdr .bar{width:60px;height:4px;background:#CDFF00;border-radius:2px;margin-bottom:20px}
-.hdr h1{font-size:26pt;font-weight:700;color:#fff;margin:0 0 6px 0;border:none;padding:0}
-.hdr .sub{font-size:13pt;color:#CDFF00}.hdr .meta{font-size:9pt;color:#888;margin-top:12px}
-.body{padding:0 40px 40px 40px}
-h1{font-size:18pt;font-weight:700;color:#000;margin:30px 0 12px;padding-bottom:6px;border-bottom:3px solid #CDFF00;page-break-after:avoid}
-h2{font-size:13pt;font-weight:600;color:#111;margin:24px 0 10px;padding-bottom:5px;border-bottom:1px solid #ddd;page-break-after:avoid}
-h3{font-size:11pt;font-weight:600;color:#333;margin:16px 0 8px;page-break-after:avoid}
-p{margin:0 0 8px}strong{font-weight:600;color:#000}em{color:#555}
-ul,ol{margin:6px 0 10px;padding-left:22px}li{margin-bottom:3px}
-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:9.5pt;page-break-inside:avoid}
-th{font-weight:600;text-align:left;padding:8px 10px;border:1px solid #ddd;background:#f5f5f5}
-td{padding:7px 10px;border:1px solid #ddd}tr:nth-child(even){background:#fafafa}
-blockquote{border-left:3px solid #CDFF00;background:#f9f9f9;padding:10px 14px;margin:12px 0;font-style:italic;color:#555;page-break-inside:avoid}
-blockquote p{margin:0}hr{border:none;border-top:1px solid #ddd;margin:24px 0}
-a{color:#0066cc;text-decoration:underline}code{background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:9pt}
-.ftr{margin-top:30px;padding-top:12px;border-top:1px solid #ddd;font-size:8pt;color:#999;text-align:center}
-</style></head><body>
-<div class="hdr"><div class="bar"></div><h1 style="font-size:26pt;color:#fff;border:none;padding:0;margin:0 0 6px">Strategic Growth Plan</h1><div class="sub">${company}</div><div class="meta">Revenue Architect | ${date}</div></div>
-<div class="body">${html}</div>
-<div class="ftr"><p>Revenue Architect by Panoramica — Confidential</p></div>
-</body></html>`;
-    }
-
-    async function genReport(){
-        if(busy)return;busy=true;
-        showLoading('GENERATING REPORT...');status(true,'GENERATING');
-        try{
-            const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),120000);
-            const r=await fetch(REPORT_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({history,sessionData:session,diagnosticData}),signal:ctrl.signal});
-            clearTimeout(t);if(!r.ok)throw new Error(`HTTP ${r.status}`);
-            const data=await r.json();if(data.error)throw new Error(data.error);
-            
-            if(data.pdf_base64){
-                const b=atob(data.pdf_base64),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);
-                const blob=new Blob([a],{type:'application/pdf'}),u=URL.createObjectURL(blob),el=document.createElement('a');
-                el.href=u;el.download=(data.filename||'Growth_Plan')+'.pdf';document.body.appendChild(el);el.click();document.body.removeChild(el);setTimeout(()=>URL.revokeObjectURL(u),5000);
-            } else if(data.report){
-                lastReport=data.report;showLoading('CONVERTING TO PDF...');
-                const company=session?.profile?.companyName||'Company';
-                const styledHTML=buildPDFHTML(data.report,company);
-                
-                // Use iframe for clean rendering
-                const iframe=document.createElement('iframe');
-                iframe.style.cssText='position:fixed;left:-9999px;top:0;width:794px;height:1123px;border:none;visibility:hidden;';
-                document.body.appendChild(iframe);
-                const doc=iframe.contentDocument||iframe.contentWindow.document;
-                doc.open();doc.write(styledHTML);doc.close();
-                
-                // Wait for full render
-                await new Promise(ok=>{
-                    const check=()=>{if(doc.readyState==='complete')setTimeout(ok,1200);else setTimeout(check,100)};check();
-                });
-                
-                try{
-                    await html2pdf().set({
-                        margin:[10,0,10,0],filename:(data.filename||'Strategic_Growth_Plan')+'.pdf',
-                        image:{type:'jpeg',quality:.95},
-                        html2canvas:{scale:2,useCORS:true,logging:false,width:794,windowWidth:794},
-                        jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true},
-                        pagebreak:{mode:['avoid-all','css','legacy'],avoid:['h1','h2','h3','table','blockquote']}
-                    }).from(doc.body).save();
-                }catch(pe){
-                    console.error('PDF failed, downloading markdown',pe);
-                    const blob=new Blob([data.report],{type:'text/markdown'});const u=URL.createObjectURL(blob);
-                    const el=document.createElement('a');el.href=u;el.download='Strategic_Growth_Plan.md';document.body.appendChild(el);el.click();document.body.removeChild(el);URL.revokeObjectURL(u);
-                }finally{document.body.removeChild(iframe)}
-            }else throw new Error('Empty report');
-            
-            addAI("✅ **Report Generated!**\n\nYour Strategic Growth Plan has been downloaded. It includes executive summary, diagnostic findings, 90-day roadmap, metrics, and recommendations.");
-            renderOptions([{key:'download_again',label:'📥 Download Again'},{key:'restart',label:'Start New Diagnostic'}],false);
-            updatePhase('finish',{total:100});status(true,'COMPLETE');
-        }catch(e){
-            console.error(e);status(false,'FAILED');
-            opts.innerHTML=`<div class="text-red-400 p-5 text-center bg-red-900/10 border border-red-900/50 rounded-xl space-y-2"><p>Failed: ${e.message}</p><div class="flex gap-3 justify-center"><button onclick="genReport()" class="bg-red-900/30 px-4 py-2 rounded-lg text-sm">Retry</button><button onclick="dlMD()" class="bg-pano-border px-4 py-2 rounded-lg text-sm text-white">Save as Text</button></div></div>`;
+            console.error(e);typing(false);$('st').textContent='ERROR';
+            opts.innerHTML=`<div class="text-red-400 p-4 text-center bg-red-900/10 border border-red-900/50 rounded-xl"><p>${e.message}</p><button onclick="pick('${key}','${label||key}')" class="underline mt-2">Retry</button></div>`;
         }finally{busy=false}
     }
-    function dlMD(){if(!lastReport)return;const b=new Blob([lastReport],{type:'text/markdown'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='Growth_Plan.md';a.click();URL.revokeObjectURL(u)}
 
-    window.addEventListener('beforeunload',e=>{if(history.length>2){e.preventDefault();e.returnValue=''}});
-    renderOptions([{key:'start',label:'Begin Revenue Diagnostic'}],false);
+    function sendText(){const t=ti.value.trim();if(!t||busy)return;ti.value='';pick(t,t)}
+    ti.addEventListener('keypress',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendText()}});
+
+    async function init(e){
+        e.preventDefault();
+        const w=$('f-web').value.trim(),d=$('f-desc').value.trim(),l=$('f-li').value.trim();
+        try{new URL(w)}catch{return}
+        $('f-btn').disabled=true;$('f-btn').innerHTML='<div class="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div> Scanning...';
+        $('modal').style.opacity='0';setTimeout(()=>$('modal').classList.add('hidden'),400);
+        addA("**Initializing** — Scanning your website...");loading('SCANNING...');$('st').textContent='SCANNING';
+        diag={website:w,description:d,linkedin:l};
+        try{
+            const data=await api({choice:'SNAPSHOT_INIT',history:[],contextData:diag,sessionData:null});
+            S=data.session_data;H.push({role:'assistant',content:JSON.stringify(data)});
+            updPhase(data.current_phase,data.confidence_state);addA(data.message);
+            showOpts(data.options,data.allow_text!==false&&data.mode!=='buttons');$('st').textContent='READY';
+        }catch(err){console.error(err);$('st').textContent='FAILED';opts.innerHTML=`<button onclick="location.reload()" class="w-full text-red-400 border border-red-900/50 bg-red-900/10 p-4 rounded-xl">Failed — click to retry</button>`}
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // PDF — Uses window.print() on a new window. GUARANTEED to work.
+    // ═══════════════════════════════════════════════════════════════
+    async function genPDF(){
+        if(busy)return;busy=true;loading('GENERATING REPORT...');$('st').textContent='GENERATING';
+        try{
+            const c=new AbortController(),t=setTimeout(()=>c.abort(),120000);
+            const r=await fetch(RAPI,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({history:H,sessionData:S,diagnosticData:diag}),signal:c.signal});
+            clearTimeout(t);if(!r.ok)throw new Error(`HTTP ${r.status}`);
+            const data=await r.json();if(data.error)throw new Error(data.error);
+            if(!data.report)throw new Error('Empty report');
+            
+            lastMD=data.report;
+            loading('PREPARING PDF...');
+            
+            // Build styled HTML
+            marked.setOptions({breaks:true,gfm:true,tables:true});
+            const html=marked.parse(data.report);
+            const company=S?.profile?.companyName||'Company';
+            const date=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+            
+            const fullHTML=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Strategic Growth Plan - ${company}</title>
+<style>
+@media print{@page{margin:15mm 12mm}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;font-size:11pt;line-height:1.55;color:#1a1a1a;background:#fff}
+.hdr{background:#111;color:#fff;padding:35px;margin-bottom:25px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.hdr .bar{width:50px;height:3px;background:#CDFF00;margin-bottom:16px}
+.hdr h1{font-size:24pt;font-weight:700;margin:0 0 4px}
+.hdr .sub{font-size:12pt;color:#CDFF00}.hdr .meta{font-size:9pt;color:#999;margin-top:8px}
+.body{padding:0 35px 35px}
+h1{font-size:17pt;font-weight:700;margin:28px 0 10px;padding-bottom:5px;border-bottom:2px solid #CDFF00;page-break-after:avoid}
+h2{font-size:13pt;font-weight:600;margin:22px 0 8px;padding-bottom:4px;border-bottom:1px solid #ddd;page-break-after:avoid}
+h3{font-size:11pt;font-weight:600;margin:16px 0 6px;page-break-after:avoid}
+p{margin:0 0 8px}strong{font-weight:600;color:#000}
+ul,ol{margin:6px 0 10px;padding-left:20px}li{margin-bottom:3px}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:9.5pt;page-break-inside:avoid}
+th{font-weight:600;text-align:left;padding:7px 8px;border:1px solid #ddd;background:#f5f5f5}
+td{padding:6px 8px;border:1px solid #ddd}tr:nth-child(even){background:#fafafa}
+blockquote{border-left:3px solid #CDFF00;background:#f9f9f9;padding:8px 12px;margin:10px 0;font-style:italic;color:#555}
+hr{border:none;border-top:1px solid #ddd;margin:20px 0}
+a{color:#0066cc}code{background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:9pt}
+.ftr{margin-top:25px;padding-top:10px;border-top:1px solid #ddd;font-size:8pt;color:#999;text-align:center}
+</style></head><body>
+<div class="hdr"><div class="bar"></div><h1>Strategic Growth Plan</h1><div class="sub">${company}</div><div class="meta">Revenue Architect by Panoramica | ${date}</div></div>
+<div class="body">${html}</div>
+<div class="ftr"><p>Generated by Revenue Architect — Confidential</p></div>
+<script>window.onload=function(){setTimeout(function(){window.print()},500)}<\/script>
+</body></html>`;
+            
+            // Open new window and print
+            const w=window.open('','_blank','width=800,height=1100');
+            if(w){
+                w.document.write(fullHTML);
+                w.document.close();
+            }else{
+                // Popup blocked — download as HTML
+                const blob=new Blob([fullHTML],{type:'text/html'});
+                const u=URL.createObjectURL(blob);
+                const a=document.createElement('a');a.href=u;a.download=`Growth_Plan_${company.replace(/\s+/g,'_')}.html`;
+                document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);
+            }
+            
+            addA("✅ **Report ready!**\n\nUse the print dialog to save as PDF (Ctrl+P → Save as PDF). The report includes executive summary, diagnostic findings, 90-day roadmap, metrics, and recommendations.");
+            showOpts([{key:'download_again',label:'📥 Open Report Again'},{key:'restart',label:'Start New Diagnostic'}],false);
+            updPhase('finish',{total:100});$('st').textContent='COMPLETE';
+        }catch(e){
+            console.error(e);$('st').textContent='FAILED';
+            opts.innerHTML=`<div class="text-red-400 p-4 text-center bg-red-900/10 border border-red-900/50 rounded-xl space-y-2"><p>Failed: ${e.message}</p><div class="flex gap-3 justify-center"><button onclick="genPDF()" class="bg-red-900/30 px-4 py-2 rounded-lg text-sm">Retry</button><button onclick="dlMD()" class="bg-p-bdr px-4 py-2 rounded-lg text-sm text-white">Download as text</button></div></div>`;
+        }finally{busy=false}
+    }
+    function dlMD(){if(!lastMD)return;const b=new Blob([lastMD],{type:'text/markdown'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='Growth_Plan.md';a.click();URL.revokeObjectURL(u)}
+
+    window.addEventListener('beforeunload',e=>{if(H.length>2){e.preventDefault();e.returnValue=''}});
     </script>
 </body>
 </html>
