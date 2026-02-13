@@ -1,8 +1,11 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// REPORT API - /api/report.js (v9)
-// 
-// Generates a comprehensive, deeply technical Strategic Growth Plan.
-// Uses Gemini with an extensive system prompt incorporating real frameworks.
+// REPORT API - /api/report.js v10
+//
+// Anti-hallucination approach:
+// 1. Profile data is split into CONFIRMED (user said it) vs UNKNOWN
+// 2. The report prompt explicitly says "if unknown, write 'To be determined'"
+// 3. The full conversation log is included as PRIMARY SOURCE
+// 4. LLM is instructed to cite specific conversation turns
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default async function handler(req, res) {
@@ -16,110 +19,106 @@ export default async function handler(req, res) {
     const geminiKey = process.env.GEMINI_API_KEY;
     if (!geminiKey) return res.status(500).json({ error: 'API key missing' });
 
-    // ── Build comprehensive profile context ──
-    let profileCtx = 'NO PROFILE DATA AVAILABLE';
-    if (sessionData?.profile) {
-      const p = sessionData.profile;
-      profileCtx = `
-═══ COMPANY DNA ═══
-Company: ${p.companyName || 'Unknown'}
-Website: ${p.website || 'N/A'}
-Industry: ${p.industry || 'Unknown'}
-Business Model: ${p.businessModel || 'Unknown'}
-Stage: ${p.stage || 'Unknown'}
-Revenue: ${p.revenue || 'Unknown'}
-Revenue Growth: ${p.revenueGrowth || 'Unknown'}
-Team Size: ${p.teamSize || 'Unknown'}
-Team Roles: ${p.teamRoles || 'Unknown'}
-Funding: ${p.funding || 'Unknown'}
-Runway: ${p.runway || 'Unknown'}
+    const p = sessionData?.profile || {};
+    const companyName = p.companyName || 'Company';
+    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-═══ PRODUCT & PRICING ═══
-Product: ${p.productDescription || 'Unknown'}
-Pricing Model: ${p.pricingModel || 'Unknown'}
-Pricing Range: ${p.pricingRange || 'Unknown'}
-
-═══ IDEAL CUSTOMER PROFILE ═══
-Buyer Title: ${p.icpTitle || 'Unknown'}
-Company Size: ${p.icpCompanySize || 'Unknown'}
-Industry: ${p.icpIndustry || 'Unknown'}
-Pain Points: ${p.icpPainPoints || 'Unknown'}
-
-═══ GO-TO-MARKET ═══
-Sales Motion: ${p.salesMotion || 'Unknown'}
-Channels: ${p.channels || 'Unknown'}
-Best Channel: ${p.bestChannel || 'Unknown'}
-Average Deal Size: ${p.avgDealSize || 'Unknown'}
-Sales Cycle: ${p.salesCycle || 'Unknown'}
-CAC: ${p.cac || 'Unknown'}
-LTV: ${p.ltv || 'Unknown'}
-
-═══ SALES ENGINE ═══
-Sales Process: ${p.salesProcess || 'Unknown'}
-Process Documented: ${p.processDocumented || 'Unknown'}
-Who Closes: ${p.whoCloses || 'Unknown'}
-Founder Involvement: ${p.founderInvolvement || 'Unknown'}
-Win Rate: ${p.winRate || 'Unknown'}
-Main Bottleneck: ${p.mainBottleneck || 'Unknown'}
-Lost Deal Reasons: ${p.lostDealReasons || 'Unknown'}
-Churn Rate: ${p.churnRate || 'Unknown'}
-CRM/Tools: ${p.crm || p.tools || 'Unknown'}
-
-═══ DIAGNOSIS ═══
-Diagnosed Problems: ${(p.diagnosedProblems || []).join(' | ') || 'Not diagnosed'}
-Root Causes: ${(p.rootCauses || []).join(' | ') || 'Unknown'}
-Validated Problems: ${(p.validatedProblems || []).join(' | ') || 'Unknown'}
-User Priority: ${p.userPriority || 'Unknown'}
-Past Attempts: ${p.pastAttempts || 'Unknown'}
-Constraints: ${p.constraints || 'Unknown'}
-Additional Context: ${p.additionalContext || 'None'}`;
+    // ── Build CONFIRMED vs UNKNOWN data ──
+    function val(v) {
+      if (Array.isArray(v)) return v.length > 0 ? v.join('; ') : null;
+      return (v && typeof v === 'string' && v.trim() !== '') ? v.trim() : null;
     }
 
-    // ── Build conversation log ──
+    const confirmed = {};
+    const unknown = [];
+    const fieldMap = {
+      'Company': p.companyName, 'Website': p.website, 'Industry': p.industry,
+      'Business Model': p.businessModel, 'Stage': p.stage, 'Revenue': p.revenue,
+      'Revenue Growth': p.revenueGrowth, 'Team Size': p.teamSize, 'Team Roles': p.teamRoles,
+      'Funding': p.funding, 'Runway': p.runway,
+      'Product': p.productDescription, 'Pricing Model': p.pricingModel, 'Pricing Range': p.pricingRange,
+      'ICP / Buyer': p.icpTitle, 'ICP Company Size': p.icpCompanySize,
+      'ICP Industry': p.icpIndustry, 'ICP Pain Points': p.icpPainPoints,
+      'Sales Motion': p.salesMotion, 'Channels': p.channels, 'Best Channel': p.bestChannel,
+      'Avg Deal Size': p.avgDealSize, 'Sales Cycle': p.salesCycle, 'CAC': p.cac, 'LTV': p.ltv,
+      'Sales Process': p.salesProcess, 'Process Documented': p.processDocumented,
+      'Who Closes': p.whoCloses, 'Founder Involvement': p.founderInvolvement,
+      'Win Rate': p.winRate, 'Main Bottleneck': p.mainBottleneck,
+      'Objections': p.mainObjections, 'Lost Deal Reasons': p.lostDealReasons,
+      'Churn Rate': p.churnRate, 'CRM/Tools': p.crm || p.tools,
+      'Diagnosed Problems': p.diagnosedProblems, 'Root Causes': p.rootCauses,
+      'Validated Problems': p.validatedProblems,
+      'User Priority': p.userPriority, 'Past Attempts': p.pastAttempts,
+      'Constraints': p.constraints, 'Additional Context': p.additionalContext
+    };
+
+    for (const [label, value] of Object.entries(fieldMap)) {
+      const v = val(value);
+      if (v) confirmed[label] = v;
+      else unknown.push(label);
+    }
+
+    const confirmedText = Object.entries(confirmed).map(([k, v]) => `  ✅ ${k}: ${v}`).join('\n');
+    const unknownText = unknown.map(k => `  ❓ ${k}: NOT PROVIDED`).join('\n');
+
+    // ── Conversation log ──
     let convLog = '';
-    if (sessionData?.turnLog?.length > 0) {
-      convLog = '\n═══ CONVERSATION LOG ═══\n' + sessionData.turnLog.join('\n');
+    if (sessionData?.conversationLog?.length > 0) {
+      convLog = sessionData.conversationLog.join('\n');
     }
 
     // ── Scraped data ──
-    let scrapedData = '';
-    if (sessionData?.scrapedSummary) {
-      scrapedData = '\n═══ SCRAPED WEBSITE DATA ═══\n' + sessionData.scrapedSummary;
-    }
+    const scraped = sessionData?.scrapedSummary || '';
 
-    const companyName = sessionData?.profile?.companyName || 'Company';
-    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    // ── Language detection ──
+    const allText = (sessionData?.conversationLog || []).join(' ');
+    const italianWords = (allText.match(/\b(che|sono|abbiamo|nostro|nostra|clienti|vendite|azienda|problema|perché|ancora|questo|quella|siamo|facciamo)\b/gi) || []).length;
+    const langInstruction = italianWords > 3
+      ? 'The user spoke ITALIAN. Write the ENTIRE report in Italian. Every section, every heading, everything.'
+      : 'Write in the same language the user used during the conversation. Default to English.';
 
-    // ── Detect language from conversation ──
-    const langHint = sessionData?.turnLog?.some(l => /(?:bene|corretto|azienda|vendite|problema)/i.test(l))
-      ? 'The user spoke ITALIAN in the conversation. Write the ENTIRE report in Italian.'
-      : 'Write in the same language the user used. Default to English if unclear.';
+    const prompt = `You are generating a Strategic Growth Plan report for ${companyName}.
 
-    const prompt = `You are generating a premium Strategic Growth Plan for ${companyName}.
+ROLE: Senior B2B revenue strategist with 20+ years experience. McKinsey/Bain caliber analysis, but practical and actionable.
 
-ROLE: You are a senior partner at a tier-1 management consulting firm (McKinsey / Bain / BCG caliber) who specializes in B2B revenue operations. You have 20+ years of experience scaling SaaS and technology companies. Your reports are known for being brutally specific, actionable, and grounded in real data.
+OUTPUT: Pure Markdown. No JSON. No code fences. Just clean Markdown text.
 
-OUTPUT FORMAT: Pure Markdown text. NO JSON wrapper. NO code fences around the whole output. Just clean Markdown.
+LANGUAGE: ${langInstruction}
 
-LANGUAGE: ${langHint}
+═══════════════════════════════════════
+CONFIRMED DATA (user provided this — USE IT)
+═══════════════════════════════════════
+${confirmedText}
 
-═══ ALL DATA COLLECTED DURING THE DIAGNOSTIC ═══
-${profileCtx}
-${scrapedData}
-${convLog}
+═══════════════════════════════════════
+UNKNOWN DATA (user did NOT provide — DO NOT INVENT)
+═══════════════════════════════════════
+${unknownText}
 
-═══ FRAMEWORKS TO APPLY ═══
-- MEDDPICC for sales process evaluation
-- Bow-Tie Funnel for full revenue lifecycle (Awareness → Acquisition → Activation → Revenue → Retention → Expansion)
-- T2D3 growth model for SaaS benchmarking
-- SaaStr operating model for team/metrics benchmarks
-- Jobs-to-be-Done for ICP validation
-- April Dunford's positioning framework
-- Pirate Metrics (AARRR) for funnel analysis
-- David Sacks' metrics (CAC Payback, Burn Multiple, Rule of 40)
-- OpenView / Bessemer / KeyBanc SaaS benchmarks for comparisons
+═══════════════════════════════════════
+SCRAPED WEBSITE DATA
+═══════════════════════════════════════
+${scraped || 'No scraping data available.'}
 
-═══ REPORT STRUCTURE (follow this EXACTLY) ═══
+═══════════════════════════════════════
+FULL CONVERSATION (this is your PRIMARY SOURCE OF TRUTH)
+═══════════════════════════════════════
+${convLog || 'No conversation log available.'}
+
+═══════════════════════════════════════
+ANTI-HALLUCINATION RULES (CRITICAL)
+═══════════════════════════════════════
+1. ONLY use data from CONFIRMED DATA and CONVERSATION sections above.
+2. If a field is in UNKNOWN DATA, write "To be determined" or "Not yet assessed" — do NOT invent values.
+3. When making estimates, ALWAYS label them: "~€X (estimated based on [specific data point])"
+4. When citing benchmarks, keep them reasonable and generic rather than falsely precise.
+5. Every finding MUST reference something the user actually said in the conversation.
+6. Do NOT invent revenue numbers, team sizes, or metrics the user didn't share.
+7. If you lack data for a section, acknowledge it and provide conditional advice: "If X is the case, then Y. If not, then Z."
+
+═══════════════════════════════════════
+REPORT STRUCTURE
+═══════════════════════════════════════
 
 # Strategic Growth Plan
 ## ${companyName} | ${today}
@@ -128,235 +127,189 @@ ${convLog}
 
 ## Executive Summary
 
-[Write 4-5 paragraphs covering:
-- What the company does, their model, stage, and current position
-- The 3 core problems diagnosed and why they matter NOW
-- The central hypothesis (one sentence that ties everything together)
-- The recommended 90-day approach and expected outcomes
-- A bold statement: "If ${companyName} executes this plan, the projected impact is [specific outcome]"
-This section should feel like a board-level briefing. Be specific with numbers.]
+Write 3-4 paragraphs:
+- What the company does and their current situation (ONLY confirmed data)
+- The diagnosed problems and why they matter
+- The central recommendation
+- Expected outcomes if executed
 
 ---
 
-## Company DNA
+## Company Profile
 
-| Dimension | Current State | Benchmark | Gap |
-|-----------|--------------|-----------|-----|
-| Revenue | [actual] | [benchmark for stage] | [analysis] |
-| Growth Rate | [actual or estimated] | [T2D3 benchmark] | [analysis] |
-| Team | [size/composition] | [SaaStr benchmark for stage] | [analysis] |
-| Funding | [status] | [typical for stage] | [analysis] |
-| Business Model | [model] | N/A | [health assessment] |
-| Gross Margin | [estimated] | [benchmark: 70-85% for SaaS] | [analysis] |
+| Dimension | Status |
+|-----------|--------|
+| Company | ${confirmed['Company'] || 'N/A'} |
+| Industry | ${confirmed['Industry'] || 'To be assessed'} |
+| Business Model | ${confirmed['Business Model'] || 'To be assessed'} |
+| Stage | ${confirmed['Stage'] || 'To be assessed'} |
+| Revenue | ${confirmed['Revenue'] || 'Not disclosed'} |
+| Team | ${confirmed['Team Size'] || 'Not disclosed'} ${confirmed['Team Roles'] ? '(' + confirmed['Team Roles'] + ')' : ''} |
+| Funding | ${confirmed['Funding'] || 'Not disclosed'} |
+
+Include benchmarks for their stage (T2D3, SaaStr) where applicable. Compare their profile to typical companies at their stage.
 
 ---
 
-## Ideal Customer Profile Assessment
+## ICP & Go-to-Market Assessment
 
-**Current ICP:** [Their stated ICP]
+Based on confirmed data:
+- ICP: ${confirmed['ICP / Buyer'] || 'Not defined'} at ${confirmed['ICP Company Size'] || '?'} companies
+- Motion: ${confirmed['Sales Motion'] || 'Not defined'}
+- Channels: ${confirmed['Channels'] || 'Not defined'}
+- Deal Size: ${confirmed['Avg Deal Size'] || 'Not disclosed'}
 
-**ICP Validation using Jobs-to-be-Done framework:**
-- **Job to be done:** [what the customer is hiring the product to do]
-- **Current alternatives:** [what they use today / what they'd do without the product]
-- **Switching triggers:** [what causes them to look for a solution]
-- **Decision-making unit:** [who's involved: champion, economic buyer, technical evaluator]
-
-**Positioning (April Dunford framework):**
-- **Competitive alternatives:** [what would they do without you]
-- **Unique attributes:** [what you have that alternatives don't]
-- **Value:** [the benefit those attributes enable]
-- **Target segment:** [who cares most about that value]
-- **Market category:** [the context that makes the value obvious]
+Analyze positioning using April Dunford framework and Jobs-to-be-Done — but only based on what the user shared. If ICP is unclear, flag it as the #1 issue.
 
 ---
 
 ## Diagnostic Findings
 
-### Finding 1: [Specific Problem Name]
+${(p.diagnosedProblems || []).length > 0
+  ? (p.diagnosedProblems || []).map((prob, i) => `
+### Finding ${i + 1}: ${prob}
 
-**Severity:** [Critical / High / Medium]
+**Severity:** [Assess based on conversation]
 
-**What we observed:** [2-3 sentences with specific evidence from the conversation]
+**What the user told us:** [Quote or reference specific things from the CONVERSATION above]
 
-**Root cause analysis:** [2-3 sentences explaining WHY this problem exists — go deeper than symptoms. Reference specific data points the user shared.]
+**Root Cause:** ${(p.rootCauses || [])[i] || 'To be analyzed further'}
 
-**Revenue impact:** [Quantified estimate: "Based on [their metrics], this costs approximately €[X] per [month/quarter] in [lost deals / excess CAC / churn revenue / missed expansion]"]
+**Revenue Impact:** [Estimate ONLY if you have the data to back it up. If not, describe the qualitative impact.]
 
-**Industry benchmark:** [What "good" looks like with a specific source: "According to [OpenView/Bessemer/KeyBanc], the median [metric] for [their segment] is [X]. ${companyName} is at [Y], representing a [Z%] gap."]
+**Benchmark:** [What "good" looks like for companies at their stage]
 
----
+---`).join('\n')
+  : `### (Diagnosis was not completed during the conversation)
 
-### Finding 2: [Specific Problem Name]
-
-[Same structure as Finding 1]
-
----
-
-### Finding 3: [Specific Problem Name]
-
-[Same structure as Finding 1]
-
----
+Based on the information gathered, the key areas to investigate are:
+1. [Infer from confirmed data]
+2. [Infer from confirmed data]
+3. [Infer from confirmed data]`
+}
 
 ## Root Cause Analysis
 
-[3-4 paragraphs of SYSTEMS THINKING that explains:
-1. How the three problems interconnect and create a negative feedback loop
-2. Which problem is the "root" that feeds the others (use cause-and-effect chain)
-3. Why addressing them in the recommended order creates compounding positive effects
-4. Reference to similar patterns you've seen: "This pattern is common in [stage] [model] companies — typically caused by [underlying dynamic]"
-
-Draw a clear causal chain. Example: "Poor ICP definition → scattered GTM → low conversion rates → high CAC → cash pressure → inability to hire sales team → founder bottleneck → limited growth"]
+Explain how the problems interconnect. Use systems thinking. Draw the causal chain.
+ONLY reference confirmed data. If data is incomplete, note what additional information would strengthen the analysis.
 
 ---
 
 ## Strategic Recommendations
 
-### Priority 1: [Specific Action Name] — Weeks 1-4
+### Priority 1: [Most urgent — based on user's stated priority: "${confirmed['User Priority'] || 'not specified'}"]
 
-**Objective:** [One clear, measurable goal]
+**Objective:** [Clear, measurable]
 
-**The case for urgency:** [Why this must happen first — quantify the cost of delay]
+**Week-by-week execution:**
+- Week 1: [Specific actions]
+- Week 2: [Specific actions]
+- Week 3: [Specific actions]
+- Week 4: [Specific actions]
 
-**Tactical execution plan:**
-1. **Week 1:** [Specific actions with deliverables]
-2. **Week 2:** [Specific actions with deliverables]
-3. **Week 3:** [Specific actions with deliverables]
-4. **Week 4:** [Specific actions with deliverables]
-
-**Success criteria:** [Measurable outcome: "By end of Week 4, [Company] should have [specific deliverable/metric]"]
-
-**Resources required:** [People, tools, budget — be specific: "1 person × 15 hours/week, [Tool] subscription at €[X]/month"]
-
-**Risk:** [What could go wrong and how to mitigate]
+**Success metric:** [How to measure]
+**Resources:** [People, tools, budget]
 
 ---
 
-### Priority 2: [Specific Action Name] — Weeks 4-8
+### Priority 2: [Second priority]
 
-[Same detailed structure as Priority 1]
-
----
-
-### Priority 3: [Specific Action Name] — Weeks 8-12
-
-[Same detailed structure as Priority 1]
+[Same structure]
 
 ---
 
-## 90-Day Execution Roadmap
+### Priority 3: [Third priority]
 
-| Week | Focus Area | Key Actions | Deliverable | Success Metric | Owner |
-|------|-----------|-------------|-------------|----------------|-------|
-| 1 | [area] | [2-3 specific actions] | [output] | [KPI] | [role] |
-| 2 | [area] | [2-3 specific actions] | [output] | [KPI] | [role] |
-| 3 | [area] | [2-3 specific actions] | [output] | [KPI] | [role] |
-| 4 | [area] | [2-3 specific actions] | [output] | [KPI] | [role] |
-| 5-6 | [area] | [2-3 specific actions] | [output] | [KPI] | [role] |
-| 7-8 | [area] | [2-3 specific actions] | [output] | [KPI] | [role] |
-| 9-10 | [area] | [2-3 specific actions] | [output] | [KPI] | [role] |
-| 11-12 | [area] | [2-3 specific actions] | [output] | [KPI] | [role] |
+[Same structure]
 
 ---
 
-## Metrics Dashboard
+## 90-Day Roadmap
 
-### North Star Metric
-**[Primary metric]:** [Current] → [90-day target] ([X% improvement])
+| Week | Focus | Actions | Deliverable | KPI |
+|------|-------|---------|-------------|-----|
+| 1-2 | [area] | [actions] | [output] | [metric] |
+| 3-4 | [area] | [actions] | [output] | [metric] |
+| 5-6 | [area] | [actions] | [output] | [metric] |
+| 7-8 | [area] | [actions] | [output] | [metric] |
+| 9-10 | [area] | [actions] | [output] | [metric] |
+| 11-12 | [area] | [actions] | [output] | [metric] |
 
-### Leading Indicators
+---
 
-| Metric | Current | 30-Day Target | 60-Day Target | 90-Day Target | How to Track |
-|--------|---------|---------------|---------------|---------------|-------------|
-| [metric 1] | [now] | [target] | [target] | [target] | [tool/method] |
-| [metric 2] | [now] | [target] | [target] | [target] | [tool/method] |
-| [metric 3] | [now] | [target] | [target] | [target] | [tool/method] |
-| [metric 4] | [now] | [target] | [target] | [target] | [tool/method] |
-| [metric 5] | [now] | [target] | [target] | [target] | [tool/method] |
+## Key Metrics to Track
 
-### Unit Economics Targets
+| Metric | Current | 90-Day Target | How to Track |
+|--------|---------|---------------|-------------|
+| [relevant metric] | [from confirmed data or "TBD"] | [target] | [tool] |
+| [relevant metric] | [from confirmed data or "TBD"] | [target] | [tool] |
+| [relevant metric] | [from confirmed data or "TBD"] | [target] | [tool] |
+| [relevant metric] | [from confirmed data or "TBD"] | [target] | [tool] |
 
-| Metric | Current (est.) | Healthy Benchmark | Target |
-|--------|---------------|-------------------|--------|
-| LTV:CAC Ratio | [est.] | >3:1 | [target] |
-| CAC Payback (months) | [est.] | <18 months | [target] |
-| Net Revenue Retention | [est.] | >110% | [target] |
-| Gross Margin | [est.] | >70% | [target] |
-| Magic Number | [est.] | >0.75 | [target] |
-| Burn Multiple | [est.] | <2x | [target] |
+${confirmed['Revenue'] ? `
+### Unit Economics
+
+| Metric | Current (est.) | Healthy Target |
+|--------|---------------|----------------|
+| LTV:CAC | [estimate if data available] | >3:1 |
+| CAC Payback | [estimate if data available] | <18 months |
+| Net Revenue Retention | [estimate if data available] | >110% |
+| Gross Margin | [estimate if data available] | >70% |
+` : '*(Unit economics assessment requires revenue data — to be calculated when available)*'}
 
 ---
 
 ## Risk Mitigation
 
-| Risk | Probability | Impact | Early Warning | Mitigation | Contingency |
-|------|------------|--------|---------------|------------|-------------|
-| [risk 1] | [H/M/L] | [H/M/L] | [signal to watch] | [preventive action] | [if it happens] |
-| [risk 2] | [H/M/L] | [H/M/L] | [signal to watch] | [preventive action] | [if it happens] |
-| [risk 3] | [H/M/L] | [H/M/L] | [signal to watch] | [preventive action] | [if it happens] |
-| [risk 4] | [H/M/L] | [H/M/L] | [signal to watch] | [preventive action] | [if it happens] |
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| [risk based on their situation] | [H/M/L] | [specific action] |
+| [risk based on their situation] | [H/M/L] | [specific action] |
+| [risk based on their situation] | [H/M/L] | [specific action] |
 
 ---
 
-## Recommended Technology Stack
+## Recommended Tools
 
-| Category | Tool | Monthly Cost | Why This Tool | Priority |
-|----------|------|-------------|---------------|----------|
-| CRM | [specific tool] | [€/mo] | [specific reason for their situation] | [Must-have/Nice-to-have] |
-| Sales Automation | [specific tool] | [€/mo] | [reason] | [priority] |
-| Analytics | [specific tool] | [€/mo] | [reason] | [priority] |
-| Communication | [specific tool] | [€/mo] | [reason] | [priority] |
-| [other relevant] | [specific tool] | [€/mo] | [reason] | [priority] |
-
-**Total estimated monthly cost:** €[X]/month
-**Expected ROI:** [specific: "At current deal sizes, this stack pays for itself with [X] additional closed deals per month"]
+| Category | Tool | Est. Cost | Why |
+|----------|------|-----------|-----|
+| CRM | [tool] | [€/mo] | [reason specific to their situation] |
+| [relevant category] | [tool] | [€/mo] | [reason] |
+| [relevant category] | [tool] | [€/mo] | [reason] |
+| [relevant category] | [tool] | [€/mo] | [reason] |
 
 ---
 
 ## Quick Wins (This Week)
 
-These are high-impact, low-effort actions ${companyName} can execute immediately:
-
-1. **[Action]** — [1-2 sentences: what to do, expected impact, time to complete]
-2. **[Action]** — [1-2 sentences]
-3. **[Action]** — [1-2 sentences]
-4. **[Action]** — [1-2 sentences]
-5. **[Action]** — [1-2 sentences]
+1. [Specific action — max 30 min to execute]
+2. [Specific action]
+3. [Specific action]
+4. [Specific action]
+5. [Specific action]
 
 ---
 
 ## Next Steps
 
-1. **This week:** [most important immediate action]
-2. **Next week:** [second priority]
-3. **Within 30 days:** [structural change to implement]
-4. **Ongoing:** [habit/process to establish]
-
----
-
-## Appendix: Methodology
-
-This diagnostic was conducted using the Revenue Architect framework, which evaluates B2B companies across four dimensions:
-
-1. **Company DNA** — Business model fit, stage-appropriate metrics, team composition
-2. **Go-to-Market** — ICP clarity, channel effectiveness, unit economics
-3. **Sales Engine** — Process maturity, conversion efficiency, scaling readiness
-4. **Growth Dynamics** — Bottleneck identification, retention health, expansion potential
-
-Benchmarks sourced from: SaaStr Annual Survey, OpenView SaaS Benchmarks, Bessemer Cloud Index, KeyBanc SaaS Survey, and first-party consulting engagements.
+1. **Immediate:** [most important action]
+2. **This week:** [second action]
+3. **This month:** [structural change]
+4. **Ongoing:** [process to establish]
 
 ---
 
 *Generated by Revenue Architect by Panoramica — Confidential*
 
-═══ CRITICAL INSTRUCTIONS ═══
-1. Fill ALL placeholders with REAL data from the profile above. Never leave [Unknown] or [?] — if data is missing, make a reasonable estimate and label it as such: "~€5K (estimated based on stage)"
-2. Every recommendation must be SPECIFIC and ACTIONABLE — not "improve your sales process" but "document a 5-stage pipeline in HubSpot with exit criteria for each stage"
-3. All benchmarks must be sourced and specific to their segment
-4. Minimum 3000 words. This is a premium deliverable.
-5. Numbers everywhere — quantify everything possible
-6. Write as if presenting to a board of directors
-7. Use the frameworks listed above throughout the report`;
+═══════════════════════════════════════
+FINAL REMINDERS
+═══════════════════════════════════════
+- Minimum 2500 words
+- Fill tables with REAL data from CONFIRMED section — mark unknowns as "TBD" or "Not disclosed"
+- Every recommendation must be actionable and specific
+- Reference the conversation where possible: "As you mentioned..." or "Based on your description of..."
+- DO NOT invent numbers. If revenue isn't confirmed, don't write "€50K MRR" — write "Not disclosed" or estimate with clear labeling
+- Write as if presenting to the company's leadership team`;
 
     const resp = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
@@ -365,24 +318,20 @@ Benchmarks sourced from: SaaStr Annual Survey, OpenView SaaS Benchmarks, Besseme
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.5,
-            maxOutputTokens: 12000
-          }
+          generationConfig: { temperature: 0.45, maxOutputTokens: 12000 }
         })
       }
     );
 
     if (!resp.ok) {
       const errText = await resp.text().catch(() => 'Unknown');
-      throw new Error(`Gemini API error: ${resp.status} — ${errText.slice(0, 200)}`);
+      throw new Error(`Gemini: ${resp.status} — ${errText.slice(0, 200)}`);
     }
 
     const data = await resp.json();
     let md = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!md) throw new Error('Empty report from Gemini');
+    if (!md) throw new Error('Empty report');
 
-    // Clean up any code fences
     md = md.replace(/^```(?:markdown)?\s*/i, '').replace(/\s*```$/i, '').trim();
 
     return res.status(200).json({
@@ -392,7 +341,7 @@ Benchmarks sourced from: SaaStr Annual Survey, OpenView SaaS Benchmarks, Besseme
     });
 
   } catch (e) {
-    console.error('[Report v9]', e);
+    console.error('[Report v10]', e);
     return res.status(500).json({ error: e.message });
   }
 }
