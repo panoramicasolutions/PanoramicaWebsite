@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Goldmine — Panoramica Solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" onload="document.documentElement.classList.add('gsap-ready')" onerror="document.documentElement.classList.remove('gsap-ready')"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+
+:root {
+  --bg:         #0A0F0D;
+  --surface:    #121712;
+  --card:       #161C16;
+  --ink:        #F2FFEB;
+  --ink-2:      #B9C7B0;
+  --ink-3:      #71806B;
+  --accent:        #EEFA63;
+  --accent-bright: #F9FF5C;
+  --accent-ink:    #0A0F0D;
+  --accent-bg:     rgba(238,250,99,0.08);
+  --accent-border: rgba(238,250,99,0.28);
+  --border:     #232C21;
+  --ff-h: 'Fraunces', serif;
+  --ff-b: 'Inter', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+.page { max-width: 860px; margin: 0 auto; padding: 0 28px 60px; position: relative; }
+
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 26px 0 22px; border-bottom: 1px solid var(--border); }
+.logo-mark { height: 24px; width: auto; }
+.logo-mark .glyph { fill: var(--ink); }
+.topbar-tag { font-size: 10.5px; color: var(--ink-3); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; }
+
+/* Hero — icon as a centred opening mark, crowning the headline */
+.hero { position: relative; padding: 60px 0 48px; border-bottom: 1px solid var(--border); margin-bottom: 32px; overflow: hidden; text-align: center; }
+.hero-glow { position: absolute; top: 0; left: 50%; width: 760px; height: 760px; transform: translate(-50%, -38%); background: radial-gradient(circle, var(--accent) 0%, transparent 60%); opacity: 0.18; filter: blur(10px); pointer-events: none; z-index: 0; }
+.hero-icon { position: relative; z-index: 1; display: block; width: 92px; height: auto; margin: 0 auto 22px; }
+@media (max-width: 700px) { .hero-icon { width: 68px; margin-bottom: 16px; } }
+.hero-icon .beam { fill: var(--accent); opacity: 0.5; }
+.hero-icon .star { fill: var(--accent); }
+.hero-inner { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; }
+.hero-eyebrow { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--ff-b); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 20px; }
+.hero-eyebrow::before, .hero-eyebrow::after { content: ''; width: 20px; height: 2px; background: var(--accent); }
+.hero-title { font-family: var(--ff-h); font-size: clamp(34px, 5vw, 52px); font-weight: 600; line-height: 1.08; letter-spacing: -0.01em; margin-bottom: 20px; }
+.hero-title mark { background: none; color: var(--accent-bright); font-style: italic; }
+.hero-sub { font-size: 16.5px; color: var(--ink-2); max-width: 540px; margin: 0 auto 24px; }
+.hero-sub strong { color: var(--ink); font-weight: 600; }
+.hero-row { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+.hero-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 13px; padding: 13px 24px; border-radius: 3px; }
+.hero-meta { font-size: 12px; color: var(--ink-3); }
+
+.section { padding: 32px 0; border-bottom: 1px solid var(--border); }
+.section:last-of-type { border-bottom: none; }
+.section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px; display: block; }
+.section-title { font-family: var(--ff-h); font-size: 26px; font-weight: 600; letter-spacing: -0.005em; margin-bottom: 20px; line-height: 1.2; max-width: 580px; }
+.section-title em { font-style: italic; color: var(--accent-bright); }
+
+.deliverables { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.del-item { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 20px; }
+.del-num { font-size: 10px; font-weight: 700; color: var(--ink-3); letter-spacing: 0.1em; }
+.del-title { font-family: var(--ff-h); font-size: 17px; font-weight: 600; margin: 8px 0 8px; letter-spacing: -0.005em; }
+.del-desc { font-size: 12.5px; color: var(--ink-2); line-height: 1.6; }
+@media (max-width: 600px) { .deliverables { grid-template-columns: 1fr; } }
+
+.cap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.cap-item { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 22px; }
+.cap-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+.cap-title { font-family: var(--ff-h); font-size: 18px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.005em; }
+.cap-desc { font-size: 12.5px; color: var(--ink-2); line-height: 1.65; }
+@media (max-width: 700px) { .cap-grid { grid-template-columns: 1fr; } }
+
+.tech-list { display: flex; flex-direction: column; gap: 2px; }
+.tech-item { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 16px 20px; display: grid; grid-template-columns: 160px 1fr; gap: 20px; align-items: start; }
+.tech-tag { font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); padding-top: 2px; }
+.tech-desc { font-size: 13px; color: var(--ink-2); line-height: 1.65; }
+.tech-desc b { color: var(--ink); }
+@media (max-width: 620px) { .tech-item { grid-template-columns: 1fr; gap: 6px; } }
+
+.fit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.fit-col { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 22px; }
+.fit-col.no { opacity: 0.7; }
+.fit-col-title { font-family: var(--ff-h); font-size: 16px; font-weight: 600; margin-bottom: 14px; }
+.fit-col.yes .fit-col-title { color: var(--accent-bright); }
+.fit-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.fit-list li { font-size: 12.5px; color: var(--ink-2); line-height: 1.5; padding-left: 18px; position: relative; }
+.fit-list li::before { content: '+'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+.fit-col.no .fit-list li::before { content: '\2212'; color: var(--ink-3); }
+@media (max-width: 600px) { .fit-grid { grid-template-columns: 1fr; } }
+
+.impact-note { font-size: 13.5px; color: var(--ink-2); margin-bottom: 18px; line-height: 1.6; max-width: 600px; }
+.impact-note b { color: var(--ink); }
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-bottom: 16px; }
+.stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 18px 12px; text-align: center; }
+.stat-box-num { font-family: var(--ff-h); font-size: 28px; font-weight: 600; color: var(--accent-bright); letter-spacing: -0.01em; text-shadow: 0 0 24px rgba(249,255,92,0.35); }
+.stat-box-label { font-size: 10.5px; color: var(--ink-3); margin-top: 8px; line-height: 1.4; }
+.stat-box.positive { background: var(--accent-bg); border-color: var(--accent-border); }
+.estimate-box { border: 1px solid var(--border); background: var(--surface); border-radius: 4px; padding: 18px; font-size: 12.5px; color: var(--ink-2); line-height: 1.65; }
+.estimate-box b { color: var(--ink); }
+.estimate-tag { font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); display: block; margin-bottom: 8px; }
+@media (max-width: 600px) { .stat-row { grid-template-columns: repeat(2, 1fr); } }
+
+.pricing-wrap { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; margin-bottom: 14px; }
+.price-card { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 20px; transition: transform 0.15s ease, border-color 0.15s ease; }
+.price-card.featured { background: var(--accent-bg); border-color: var(--accent-border); }
+.price-badge { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); display: block; margin-bottom: 10px; }
+.price-card.featured .price-badge { color: var(--ink-2); }
+.price-amount { font-family: var(--ff-h); font-size: 28px; font-weight: 600; letter-spacing: -0.01em; }
+.price-sub { font-size: 11px; color: var(--ink-3); margin-top: 4px; }
+.price-note { font-size: 11.5px; color: var(--ink-3); line-height: 1.6; }
+
+.cta-block { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 36px; text-align: center; position: relative; overflow: hidden; }
+.cta-glow { position: absolute; top: -60%; left: 50%; width: 500px; height: 500px; transform: translateX(-50%); background: radial-gradient(circle, var(--accent) 0%, transparent 65%); opacity: 0.1; pointer-events: none; }
+.cta-title { font-family: var(--ff-h); font-size: 26px; font-weight: 600; letter-spacing: -0.005em; margin-bottom: 12px; position: relative; }
+.cta-body { font-size: 14px; color: var(--ink-2); margin-bottom: 20px; max-width: 420px; margin-left: auto; margin-right: auto; position: relative; }
+.cta-btn { display: inline-block; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 13px; padding: 13px 28px; border-radius: 3px; margin-bottom: 12px; position: relative; }
+.cta-email { font-size: 12.5px; color: var(--ink-3); position: relative; }
+.cta-email a { color: var(--ink-2); }
+
+.footer { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 11px; color: var(--ink-3); }
+.footer b { color: var(--ink-2); }
+.footer-mark { height: 16px; width: auto; opacity: 0.6; }
+.footer-mark .glyph { fill: var(--ink-3); }
+
+.reveal { opacity: 1; transform: none; }
+.gsap-ready .reveal { opacity: 0; transform: translateY(24px); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="topbar">
+    <svg class="logo-mark" viewBox="0 0 380.23 39.18" xmlns="http://www.w3.org/2000/svg">
+      <path class="glyph" d="M4.89,25.4v13.04H0V.86h15.42c1.82,0,3.5.31,5.03.93,1.53.62,2.85,1.47,3.95,2.56s1.97,2.39,2.58,3.9c.62,1.51.93,3.15.93,4.92s-.31,3.43-.93,4.92c-.62,1.49-1.47,2.78-2.57,3.87-1.1,1.09-2.4,1.93-3.91,2.54-1.51.61-3.17.91-4.97.91H4.89ZM15.31,21.11c1.11,0,2.13-.2,3.07-.61.94-.41,1.75-.96,2.45-1.67s1.23-1.55,1.62-2.51c.39-.97.58-2.02.58-3.16s-.2-2.17-.59-3.15c-.4-.98-.94-1.82-1.63-2.54s-1.51-1.28-2.46-1.7-1.98-.62-3.08-.62H4.89v15.97h10.42Z"/>
+      <path class="glyph" d="M103.21,38.44h-4.15l-23.13-28.99v28.99h-4.89V.86h4.12l23.16,29.04V.86h4.89v37.58Z"/>
+      <path class="glyph" d="M112.11,19.62c0-1.82.24-3.57.72-5.25.48-1.68,1.16-3.24,2.03-4.7.88-1.46,1.93-2.78,3.15-3.97,1.23-1.19,2.58-2.21,4.06-3.05,1.48-.85,3.08-1.5,4.79-1.96,1.71-.46,3.5-.69,5.36-.69s3.65.23,5.36.69c1.71.46,3.32,1.11,4.81,1.96,1.49.85,2.86,1.87,4.09,3.05,1.23,1.19,2.29,2.51,3.16,3.97.88,1.46,1.55,3.02,2.03,4.7.48,1.68.72,3.43.72,5.25s-.24,3.55-.72,5.22c-.48,1.68-1.16,3.24-2.03,4.68-.88,1.45-1.93,2.76-3.16,3.95-1.23,1.19-2.6,2.21-4.09,3.05s-3.09,1.5-4.81,1.96c-1.71.46-3.5.69-5.36.69s-3.65-.23-5.36-.69c-1.71-.46-3.31-1.11-4.79-1.96-1.48-.85-2.84-1.87-4.06-3.05-1.23-1.19-2.28-2.51-3.15-3.95s-1.55-3.01-2.03-4.68c-.48-1.68-.72-3.42-.72-5.22ZM117,19.62c0,1.44.18,2.81.54,4.12.36,1.31.87,2.53,1.53,3.66.66,1.13,1.46,2.16,2.39,3.08.93.92,1.96,1.71,3.08,2.36,1.12.65,2.34,1.16,3.63,1.52s2.65.54,4.05.54,2.78-.18,4.08-.54,2.51-.87,3.65-1.52c1.13-.65,2.16-1.44,3.09-2.36.93-.92,1.73-1.95,2.39-3.08.66-1.13,1.17-2.35,1.53-3.66.36-1.31.54-2.68.54-4.12,0-2.16-.4-4.17-1.2-6.04-.8-1.87-1.89-3.5-3.27-4.88s-3-2.46-4.85-3.25c-1.85-.78-3.84-1.17-5.96-1.17s-4.08.39-5.93,1.17c-1.85.78-3.46,1.87-4.84,3.25-1.37,1.38-2.46,3.01-3.26,4.88-.8,1.87-1.2,3.88-1.2,6.04Z"/>
+      <path class="glyph" d="M176.6,24.48h-10.42v13.96h-4.89V.86h15.97c1.82,0,3.5.28,5.02.84,1.52.56,2.83,1.36,3.94,2.4,1.11,1.04,1.97,2.29,2.58,3.74.62,1.46.93,3.07.93,4.84,0,1.4-.19,2.7-.58,3.91s-.93,2.28-1.63,3.23c-.7.95-1.55,1.77-2.54,2.46s-2.1,1.22-3.32,1.59l8.9,14.56h-5.66l-8.29-13.96ZM177.16,20.2c1.11,0,2.12-.18,3.05-.54.93-.36,1.74-.87,2.43-1.52.69-.65,1.23-1.44,1.62-2.36s.58-1.94.58-3.07-.2-2.15-.59-3.08-.94-1.73-1.63-2.39c-.69-.66-1.51-1.18-2.46-1.55s-1.98-.55-3.08-.55h-10.89v15.06h10.97Z"/>
+      <path class="glyph" d="M221.37,30.01h-19.01l-3.56,8.43h-5.2L209.51.86h4.7l15.92,37.58h-5.2l-3.56-8.43ZM204.15,25.75h15.42l-7.54-17.85-.17-.69-.17.69-7.54,17.85Z"/>
+      <path class="glyph" d="M254.5,26.14l-12.88-17.22v29.51h-4.89V.86h4.23l14.29,18.87,14.29-18.87h4.28v37.58h-4.89V8.95l-12.99,17.19h-1.44Z"/>
+      <path class="glyph" d="M284.59.86h4.89v37.58h-4.89V.86Z"/>
+      <path class="glyph" d="M332.07,12.74c-.61-1.31-1.38-2.48-2.32-3.52s-2-1.93-3.18-2.67c-1.18-.74-2.45-1.3-3.83-1.69s-2.79-.58-4.24-.58c-2.1,0-4.08.39-5.93,1.17-1.85.78-3.46,1.87-4.84,3.25-1.37,1.38-2.46,3.01-3.26,4.88-.8,1.87-1.2,3.88-1.2,6.04,0,1.44.18,2.81.54,4.12s.87,2.53,1.53,3.66,1.46,2.16,2.39,3.08c.93.92,1.96,1.71,3.08,2.36,1.12.65,2.34,1.16,3.63,1.52s2.65.54,4.05.54,2.87-.19,4.24-.58c1.37-.39,2.64-.94,3.81-1.66,1.17-.72,2.22-1.6,3.16-2.64s1.71-2.22,2.32-3.52h5.08c-.68,2.01-1.66,3.8-2.94,5.37-1.28,1.58-2.75,2.9-4.42,3.98-1.67,1.08-3.47,1.9-5.4,2.47-1.93.57-3.89.86-5.86.86-1.86,0-3.65-.23-5.36-.69-1.71-.46-3.31-1.11-4.79-1.96-1.48-.85-2.84-1.87-4.06-3.05-1.23-1.19-2.28-2.51-3.15-3.95s-1.55-3.01-2.03-4.68-.72-3.42-.72-5.22.24-3.57.72-5.25,1.16-3.24,2.03-4.7c.88-1.46,1.93-2.78,3.15-3.97,1.23-1.19,2.58-2.21,4.06-3.05,1.48-.85,3.08-1.5,4.79-1.96,1.71-.46,3.5-.69,5.36-.69,1.95,0,3.9.28,5.83.84,1.93.56,3.74,1.38,5.4,2.46,1.67,1.08,3.15,2.41,4.44,3.99,1.29,1.58,2.28,3.4,2.96,5.44h-5.06Z"/>
+      <path class="glyph" d="M351.27,38.44h-4.84l.06-37.58h5.17l28.57,37.58h-5.78l-6.25-8.15h-16.94v8.15ZM351.96,9.15l-.64-1.41h-.06v18.9h14.12l-13.43-17.49Z"/>
+      <path class="glyph" d="M56.87,30.29h-16.94s-6.25,8.15-6.25,8.15h-5.78S56.48.86,56.48.86h5.17s.06,37.58.06,37.58h-4.84v-8.15ZM42.75,26.64h14.12s0-18.9,0-18.9h-.06l-.64,1.41-13.43,17.49Z"/>
+    </svg>
+    <div class="topbar-tag">CRM Intelligence Layer</div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <svg class="hero-icon" viewBox="0 0 229.39 76.81" xmlns="http://www.w3.org/2000/svg">
+      <path class="star" d="M229.39,25.69h0C208.97,26.92,189.46,17.11,178.27,0h0s0,0,0,0c1.23,20.42-8.57,39.93-25.69,51.12h0s0,0,0,0c20.42-1.23,39.93,8.57,51.12,25.69h0s0,0,0,0c-1.23-20.42,8.57-39.93,25.69-51.12h0Z"/>
+      <polygon class="beam" points="177.49 0 203.7 76.81 0 76.81 177.49 0"/>
+    </svg>
+    <div class="hero-inner">
+      <div class="hero-eyebrow">The Goldmine, by Panoramica Solutions</div>
+      <h1 class="hero-title">Your CRM is a <mark>goldmine</mark>. You're not mining it.</h1>
+      <p class="hero-sub">The Goldmine reads every contact, company, and activity record in your CRM, pulls in research from the open web, and cross-references all of it against call transcripts and notes. <strong>Every lead gets a real profile. Every rep gets a queue that tells them exactly who to call next.</strong></p>
+      <div class="hero-row">
+        <a class="hero-cta" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a Discovery Call →</a>
+        <div class="hero-meta">30 min. We'll tell you honestly if your data's ready for this.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT YOU GET -->
+  <section class="section reveal">
+    <span class="section-label">What you get</span>
+    <h2 class="section-title">Four layers, built <em>on top of</em> your CRM.</h2>
+    <div class="deliverables">
+      <div class="del-item">
+        <div class="del-num">01 · INGESTION</div>
+        <div class="del-title">Every record, not a sample</div>
+        <div class="del-desc">Contact data, company data, and the full activity and engagement history behind them, pulled in and normalised into one working picture.</div>
+      </div>
+      <div class="del-item">
+        <div class="del-num">02 · RESEARCH</div>
+        <div class="del-title">Pulled from the open web</div>
+        <div class="del-desc">Public professional background on your leads, gathered and folded into the same picture as what's already sitting in your CRM.</div>
+      </div>
+      <div class="del-item">
+        <div class="del-num">03 · SYNTHESIS</div>
+        <div class="del-title">A profile, not a score alone</div>
+        <div class="del-desc">Transcripts, notes, emails, deal history, and web research, cross-referenced by AI into a grounded read on where each lead stands, with the evidence behind it.</div>
+      </div>
+      <div class="del-item">
+        <div class="del-num">04 · MANAGEMENT</div>
+        <div class="del-title">Your reps' whole day, organised</div>
+        <div class="del-desc">Leads sorted into real working queues: fresh, follow-up due, reconnect, at risk. Reps open one queue and know exactly where to start.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAPABILITIES -->
+  <section class="section reveal">
+    <span class="section-label">What it actually does, day to day</span>
+    <h2 class="section-title">Three things reps feel <em>immediately</em>.</h2>
+    <div class="cap-grid">
+      <div class="cap-item">
+        <div class="cap-eyebrow">CRM Writeback</div>
+        <div class="cap-title">Lives where reps already look</div>
+        <div class="cap-desc">Score, angle, and evidence write straight into the CRM record as real fields, not a link to another tool. Nothing sits in a dashboard nobody remembers to open.</div>
+      </div>
+      <div class="cap-item">
+        <div class="cap-eyebrow">Pre & Post-Meeting Briefs</div>
+        <div class="cap-title">A brief before every call</div>
+        <div class="cap-desc">Before a call: the likely objection, two openers, and the evidence behind them, drawn from transcripts, notes, and deal history. After the call: new notes feed straight back in, so the next brief reflects what actually happened.</div>
+      </div>
+      <div class="cap-item">
+        <div class="cap-eyebrow">Deal Intelligence</div>
+        <div class="cap-title">Silence, read correctly</div>
+        <div class="cap-desc">Marketing, call, and email activity are tracked as three separate signals, because a lead who's stopped opening emails but still takes calls is a different problem to one who's gone fully dark.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- UNDER THE HOOD -->
+  <section class="section reveal">
+    <span class="section-label">Under the hood</span>
+    <h2 class="section-title">Built to be <em>explainable</em>, checked before it's trusted.</h2>
+    <div class="tech-list">
+      <div class="tech-item"><div class="tech-tag">Decay, not decree</div><div class="tech-desc">A "hot" lead cools on a <b>14-day half-life</b>, a "cold" one can warm back up on a <b>30-day</b> one. Recency is modelled, not just flagged true or false.</div></div>
+      <div class="tech-item"><div class="tech-tag">Three-channel ghosting</div><div class="tech-desc">Marketing, call, and email silence are scored separately, not lumped into one generic "unresponsive" flag.</div></div>
+      <div class="tech-item"><div class="tech-tag">Floor and ceiling</div><div class="tech-desc">A lead in active pursuit can't silently sink below a set score floor. A lead carrying a genuine negative signal can't silently outscore a hard cap either. No invisible overrides in either direction.</div></div>
+      <div class="tech-item"><div class="tech-tag">Checked, not trusted blind</div><div class="tech-desc">Outputs are scanned for claims the underlying data doesn't support before a rep ever sees them, built in after we caught our own earlier model misreading a lost deal as a live investment, and fixed the class of bug, not just the one instance.</div></div>
+      <div class="tech-item"><div class="tech-tag">Compliance-aware fields</div><div class="tech-desc">For regulated clients, fields like accreditation status and source of funds pass through as structured data, not free text buried in a notes box.</div></div>
+    </div>
+  </section>
+
+  <!-- IMPACT: MEASURED -->
+  <section class="section reveal">
+    <span class="section-label">Why this matters</span>
+    <h2 class="section-title">Real numbers, already sitting in the data.</h2>
+    <p class="impact-note">These four are <b>measured, not modelled</b>, pulled directly from a real production CRM before any of the above existed. This is what was already sitting in the data, nobody had looked.</p>
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-box-num" data-count="58" data-suffix="%">0%</div><div class="stat-box-label">of leads labelled "hot" hadn't been touched in 60+ days</div></div>
+      <div class="stat-box"><div class="stat-box-num" data-count="1257">0</div><div class="stat-box-label">leads still scored like new ones after 90+ days with no reply</div></div>
+      <div class="stat-box"><div class="stat-box-num" data-count="1338">0</div><div class="stat-box-label">leads kept their original ranking through 3+ unanswered calls</div></div>
+      <div class="stat-box"><div class="stat-box-num" data-count="2455">0</div><div class="stat-box-label">unreplied emails carried no signal at all before this layer</div></div>
+    </div>
+    <div class="estimate-box">
+      <span class="estimate-tag">Modelled estimate, not a measured result</span>
+      If a rep spends even 3 minutes checking each of those falsely-"hot" leads before calling, correcting that single 58% figure alone gives back roughly <b>17+ hours in one dataset</b>. We haven't run a controlled before/after revenue comparison on a live deployment yet. Happy to build that measurement into scope, rather than quote a conversion number we can't stand behind.
+    </div>
+  </section>
+
+  <!-- IMPACT: TARGETS -->
+  <section class="section reveal">
+    <span class="section-label">What it's built to move</span>
+    <h2 class="section-title">The outcomes better prioritisation targets.</h2>
+    <p class="impact-note">These three are <b>illustrative target ranges, not measured results or a guarantee</b>. They describe what the mechanism above is built to move, not a promise about your numbers.</p>
+    <div class="stat-row" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="stat-box positive"><div class="stat-box-num">+15%</div><div class="stat-box-label">connectivity rate, from calling engaged leads instead of stale ones</div></div>
+      <div class="stat-box positive"><div class="stat-box-num">-10%</div><div class="stat-box-label">deal cycle time, from objections and next steps surfaced up front</div></div>
+      <div class="stat-box positive"><div class="stat-box-num">+25%</div><div class="stat-box-label">opportunities created, from buried leads actually getting worked</div></div>
+    </div>
+  </section>
+
+  <!-- WHO THIS IS FOR -->
+  <section class="section reveal">
+    <span class="section-label">Who this is for</span>
+    <h2 class="section-title">Built for CRMs with real volume behind them.</h2>
+    <div class="fit-grid">
+      <div class="fit-col yes">
+        <div class="fit-col-title">Good fit</div>
+        <ul class="fit-list">
+          <li>5+ person sales or BD team</li>
+          <li>10,000&ndash;20,000+ contact and deal records already in the CRM</li>
+          <li>HubSpot, proven at production scale &mdash; other CRMs on request</li>
+          <li>A CRM your team already uses daily, just doesn't fully trust</li>
+          <li>Regulated or compliance-sensitive data welcome</li>
+        </ul>
+      </div>
+      <div class="fit-col no">
+        <div class="fit-col-title">Not yet a fit</div>
+        <ul class="fit-list">
+          <li>Brand-new or near-empty CRM &mdash; that's a Pipeline Ignition Sprint, not this</li>
+          <li>Fewer than 5 reps &mdash; this problem usually isn't painful yet at that size</li>
+          <li>No CRM in place at all</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="section reveal">
+    <span class="section-label">Investment</span>
+    <h2 class="section-title">Fixed scope, priced by depth.</h2>
+    <div class="pricing-wrap">
+      <div class="price-card">
+        <span class="price-badge">Core</span>
+        <div class="price-amount">£6,000</div>
+        <div class="price-sub">Scoring + write-back, single pipeline</div>
+      </div>
+      <div class="price-card featured">
+        <span class="price-badge">Full Build</span>
+        <div class="price-amount">£8,500</div>
+        <div class="price-sub">+ gated AI synthesis, multi-pipeline</div>
+      </div>
+      <div class="price-card">
+        <span class="price-badge">Extended</span>
+        <div class="price-amount">£11,000</div>
+        <div class="price-sub">+ custom signals, reporting dashboard</div>
+      </div>
+    </div>
+    <div class="price-note">New pricing, not yet client-tested at this standalone scope. The original build was delivered inside a broader ongoing engagement. Optional tuning retainer from £750/month. Already running a Pipeline Ignition Sprint with Panoramica? Ask about bundled pricing.</div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section reveal" style="border-bottom:none;">
+    <div class="cta-block">
+      <div class="cta-glow"></div>
+      <div class="cta-title">One call to see if your data's ready.</div>
+      <div class="cta-body">We'll look at what's actually in your CRM and tell you honestly whether this is a fit yet.</div>
+      <a class="cta-btn" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a Discovery Call →</a>
+      <div class="cta-email">Or email: <a href="mailto:lorenzo@panoramica.solutions">lorenzo@panoramica.solutions</a></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <svg class="footer-mark" viewBox="0 0 380.23 39.18" xmlns="http://www.w3.org/2000/svg">
+      <path class="glyph" d="M4.89,25.4v13.04H0V.86h15.42c1.82,0,3.5.31,5.03.93,1.53.62,2.85,1.47,3.95,2.56s1.97,2.39,2.58,3.9c.62,1.51.93,3.15.93,4.92s-.31,3.43-.93,4.92c-.62,1.49-1.47,2.78-2.57,3.87-1.1,1.09-2.4,1.93-3.91,2.54-1.51.61-3.17.91-4.97.91H4.89ZM15.31,21.11c1.11,0,2.13-.2,3.07-.61.94-.41,1.75-.96,2.45-1.67s1.23-1.55,1.62-2.51c.39-.97.58-2.02.58-3.16s-.2-2.17-.59-3.15c-.4-.98-.94-1.82-1.63-2.54s-1.51-1.28-2.46-1.7-1.98-.62-3.08-.62H4.89v15.97h10.42Z"/>
+      <path class="glyph" d="M103.21,38.44h-4.15l-23.13-28.99v28.99h-4.89V.86h4.12l23.16,29.04V.86h4.89v37.58Z"/>
+      <path class="glyph" d="M112.11,19.62c0-1.82.24-3.57.72-5.25.48-1.68,1.16-3.24,2.03-4.7.88-1.46,1.93-2.78,3.15-3.97,1.23-1.19,2.58-2.21,4.06-3.05,1.48-.85,3.08-1.5,4.79-1.96,1.71-.46,3.5-.69,5.36-.69s3.65.23,5.36.69c1.71.46,3.32,1.11,4.81,1.96,1.49.85,2.86,1.87,4.09,3.05,1.23,1.19,2.29,2.51,3.16,3.97.88,1.46,1.55,3.02,2.03,4.7.48,1.68.72,3.43.72,5.25s-.24,3.55-.72,5.22c-.48,1.68-1.16,3.24-2.03,4.68-.88,1.45-1.93,2.76-3.16,3.95-1.23,1.19-2.6,2.21-4.09,3.05s-3.09,1.5-4.81,1.96c-1.71.46-3.5.69-5.36.69s-3.65-.23-5.36-.69c-1.71-.46-3.31-1.11-4.79-1.96-1.48-.85-2.84-1.87-4.06-3.05-1.23-1.19-2.28-2.51-3.15-3.95s-1.55-3.01-2.03-4.68c-.48-1.68-.72-3.42-.72-5.22ZM117,19.62c0,1.44.18,2.81.54,4.12.36,1.31.87,2.53,1.53,3.66.66,1.13,1.46,2.16,2.39,3.08.93.92,1.96,1.71,3.08,2.36,1.12.65,2.34,1.16,3.63,1.52s2.65.54,4.05.54,2.78-.18,4.08-.54,2.51-.87,3.65-1.52c1.13-.65,2.16-1.44,3.09-2.36.93-.92,1.73-1.95,2.39-3.08.66-1.13,1.17-2.35,1.53-3.66.36-1.31.54-2.68.54-4.12,0-2.16-.4-4.17-1.2-6.04-.8-1.87-1.89-3.5-3.27-4.88s-3-2.46-4.85-3.25c-1.85-.78-3.84-1.17-5.96-1.17s-4.08.39-5.93,1.17c-1.85.78-3.46,1.87-4.84,3.25-1.37,1.38-2.46,3.01-3.26,4.88-.8,1.87-1.2,3.88-1.2,6.04Z"/>
+      <path class="glyph" d="M176.6,24.48h-10.42v13.96h-4.89V.86h15.97c1.82,0,3.5.28,5.02.84,1.52.56,2.83,1.36,3.94,2.4,1.11,1.04,1.97,2.29,2.58,3.74.62,1.46.93,3.07.93,4.84,0,1.4-.19,2.7-.58,3.91s-.93,2.28-1.63,3.23c-.7.95-1.55,1.77-2.54,2.46s-2.1,1.22-3.32,1.59l8.9,14.56h-5.66l-8.29-13.96ZM177.16,20.2c1.11,0,2.12-.18,3.05-.54.93-.36,1.74-.87,2.43-1.52.69-.65,1.23-1.44,1.62-2.36s.58-1.94.58-3.07-.2-2.15-.59-3.08-.94-1.73-1.63-2.39c-.69-.66-1.51-1.18-2.46-1.55s-1.98-.55-3.08-.55h-10.89v15.06h10.97Z"/>
+      <path class="glyph" d="M221.37,30.01h-19.01l-3.56,8.43h-5.2L209.51.86h4.7l15.92,37.58h-5.2l-3.56-8.43ZM204.15,25.75h15.42l-7.54-17.85-.17-.69-.17.69-7.54,17.85Z"/>
+      <path class="glyph" d="M254.5,26.14l-12.88-17.22v29.51h-4.89V.86h4.23l14.29,18.87,14.29-18.87h4.28v37.58h-4.89V8.95l-12.99,17.19h-1.44Z"/>
+      <path class="glyph" d="M284.59.86h4.89v37.58h-4.89V.86Z"/>
+      <path class="glyph" d="M332.07,12.74c-.61-1.31-1.38-2.48-2.32-3.52s-2-1.93-3.18-2.67c-1.18-.74-2.45-1.3-3.83-1.69s-2.79-.58-4.24-.58c-2.1,0-4.08.39-5.93,1.17-1.85.78-3.46,1.87-4.84,3.25-1.37,1.38-2.46,3.01-3.26,4.88-.8,1.87-1.2,3.88-1.2,6.04,0,1.44.18,2.81.54,4.12s.87,2.53,1.53,3.66,1.46,2.16,2.39,3.08c.93.92,1.96,1.71,3.08,2.36,1.12.65,2.34,1.16,3.63,1.52s2.65.54,4.05.54,2.87-.19,4.24-.58c1.37-.39,2.64-.94,3.81-1.66,1.17-.72,2.22-1.6,3.16-2.64s1.71-2.22,2.32-3.52h5.08c-.68,2.01-1.66,3.8-2.94,5.37-1.28,1.58-2.75,2.9-4.42,3.98-1.67,1.08-3.47,1.9-5.4,2.47-1.93.57-3.89.86-5.86.86-1.86,0-3.65-.23-5.36-.69-1.71-.46-3.31-1.11-4.79-1.96-1.48-.85-2.84-1.87-4.06-3.05-1.23-1.19-2.28-2.51-3.15-3.95s-1.55-3.01-2.03-4.68-.72-3.42-.72-5.22.24-3.57.72-5.25,1.16-3.24,2.03-4.7c.88-1.46,1.93-2.78,3.15-3.97,1.23-1.19,2.58-2.21,4.06-3.05,1.48-.85,3.08-1.5,4.79-1.96,1.71-.46,3.5-.69,5.36-.69,1.95,0,3.9.28,5.83.84,1.93.56,3.74,1.38,5.4,2.46,1.67,1.08,3.15,2.41,4.44,3.99,1.29,1.58,2.28,3.4,2.96,5.44h-5.06Z"/>
+      <path class="glyph" d="M351.27,38.44h-4.84l.06-37.58h5.17l28.57,37.58h-5.78l-6.25-8.15h-16.94v8.15ZM351.96,9.15l-.64-1.41h-.06v18.9h14.12l-13.43-17.49Z"/>
+      <path class="glyph" d="M56.87,30.29h-16.94s-6.25,8.15-6.25,8.15h-5.78S56.48.86,56.48.86h5.17s.06,37.58.06,37.58h-4.84v-8.15ZM42.75,26.64h14.12s0-18.9,0-18.9h-.06l-.64,1.41-13.43,17.49Z"/>
+    </svg>
+    <div>London · panoramica.solutions</div>
+  </footer>
+
+</div>
+
+<script>
+if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+  document.documentElement.classList.remove('gsap-ready');
+} else {
+gsap.registerPlugin(ScrollTrigger);
+
+document.querySelectorAll('.reveal').forEach((el) => {
+  gsap.to(el, {
+    opacity: 1,
+    y: 0,
+    duration: 0.7,
+    ease: 'power2.out',
+    scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' }
+  });
+});
+
+gsap.from('.hero-icon', { opacity: 0, scale: 0.85, duration: 1.1, ease: 'power2.out' });
+gsap.from('.hero-glow', { opacity: 0, duration: 1.6, ease: 'power2.out' });
+gsap.from('.hero-eyebrow, .hero-title, .hero-sub, .hero-row', {
+  opacity: 0, y: 16, duration: 0.6, stagger: 0.08, ease: 'power2.out', delay: 0.1
+});
+
+document.querySelectorAll('[data-count]').forEach((el) => {
+  const target = parseFloat(el.getAttribute('data-count'));
+  const suffix = el.getAttribute('data-suffix') || '';
+  const counter = { val: 0 };
+  ScrollTrigger.create({
+    trigger: el,
+    start: 'top 88%',
+    once: true,
+    onEnter: () => {
+      gsap.to(counter, {
+        val: target,
+        duration: 1.4,
+        ease: 'power1.out',
+        onUpdate: () => {
+          const v = target % 1 === 0 ? Math.round(counter.val) : counter.val.toFixed(1);
+          el.textContent = (target >= 1000 ? Math.round(counter.val).toLocaleString() : v) + suffix;
+        }
+      });
+    }
+  });
+});
+
+document.querySelectorAll('.price-card').forEach((card) => {
+  card.addEventListener('mouseenter', () => gsap.to(card, { y: -4, borderColor: 'var(--accent-border)', duration: 0.2, ease: 'power2.out' }));
+  card.addEventListener('mouseleave', () => gsap.to(card, { y: 0, duration: 0.2, ease: 'power2.out' }));
+});
+}
+</script>
+
+</body>
+</html>
