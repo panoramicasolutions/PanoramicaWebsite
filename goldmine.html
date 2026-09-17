@@ -36,7 +36,8 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
 .topbar { display: flex; align-items: center; justify-content: space-between; padding: 30px 0; }
 .logo-mark { height: 34px; width: auto; }
 .logo-mark .glyph { fill: var(--ink); }
-.topbar-tag { font-size: 12px; color: var(--ink-3); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; }
+.topbar-tag { font-size: 12px; color: var(--ink-3); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; white-space: nowrap; }
+@media (max-width: 480px) { .topbar-tag { display: none; } }
 
 /* Hero */
 .hero { position: relative; padding: 104px 0 96px; overflow: hidden; text-align: center; }
@@ -74,9 +75,13 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
 .flow-line { width: 28px; height: 0; border-top: 1.5px dashed var(--accent-border); flex-shrink: 0; align-self: flex-start; margin-top: 32px; position: relative; }
 .flow-line::after { content: '\203A'; position: absolute; right: -9px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 15px; line-height: 1; }
 @media (max-width: 720px) {
-  .flow { flex-direction: column; gap: 16px; }
-  .flow-line { width: 0; height: 20px; border-top: none; border-left: 1.5px dashed var(--accent-border); align-self: center; margin-top: 0; }
-  .flow-line::after { content: '\2039'; right: auto; left: 50%; top: auto; bottom: -10px; transform: translateX(-50%) rotate(90deg); }
+  .flow { flex-wrap: wrap; row-gap: 26px; column-gap: 18px; }
+  .flow-node { width: 84px; }
+  .flow-icon-circle { width: 58px; height: 58px; }
+  .flow-icon-circle svg { width: 24px; height: 24px; }
+  .flow-icon-circle.hub { width: 58px; height: 58px; }
+  .flow-icon-circle.hub svg { width: 28px; height: 28px; }
+  .flow-line { display: none; }
 }
 
 .chip-row { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin: 46px 0 26px; }
@@ -177,7 +182,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
     <div class="hero-inner">
       <div class="hero-eyebrow">The Goldmine</div>
       <h1 class="hero-title">Your CRM is a <mark>goldmine</mark> you're not mining</h1>
-      <p class="hero-sub">Reads your CRM, cross-references it with web research and call transcripts, and turns it into a working queue for every lead.</p>
+      <p class="hero-sub">Reads your CRM, cross-references it with web research and call transcripts, and turns it into a working queue for every lead</p>
       <div class="hero-row">
         <a class="btn btn-solid" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a Discovery Call →</a>
       </div>
@@ -189,7 +194,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
     <div class="wrap section-inner">
       <span class="section-label">How it works</span>
       <h2 class="section-title">Its own queue, not just a layer on your CRM</h2>
-      <p class="section-sub">Meeting Briefs and Deal Intelligence, built into a queue reps actually use.</p>
+      <p class="section-sub">Meeting Briefs and Deal Intelligence, built into a queue reps actually use</p>
 
       <div class="flow">
         <div class="flow-node">
@@ -236,7 +241,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
         <span class="chip">Next contact date, from transcripts</span>
         <span class="chip">Compliance-aware fields</span>
       </div>
-      <p class="flow-spotlight">Outputs are checked against the record first, built in after AI once mistook a lost deal for a live investment.</p>
+      <p class="flow-spotlight">Outputs are checked against the record first, built in after AI once mistook a lost deal for a live investment</p>
     </div>
   </section>
 
@@ -253,7 +258,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
       </div>
       <div class="estimate-box">
         <span class="estimate-tag">Modelled estimate, not a measured result</span>
-        Fixing the 58% figure alone saves an estimated <b>17+ hours</b> in one dataset. Not yet measured live, so treat it as modelled, not proven.
+        Fixing the 58% figure alone saves an estimated <b>17+ hours</b> in one dataset, not yet measured live, so treat it as modelled, not proven
       </div>
     </div>
   </section>
@@ -263,7 +268,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
     <div class="wrap section-inner">
       <span class="section-label">What it's built to move</span>
       <h2 class="section-title">What better prioritisation is <em>built to move</em></h2>
-      <p class="section-sub">Illustrative ranges, not measured results. What you'll see depends on your data.</p>
+      <p class="section-sub">Illustrative ranges, not measured results, what you'll see depends on your data</p>
       <div class="stat-row-sm">
         <div class="stat-box-sm"><div class="stat-box-sm-num">+15%</div><div class="stat-box-sm-label">connectivity rate</div></div>
         <div class="stat-box-sm"><div class="stat-box-sm-num">-10%</div><div class="stat-box-sm-label">deal cycle time</div></div>
@@ -352,7 +357,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
           <div class="price-sub">+ custom signals, reporting dashboard</div>
         </div>
       </div>
-      <div class="price-note">A custom build, not off-the-shelf software, you own it once it's live. LLM and hosting costs are separate from the build fee, confirmed before launch.</div>
+      <div class="price-note">A custom build, not off-the-shelf software, you own it once it's live, LLM and hosting costs are separate from the build fee, confirmed before launch</div>
     </div>
   </section>
 
