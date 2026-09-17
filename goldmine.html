@@ -63,33 +63,33 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
 .section-sub { font-size: 16.5px; color: var(--ink-2); max-width: 480px; margin: 0 auto; }
 
 /* Flow diagram */
-.flow { display: flex; align-items: flex-start; justify-content: center; gap: 4px; margin: 56px 0 8px; flex-wrap: wrap; row-gap: 28px; }
-.flow-node { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 104px; }
-.flow-icon-circle { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--border); background: var(--card); display: flex; align-items: center; justify-content: center; color: var(--ink-2); flex-shrink: 0; }
-.flow-icon-circle svg { width: 22px; height: 22px; }
-.flow-icon-circle.hub { border-color: var(--accent-border); box-shadow: 0 0 28px rgba(238,250,99,0.28); color: var(--accent); }
-.flow-icon-circle.hub svg { width: 26px; height: 26px; }
+.flow { display: flex; align-items: flex-start; justify-content: center; gap: 6px; margin: 56px 0 8px; flex-wrap: wrap; row-gap: 30px; }
+.flow-node { display: flex; flex-direction: column; align-items: center; gap: 13px; width: 108px; }
+.flow-icon-circle { width: 66px; height: 66px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--card); display: flex; align-items: center; justify-content: center; color: var(--ink-2); flex-shrink: 0; }
+.flow-icon-circle svg { width: 27px; height: 27px; }
+.flow-icon-circle.hub { border-color: var(--accent-border); box-shadow: 0 0 32px rgba(238,250,99,0.32); color: var(--accent); }
+.flow-icon-circle.hub svg { width: 32px; height: 32px; }
 .flow-icon-circle.output { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent); }
-.flow-label { font-size: 12.5px; color: var(--ink-2); text-align: center; line-height: 1.4; }
-.flow-line { width: 26px; height: 0; border-top: 1px dashed var(--border); flex-shrink: 0; align-self: flex-start; margin-top: 27px; }
+.flow-label { font-size: 12.5px; color: var(--ink-2); text-align: center; line-height: 1.4; font-weight: 500; }
+.flow-line { width: 28px; height: 0; border-top: 1.5px dashed var(--accent-border); flex-shrink: 0; align-self: flex-start; margin-top: 32px; position: relative; }
+.flow-line::after { content: '\203A'; position: absolute; right: -9px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 15px; line-height: 1; }
 @media (max-width: 720px) {
-  .flow { flex-direction: column; gap: 14px; }
-  .flow-line { width: 0; height: 18px; border-top: none; border-left: 1px dashed var(--border); align-self: center; margin-top: 0; }
+  .flow { flex-direction: column; gap: 16px; }
+  .flow-line { width: 0; height: 20px; border-top: none; border-left: 1.5px dashed var(--accent-border); align-self: center; margin-top: 0; }
+  .flow-line::after { content: '\2039'; right: auto; left: 50%; top: auto; bottom: -10px; transform: translateX(-50%) rotate(90deg); }
 }
 
-.chip-row { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin: 44px 0 28px; }
+.chip-row { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin: 46px 0 26px; }
 .chip { font-size: 13px; color: var(--ink-2); border: 1px solid var(--border); background: var(--card); padding: 9px 16px; border-radius: 999px; white-space: nowrap; }
-.flow-spotlight { font-size: 15px; color: var(--ink-2); line-height: 1.65; max-width: 580px; margin: 0 auto; }
+.flow-spotlight { font-size: 15px; color: var(--ink-2); line-height: 1.6; max-width: 540px; margin: 0 auto; }
 .flow-spotlight b { color: var(--ink); }
-.flow-note { font-size: 13.5px; color: var(--ink-3); line-height: 1.6; max-width: 580px; margin: 18px auto 0; }
-.flow-note b { color: var(--ink-2); }
 
 /* Stack / integrations row */
 .stack-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 32px; margin: 48px 0 8px; }
 .stack-item { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 108px; }
-.stack-icon-circle { width: 58px; height: 58px; border-radius: 50%; border: 1px solid var(--border); background: var(--card); display: flex; align-items: center; justify-content: center; }
-.stack-item.proven .stack-icon-circle { border-color: var(--accent-border); box-shadow: 0 0 24px rgba(238,250,99,0.22); }
-.stack-icon { width: 26px; height: 26px; background-color: var(--ink-2); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; display: block; }
+.stack-icon-circle { width: 66px; height: 66px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--card); display: flex; align-items: center; justify-content: center; }
+.stack-item.proven .stack-icon-circle { border-color: var(--accent-border); box-shadow: 0 0 28px rgba(238,250,99,0.26); }
+.stack-icon { width: 30px; height: 30px; background-color: var(--ink-2); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; display: block; }
 .stack-item.proven .stack-icon { background-color: var(--accent); }
 .stack-label { font-size: 12.5px; color: var(--ink-2); text-align: center; }
 .stack-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
@@ -177,7 +177,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
     <div class="hero-inner">
       <div class="hero-eyebrow">The Goldmine</div>
       <h1 class="hero-title">Your CRM is a <mark>goldmine</mark> you're not mining</h1>
-      <p class="hero-sub">The Goldmine reads every contact, company, and activity record in your CRM, cross-references it with web research and call transcripts, and builds a real profile and a call queue for every lead.</p>
+      <p class="hero-sub">Reads your CRM, cross-references it with web research and call transcripts, and turns it into a working queue for every lead.</p>
       <div class="hero-row">
         <a class="btn btn-solid" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a Discovery Call →</a>
       </div>
@@ -189,26 +189,26 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
     <div class="wrap section-inner">
       <span class="section-label">How it works</span>
       <h2 class="section-title">Its own queue, not just a layer on your CRM</h2>
-      <p class="section-sub">A working lead queue with Meeting Briefs and Deal Intelligence built in, reps open it and know who's next.</p>
+      <p class="section-sub">Meeting Briefs and Deal Intelligence, built into a queue reps actually use.</p>
 
       <div class="flow">
         <div class="flow-node">
           <div class="flow-icon-circle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><ellipse cx="12" cy="5" rx="7" ry="2.5"/><path d="M5 5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V5"/><path d="M5 11v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="7" ry="2.5"/><path d="M5 5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V5"/><path d="M5 11v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6"/></svg>
           </div>
           <div class="flow-label">CRM Data</div>
         </div>
         <div class="flow-line"></div>
         <div class="flow-node">
           <div class="flow-icon-circle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.5"/><ellipse cx="12" cy="12" rx="3.5" ry="8.5"/><path d="M3.5 12h17"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><ellipse cx="12" cy="12" rx="3.5" ry="8.5"/><path d="M3.5 12h17"/></svg>
           </div>
           <div class="flow-label">Web Research</div>
         </div>
         <div class="flow-line"></div>
         <div class="flow-node">
           <div class="flow-icon-circle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5h16v10H9l-4 4V5z"/><path d="M7.5 9h9M7.5 12h6"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v10H9l-4 4V5z"/><path d="M7.5 9h9M7.5 12h6"/></svg>
           </div>
           <div class="flow-label">Calls &amp; Notes</div>
         </div>
@@ -222,7 +222,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
         <div class="flow-line"></div>
         <div class="flow-node">
           <div class="flow-icon-circle output">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="5" cy="7" r="1.3" fill="currentColor" stroke="none"/><path d="M9 7h11"/><circle cx="5" cy="12" r="1.3" fill="currentColor" stroke="none"/><path d="M9 12h11"/><circle cx="5" cy="17" r="1.3" fill="currentColor" stroke="none"/><path d="M9 17h11"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="7" r="1.3" fill="currentColor" stroke="none"/><path d="M9 7h11"/><circle cx="5" cy="12" r="1.3" fill="currentColor" stroke="none"/><path d="M9 12h11"/><circle cx="5" cy="17" r="1.3" fill="currentColor" stroke="none"/><path d="M9 17h11"/></svg>
           </div>
           <div class="flow-label">Your working queue</div>
         </div>
@@ -236,8 +236,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
         <span class="chip">Next contact date, from transcripts</span>
         <span class="chip">Compliance-aware fields</span>
       </div>
-      <p class="flow-spotlight">Every output is checked against the record before a rep sees it. We added that after our own earlier model misread a lost deal as a live investment, and fixed the class of bug, not just the one instance.</p>
-      <p class="flow-note">The queue is where reps actually work. Writing back into the CRM is a second, quieter job it does at the same time: turning what's buried in a transcript, like the next best contact date, into a real structured field, so the record stays complete even where reps never touch it directly.</p>
+      <p class="flow-spotlight">Outputs are checked against the record first, built in after AI once mistook a lost deal for a live investment.</p>
     </div>
   </section>
 
@@ -254,7 +253,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
       </div>
       <div class="estimate-box">
         <span class="estimate-tag">Modelled estimate, not a measured result</span>
-        Fixing that single 58% figure alone gives reps back roughly <b>17+ hours</b> in one dataset, at 3 minutes per falsely "hot" lead checked before calling. We haven't run a live before/after revenue comparison yet, and we'd rather build that into scope than quote a number we can't stand behind.
+        Fixing the 58% figure alone saves an estimated <b>17+ hours</b> in one dataset. Not yet measured live, so treat it as modelled, not proven.
       </div>
     </div>
   </section>
@@ -323,7 +322,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
           <div class="stack-tag muted">On request</div>
         </div>
         <div class="stack-item">
-          <div class="stack-icon-circle"><span style="font-family:var(--ff-h); font-size:20px; font-weight:600; color:var(--ink-2);">P</span></div>
+          <div class="stack-icon-circle"><span style="font-family:var(--ff-h); font-size:24px; font-weight:600; color:var(--ink-2);">P</span></div>
           <div class="stack-label">Pipedrive</div>
           <div class="stack-tag muted">On request</div>
         </div>
@@ -353,7 +352,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
           <div class="price-sub">+ custom signals, reporting dashboard</div>
         </div>
       </div>
-      <div class="price-note">This is a custom build for your CRM, not off-the-shelf software. You own it once it's live. Running costs (the LLM calls and hosting behind it) are separate from the build fee, typically modest at this scale, and confirmed with you before launch.</div>
+      <div class="price-note">A custom build, not off-the-shelf software, you own it once it's live. LLM and hosting costs are separate from the build fee, confirmed before launch.</div>
     </div>
   </section>
 
