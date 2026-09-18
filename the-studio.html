@@ -89,6 +89,38 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
 .flow-spotlight { font-size: 15px; color: var(--ink-2); line-height: 1.6; max-width: 540px; margin: 0 auto; }
 .flow-spotlight b { color: var(--ink); }
 
+/* Calendar mockup */
+.cal-mock { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; max-width: 620px; margin: 44px auto 0; text-align: left; }
+.cal-mock-head { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 8px; }
+.cal-mock-head span { font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); text-align: center; }
+.cal-mock-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.cal-cell { aspect-ratio: 1; border: 1px solid var(--border); border-radius: 6px; padding: 4px; display: flex; flex-direction: column; gap: 3px; position: relative; background: var(--surface); }
+.cal-cell-num { font-size: 9px; color: var(--ink-3); }
+.cal-dot-row { display: flex; gap: 2px; flex-wrap: wrap; margin-top: auto; }
+.cal-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.cal-dot.hook { background: #7dd3fc; }
+.cal-dot.value { background: #fbbf24; }
+.cal-dot.climax { background: var(--accent); }
+.cal-dot.nurture { background: #6ee7b7; }
+.cal-cell.ai-cell { border-color: var(--accent-border); box-shadow: 0 0 0 1px var(--accent-border) inset; }
+.cal-cell-ai-tag { position: absolute; top: 3px; right: 3px; font-size: 7px; font-weight: 700; color: var(--accent); letter-spacing: 0.04em; }
+.cal-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 18px; }
+.cal-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--ink-2); }
+.cal-legend-item .cal-dot { width: 8px; height: 8px; }
+
+/* Brand + template mockup */
+.brand-mock { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 620px; margin: 44px auto 0; }
+.brand-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; text-align: left; }
+.brand-card.active { border-color: var(--accent-border); background: var(--accent-bg); }
+.brand-card-name { font-family: var(--ff-h); font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+.brand-card.active .brand-card-name { color: var(--accent-bright); }
+.brand-card-meta { font-size: 11px; color: var(--ink-3); }
+.brand-card-swatch { display: flex; gap: 4px; margin-top: 12px; }
+.brand-card-swatch span { width: 14px; height: 14px; border-radius: 4px; display: block; }
+@media (max-width: 620px) { .brand-mock { grid-template-columns: 1fr; } }
+.tpl-row { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin-top: 20px; }
+.tpl-chip { font-size: 12px; color: var(--ink-2); border: 1px dashed var(--border); padding: 8px 14px; border-radius: 999px; }
+
 /* Stack / integrations row */
 .stack-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 32px; margin: 48px 0 8px; }
 .stack-item { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 108px; }
@@ -169,7 +201,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
         <path class="glyph" d="M351.27,38.44h-4.84l.06-37.58h5.17l28.57,37.58h-5.78l-6.25-8.15h-16.94v8.15ZM351.96,9.15l-.64-1.41h-.06v18.9h14.12l-13.43-17.49Z"/>
         <path class="glyph" d="M56.87,30.29h-16.94s-6.25,8.15-6.25,8.15h-5.78S56.48.86,56.48.86h5.17s.06,37.58.06,37.58h-4.84v-8.15ZM42.75,26.64h14.12s0-18.9,0-18.9h-.06l-.64,1.41-13.43,17.49Z"/>
       </svg>
-      <div class="topbar-tag">Marketing Compliance Engine</div>
+      <div class="topbar-tag">Marketing QA Engine</div>
     </header>
   </div>
 
@@ -181,8 +213,8 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
     </svg>
     <div class="hero-inner">
       <div class="hero-eyebrow">The Studio</div>
-      <h1 class="hero-title">AI campaigns your <mark>compliance</mark> team already trusts</h1>
-      <p class="hero-sub">Generates multi-touch campaigns and landing pages, checks every line against FCA promotion rules before a human ever has to, and won't publish until someone explicitly approves it</p>
+      <h1 class="hero-title">AI campaigns that pass <mark>QA</mark> before they publish</h1>
+      <p class="hero-sub">Generates multi-touch campaigns and landing pages, checks every line against your compliance or brand rules before a human ever has to, and won't publish until someone explicitly approves it</p>
       <div class="hero-row">
         <a class="btn btn-solid" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a Discovery Call →</a>
       </div>
@@ -193,7 +225,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
   <section class="section reveal">
     <div class="wrap section-inner">
       <span class="section-label">How it works</span>
-      <h2 class="section-title">Four agents, one compliance gate</h2>
+      <h2 class="section-title">Four agents, one QA gate</h2>
       <p class="section-sub">Research, strategy, and copy feed a campaign that can't go live until it's checked and signed off</p>
 
       <div class="flow">
@@ -222,7 +254,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
           <div class="flow-icon-circle hub">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l7 3v6c0 5-3.5 7.5-7 9-3.5-1.5-7-4-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
           </div>
-          <div class="flow-label">Compliance</div>
+          <div class="flow-label">QA Check</div>
         </div>
         <div class="flow-line"></div>
         <div class="flow-node">
@@ -241,12 +273,90 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
       </div>
 
       <div class="chip-row">
-        <span class="chip">FCA COBS 4, hard-blocked before tone is judged</span>
+        <span class="chip">Hard-blocked rules, checked before tone is judged</span>
         <span class="chip">AI pass alone never publishes anything</span>
         <span class="chip">Landing pages, on an isolated deploy</span>
-        <span class="chip">Reschedule without bypassing compliance</span>
+        <span class="chip">Proven on FCA COBS 4, swappable for your own rules</span>
       </div>
-      <p class="flow-spotlight">Banned-term scanning runs first and blocks deterministically, the AI layer only judges what a rule can't: whether the copy is fair, clear, and not misleading</p>
+      <p class="flow-spotlight">Banned-term scanning runs first and blocks deterministically, the AI layer only judges what a rule can't: whether the copy is accurate, clear, and on-brand</p>
+    </div>
+  </section>
+
+  <!-- CALENDAR -->
+  <section class="section reveal">
+    <div class="wrap section-inner">
+      <span class="section-label">Campaign calendar</span>
+      <h2 class="section-title">A calendar, not a spreadsheet</h2>
+      <p class="section-sub">Every touchpoint across every campaign, in one month view, drag to reschedule without touching its QA status</p>
+
+      <div class="cal-mock">
+        <div class="cal-mock-head">
+          <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+        </div>
+        <div class="cal-mock-grid">
+          <div class="cal-cell"><span class="cal-cell-num">1</span></div>
+          <div class="cal-cell"><span class="cal-cell-num">2</span><div class="cal-dot-row"><span class="cal-dot hook"></span></div></div>
+          <div class="cal-cell"><span class="cal-cell-num">3</span></div>
+          <div class="cal-cell"><span class="cal-cell-num">4</span></div>
+          <div class="cal-cell"><span class="cal-cell-num">5</span><div class="cal-dot-row"><span class="cal-dot value"></span></div></div>
+          <div class="cal-cell"><span class="cal-cell-num">6</span></div>
+          <div class="cal-cell"><span class="cal-cell-num">7</span></div>
+          <div class="cal-cell"><span class="cal-cell-num">8</span></div>
+          <div class="cal-cell ai-cell"><span class="cal-cell-num">9</span><span class="cal-cell-ai-tag">AI</span><div class="cal-dot-row"><span class="cal-dot value"></span></div></div>
+          <div class="cal-cell"><span class="cal-cell-num">10</span></div>
+          <div class="cal-cell"><span class="cal-cell-num">11</span></div>
+          <div class="cal-cell"><span class="cal-cell-num">12</span><div class="cal-dot-row"><span class="cal-dot climax"></span></div></div>
+          <div class="cal-cell"><span class="cal-cell-num">13</span></div>
+          <div class="cal-cell"><span class="cal-cell-num">14</span></div>
+          <div class="cal-cell"><span class="cal-cell-num">15</span></div>
+          <div class="cal-cell"><span class="cal-cell-num">16</span></div>
+          <div class="cal-cell"><span class="cal-cell-num">17</span><div class="cal-dot-row"><span class="cal-dot nurture"></span></div></div>
+          <div class="cal-cell"><span class="cal-cell-num">18</span></div>
+          <div class="cal-cell ai-cell"><span class="cal-cell-num">19</span><span class="cal-cell-ai-tag">AI</span></div>
+          <div class="cal-cell"><span class="cal-cell-num">20</span></div>
+          <div class="cal-cell"><span class="cal-cell-num">21</span><div class="cal-dot-row"><span class="cal-dot nurture"></span></div></div>
+        </div>
+        <div class="cal-legend">
+          <div class="cal-legend-item"><span class="cal-dot hook"></span>Hook</div>
+          <div class="cal-legend-item"><span class="cal-dot value"></span>Value / Education</div>
+          <div class="cal-legend-item"><span class="cal-dot climax"></span>Climax / Lead Magnet</div>
+          <div class="cal-legend-item"><span class="cal-dot nurture"></span>Post-Conversion Nurture</div>
+        </div>
+      </div>
+      <p class="flow-spotlight" style="margin-top: 24px;">Every campaign follows the same four-stage arc, a scheduling agent suggests the best send times, marked "AI", a person still has to drag it into place</p>
+    </div>
+  </section>
+
+  <!-- BRANDS + TEMPLATES -->
+  <section class="section reveal">
+    <div class="wrap section-inner">
+      <span class="section-label">Brands &amp; templates</span>
+      <h2 class="section-title">One tool, every brand kept separate</h2>
+      <p class="section-sub">Voice, colours, fonts, and QA rules live on the brand, not the campaign, switch brands and everything downstream follows automatically</p>
+
+      <div class="brand-mock">
+        <div class="brand-card">
+          <div class="brand-card-name">Brand A</div>
+          <div class="brand-card-meta">6 campaigns &middot; 12 templates</div>
+          <div class="brand-card-swatch"><span style="background:#7dd3fc;"></span><span style="background:#0A0F0D;border:1px solid var(--border);"></span><span style="background:#F2FFEB;"></span></div>
+        </div>
+        <div class="brand-card active">
+          <div class="brand-card-name">Brand B</div>
+          <div class="brand-card-meta">3 campaigns &middot; 8 templates</div>
+          <div class="brand-card-swatch"><span style="background:var(--accent);"></span><span style="background:#161C16;border:1px solid var(--border);"></span><span style="background:#F9FF5C;"></span></div>
+        </div>
+        <div class="brand-card">
+          <div class="brand-card-name">Brand C</div>
+          <div class="brand-card-meta">9 campaigns &middot; 15 templates</div>
+          <div class="brand-card-swatch"><span style="background:#6ee7b7;"></span><span style="background:#fbbf24;"></span><span style="background:#0A0F0D;border:1px solid var(--border);"></span></div>
+        </div>
+      </div>
+      <div class="tpl-row">
+        <span class="tpl-chip">Social card</span>
+        <span class="tpl-chip">Landing page</span>
+        <span class="tpl-chip">HTML email</span>
+        <span class="tpl-chip">PDF one-pager</span>
+      </div>
     </div>
   </section>
 
@@ -254,10 +364,10 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
   <section class="section reveal">
     <div class="wrap section-inner">
       <span class="section-label">Why this matters</span>
-      <h2 class="section-title">Compliance built in, not bolted on</h2>
+      <h2 class="section-title">QA built in, not bolted on</h2>
       <div class="stat-hero" style="grid-template-columns: repeat(3, 1fr);">
         <div><div class="stat-hero-num">4</div><div class="stat-hero-label">specialist agents in the pipeline: research, strategy, copy, and scheduling</div></div>
-        <div><div class="stat-hero-num">4</div><div class="stat-hero-label">COBS 4 rules hard-blocked deterministically, before AI judges tone</div></div>
+        <div><div class="stat-hero-num">4</div><div class="stat-hero-label">rules hard-blocked deterministically, proven on FCA COBS 4</div></div>
         <div><div class="stat-hero-num">2</div><div class="stat-hero-label">severity tiers, hard blockers and warnings, both logged for review</div></div>
       </div>
     </div>
@@ -270,7 +380,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
       <h2 class="section-title">Illustrative targets, <em>not a guarantee</em></h2>
       <p class="section-sub">What the mechanism above is built to move, not a promise about your numbers</p>
       <div class="stat-row-sm" style="grid-template-columns: repeat(2, 1fr); max-width: 420px;">
-        <div class="stat-box-sm"><div class="stat-box-sm-num">-60%</div><div class="stat-box-sm-label">time from brief to a compliance-ready campaign</div></div>
+        <div class="stat-box-sm"><div class="stat-box-sm-num">-60%</div><div class="stat-box-sm-label">time from brief to a QA'd, ready-to-publish campaign</div></div>
         <div class="stat-box-sm"><div class="stat-box-sm-num">-50%</div><div class="stat-box-sm-label">review cycles before sign-off</div></div>
       </div>
     </div>
@@ -280,23 +390,23 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
   <section class="section reveal">
     <div class="wrap section-inner">
       <span class="section-label">Who this is for</span>
-      <h2 class="section-title">Built for firms who can't just wing the copy</h2>
+      <h2 class="section-title">Built for teams who can't just wing the copy</h2>
       <div class="fit-grid">
         <div class="fit-col yes">
           <div class="fit-col-title">Good fit</div>
           <ul class="fit-list">
-            <li>FCA-regulated firms doing real outbound: EIS/VCT, wealth, lending, insurance</li>
-            <li>A compliance function that reviews outbound copy today</li>
+            <li>Outbound copy needs sign-off before it ships: legal, compliance, or just brand</li>
+            <li>A reviewer who exists today and actually reviews the copy</li>
+            <li>Multiple brands, or a regulated one (FS, health, insurance)</li>
             <li>Multi-touch campaigns on a regular cadence, not one-off posts</li>
-            <li>Want landing pages live without a dev queue in the way</li>
           </ul>
         </div>
         <div class="fit-col no">
           <div class="fit-col-title">Not yet a fit</div>
           <ul class="fit-list">
-            <li>Not FCA-regulated, this compliance layer would be overkill</li>
-            <li>No one able to sign off on financial promotions</li>
+            <li>Nobody currently reviews or signs off on outbound copy</li>
             <li>One-off campaigns, not a recurring need</li>
+            <li>No brand or compliance guide to check against yet</li>
           </ul>
         </div>
       </div>
@@ -342,7 +452,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-
         <div class="price-card featured">
           <span class="price-badge">The Studio</span>
           <div class="price-amount">£7,500</div>
-          <div class="price-sub">Setup + first compliant campaign, live</div>
+          <div class="price-sub">Setup + first QA'd campaign, live</div>
         </div>
       </div>
       <div class="price-note">A custom build, not off-the-shelf software, you own it once it's live. It generates, compliance-checks, and schedules campaigns, sending stays with your existing email tool, this doesn't dispatch anything itself</div>
