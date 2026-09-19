@@ -40,9 +40,9 @@
   {
     "id": "the-studio",
     "name": "The Studio",
-    "category": "Marketing Compliance Engine",
+    "category": "Marketing QA Engine",
     "url": "the-studio.html",
-    "summary": "AI-generated campaigns and landing pages, checked against FCA promotion rules before anyone signs off.",
+    "summary": "AI-generated campaigns and landing pages, checked against your compliance or brand rules before anyone signs off.",
     "priceLabel": "Fixed price",
     "tiers": [
       { "name": "The Studio", "price": 7500, "scope": "Setup + first QA'd campaign, live" }
