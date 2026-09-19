@@ -1,0 +1,52 @@
+[
+  {
+    "id": "goldmine",
+    "name": "The Goldmine",
+    "category": "CRM Intelligence",
+    "url": "goldmine.html",
+    "summary": "Turns a CRM full of noise into a working lead queue, scored, briefed, and kept up to date.",
+    "priceLabel": "Fixed scope, priced by depth",
+    "tiers": [
+      { "name": "Core", "price": 6000, "scope": "Scoring + write-back, single pipeline" },
+      { "name": "Full Build", "price": 8500, "scope": "+ gated AI synthesis, multi-pipeline" },
+      { "name": "Extended", "price": 11000, "scope": "+ custom signals, reporting dashboard" }
+    ],
+    "note": "Custom build, you own it once it's live, LLM and hosting costs separate and confirmed before launch"
+  },
+  {
+    "id": "the-brief",
+    "name": "The Brief",
+    "category": "Meeting Intelligence",
+    "url": "the-brief.html",
+    "summary": "A synthesised brief lands in Gmail 30 minutes before every meeting, pulled from your calendar, CRM, and call history.",
+    "priceLabel": "Fixed price",
+    "tiers": [
+      { "name": "The Brief", "price": 1000, "scope": "Setup + first live brief, single team" }
+    ],
+    "note": "Custom build, you own it once it's live, LLM costs separate and confirmed before launch"
+  },
+  {
+    "id": "revenue-architect",
+    "name": "Revenue Architect",
+    "category": "Revenue Diagnostic",
+    "url": "revenue-architect.html",
+    "summary": "A benchmarked conversation that finds the real constraint on your growth and hands you a report built around it.",
+    "priceLabel": "Fixed price",
+    "tiers": [
+      { "name": "Revenue Architect", "price": 149, "scope": "One diagnostic conversation + report" }
+    ],
+    "note": "Self-serve report, delivered by email shortly after checkout"
+  },
+  {
+    "id": "the-studio",
+    "name": "The Studio",
+    "category": "Marketing Compliance Engine",
+    "url": "the-studio.html",
+    "summary": "AI-generated campaigns and landing pages, checked against FCA promotion rules before anyone signs off.",
+    "priceLabel": "Fixed price",
+    "tiers": [
+      { "name": "The Studio", "price": 7500, "scope": "Setup + first QA'd campaign, live" }
+    ],
+    "note": "Custom build, you own it once it's live, sending stays with your existing email tool"
+  }
+]

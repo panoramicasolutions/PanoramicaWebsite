@@ -20,44 +20,7 @@
 </head>
 <body class="antialiased">
 
-<nav class="fixed w-full z-50 bg-black/90 backdrop-blur-md border-b border-[#222]">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative">
-            
-            <div class="flex-shrink-0 cursor-pointer z-20">
-                <a href="index.html">
-                    <img src="PanoramicaChiaro.png" alt="Panoramica" class="h-6 md:h-8 w-auto object-contain">
-                </a>
-            </div>
-
-            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300 absolute left-1/2 -translate-x-1/2 mt-2">
-                
-                <a href="index.html" class="hover:text-white transition relative">Home</a>
-                
-                <a href="marketplace.html" class="hover:text-white transition relative">Marketplace</a>
-
-                <a href="#" class="text-white font-bold transition relative">Insights</a>
-            </div>
-
-            <div class="hidden md:flex items-center gap-6 z-20">
-                <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" 
-                   class="px-5 py-2.5 bg-pano-lime text-black font-bold text-sm rounded hover:bg-white transition shadow-[0_0_15px_rgba(220,238,106,0.4)] hover:shadow-[0_0_20px_rgba(220,238,106,0.6)]">
-                    Book Audit
-                </a>
-            </div>
-
-            <div class="flex items-center gap-4 md:hidden z-20">
-                <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" 
-                   class="px-4 py-2 bg-pano-lime text-black font-bold text-xs rounded hover:bg-white transition shadow-[0_0_10px_rgba(220,238,106,0.4)]">
-                    Book Audit
-                </a>
-                <button class="text-white focus:outline-none p-2">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </nav>
+<script src="nav.js" data-active="insights"></script>
 
     <header class="pt-40 pb-20 px-6 text-center">
         <h1 class="text-4xl md:text-6xl font-bold mb-6">Operational <span class="text-pano-lime">Insights</span></h1>
@@ -77,8 +40,8 @@
                 posts.forEach(post => {
                     const card = `
                         <a href="article.html?id=${post.id}" class="group block bg-[#0F0F0F] border border-pano-border rounded-xl overflow-hidden hover:border-pano-lime transition duration-300">
-                            <div class="h-48 overflow-hidden">
-                                <img src="${post.image}" alt="${post.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-80 group-hover:opacity-100">
+                            <div class="h-48 overflow-hidden bg-[#141414]">
+                                <img src="${post.image}" alt="${post.title}" onerror="this.remove()" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-80 group-hover:opacity-100">
                             </div>
                             <div class="p-6">
                                 <div class="flex justify-between items-center mb-3">

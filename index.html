@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panoramica Solutions | Tailored RevOps</title>
+    <title>Panoramica Solutions | AI-enabled RevOps, built and shipped</title>
+    <meta name="description" content="We implement the CRM foundations, integrations and AI agents that turn your revenue data into a working pipeline. HubSpot and Salesforce, for SaaS and financial services teams.">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { 
+                    colors: {
                         'pano-bg': '#050505',
                         'pano-card': '#0F0F0F',
                         'pano-lime': '#DCEE6A',
@@ -21,211 +22,88 @@
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                     },
-                    backgroundImage: {
-                        'lime-glow': 'radial-gradient(circle at center, rgba(220, 238, 106, 0.15) 0%, rgba(5, 5, 5, 0) 70%)',
-                    }
                 }
             }
         }
     </script>
-<style>
-        body { 
-            background-color: #050505; color: white; overflow-x: hidden; width: 100%; 
-            /* NASCONDE IL CURSORE STANDARD SU PC */
-            cursor: none; 
-        }
-
-        /* Riabilita il cursore normale sui dispositivi touch (dove non c'è mouse) */
-        @media (hover: none) {
-            body { cursor: auto; }
-        }
-
-        /* --- ANIMAZIONI INTRODUTTIVE (WIPE) --- */
-        @keyframes logo-wipe-reveal {
-            0% { clip-path: inset(0 100% 0 0); -webkit-clip-path: inset(0 100% 0 0); }
-            100% { clip-path: inset(0 0 0 0); -webkit-clip-path: inset(0 0 0 0); }
-        }
-        @keyframes fade-out-overlay {
-            0% { opacity: 1; visibility: visible; }
-            90% { opacity: 0; visibility: visible; }
-            100% { opacity: 0; visibility: hidden; }
-        }
-        @keyframes fade-in-delayed {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-        @keyframes slide-up { from { transform: translateY(20px); } to { transform: translateY(0); } }
-
-        /* --- CLASSI INTRO --- */
-        .intro-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #050505; display: flex; align-items: center; justify-content: center; z-index: 9999;
-            animation: fade-out-overlay 0.8s ease-out 1.8s forwards;
-        }
-        .intro-logo-wipe {
-            height: 20vh;
-            animation: logo-wipe-reveal 1.5s ease-in-out forwards;
-        }
-        @media (min-width: 768px) { .intro-logo-wipe { height: 30vh; } }
-
-        .hero-content-delayed {
-            opacity: 0;
-            animation: fade-in-delayed 1.0s ease-out 2.0s forwards, slide-up 1s ease-out 2.0s forwards;
-        }
-
-        /* --- STILE DEL CURSORE PERSONALIZZATO --- */
-        #custom-cursor {
-            position: fixed;
-            top: 0; left: 0;
-            width: 30px; /* Grandezza del cursore */
-            height: auto;
-            pointer-events: none; /* FONDAMENTALE: permette di cliccare attraverso l'immagine */
-            z-index: 10000; /* Sopra a tutto */
-            transform: translate(-50%, -50%); /* Centra il logo sulla punta del mouse */
-            transition: transform 0.1s ease-out; /* Movimento fluido */
-            display: none; /* Nascosto di default (appare via JS) */
-            
-            /* Filtro per renderlo luminoso e visibile sul nero */
-            filter: drop-shadow(0 0 5px rgba(220, 238, 106, 0.5));
-        }
-
-        /* Sui link, ingrandiamo leggermente il cursore per feedback */
-        body:has(a:hover) #custom-cursor, 
-        body:has(button:hover) #custom-cursor {
-            transform: translate(-50%, -50%) scale(1.3);
-        }
-        
-        /* Non mostrare il cursore custom su mobile */
-        @media (hover: none) {
-            #custom-cursor { display: none !important; }
-        }
-    </style>
     <style>
-    /* Stile FAQ Dark Mode */
-    .faq-section {
-        background-color: #050505; /* Adattato al tuo sfondo */
-        color: #ffffff;
-        padding: 60px 20px;
-        font-family: 'Inter', sans-serif; /* Adattato al tuo font */
-        border-top: 1px solid #262626; /* Bordo come le altre sezioni */
-    }
-    .faq-container { max-width: 800px; margin: 0 auto; }
-    .faq-header { margin-bottom: 40px; }
-    .faq-header h2 { font-size: 3rem; margin: 0 0 10px 0; font-weight: 700; }
-    .faq-header p { color: #A0A0A0; font-size: 1.1rem; }
-    .faq-item {
-        background-color: #0F0F0F; /* Colore delle tue card */
-        border: 1px solid #262626;
-        border-radius: 12px;
-        margin-bottom: 12px;
-        overflow: hidden;
-        transition: border-color 0.3s ease;
-    }
-    .faq-item:hover { border-color: #DCEE6A; /* Il tuo colore Lime */ }
-    .faq-question {
-        padding: 24px; cursor: pointer; display: flex;
-        justify-content: space-between; align-items: center;
-        font-weight: 600; font-size: 1.1rem; color: white;
-    }
-    .faq-answer {
-        max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
-        padding: 0 24px; color: #A0A0A0; line-height: 1.6;
-    }
-    .faq-item.active .faq-answer { padding-bottom: 24px; }
-    .faq-icon { font-size: 24px; transition: transform 0.3s ease; color: #666; }
-    .faq-item.active .faq-icon { transform: rotate(45deg); color: #DCEE6A; }
-</style>
+        body { background-color: #050505; color: white; overflow-x: hidden; width: 100%; }
+        html { scroll-behavior: smooth; }
+        @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+        /* FAQ */
+        .faq-section {
+            background-color: #050505;
+            color: #ffffff;
+            padding: 60px 20px;
+            font-family: 'Inter', sans-serif;
+            border-top: 1px solid #262626;
+        }
+        .faq-container { max-width: 800px; margin: 0 auto; }
+        .faq-header { margin-bottom: 40px; }
+        .faq-header h2 { font-size: 3rem; margin: 0 0 10px 0; font-weight: 700; }
+        .faq-header p { color: #A0A0A0; font-size: 1.1rem; }
+        .faq-item {
+            background-color: #0F0F0F;
+            border: 1px solid #262626;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: border-color 0.3s ease;
+        }
+        .faq-item:hover { border-color: #DCEE6A; }
+        .faq-question {
+            padding: 24px; cursor: pointer; display: flex;
+            justify-content: space-between; align-items: center; gap: 16px;
+            font-weight: 600; font-size: 1.1rem; color: white;
+        }
+        .faq-answer {
+            max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
+            padding: 0 24px; color: #A0A0A0; line-height: 1.6;
+        }
+        .faq-item.active .faq-answer { padding-bottom: 24px; }
+        .faq-icon { font-size: 24px; transition: transform 0.3s ease; color: #666; flex-shrink: 0; }
+        .faq-item.active .faq-icon { transform: rotate(45deg); color: #DCEE6A; }
+        @media (max-width: 640px) { .faq-header h2 { font-size: 2.25rem; } }
+    </style>
 </head>
 <body class="antialiased selection:bg-pano-lime selection:text-black">
+    <script src="nav.js" data-active="home"></script>
 
-    <div class="intro-overlay">
-        <img src="hero-logo.png" alt="" class="intro-logo-wipe">
-    </div>
-<nav class="fixed w-full z-50 bg-black/90 backdrop-blur-md border-b border-[#222]">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative">
-            
-            <div class="flex-shrink-0 cursor-pointer z-20">
-                <a href="#">
-                    <img src="PanoramicaChiaro.png" alt="Panoramica" class="h-6 md:h-8 w-auto object-contain">
-                </a>
+    <!-- HERO -->
+    <header class="relative pt-40 pb-24 md:pt-48 md:pb-32 overflow-hidden">
+        <div class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[640px] h-[640px] max-w-full bg-pano-lime/10 blur-[130px] rounded-full pointer-events-none"></div>
+
+        <div class="relative max-w-4xl mx-auto px-6 text-center">
+            <div class="inline-block px-3 py-1 mb-8 border border-pano-border rounded-full text-[10px] md:text-xs text-pano-lime tracking-widest uppercase bg-pano-card/50 backdrop-blur-sm">
+                AI-enabled RevOps implementation
             </div>
 
-<div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300 absolute left-1/2 -translate-x-1/2 mt-2">
-                
-                <a href="#" class="hover:text-white transition relative">Home</a>
-                
-                <a href="marketplace.html" class="hover:text-white transition relative">Marketplace</a>
-
-<a href="insights.html" class="hover:text-white transition relative">Insights</a>
-            </div>
-
-            <div class="hidden md:flex items-center gap-6 z-20">
-                <a href="#contact" class="text-sm font-medium text-white hover:text-pano-lime transition">
-                </a>
-                
-                <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" 
-                   class="px-5 py-2.5 bg-pano-lime text-black font-bold text-sm rounded hover:bg-white transition shadow-[0_0_15px_rgba(220,238,106,0.4)] hover:shadow-[0_0_20px_rgba(220,238,106,0.6)]">
-                    Book Audit
-                </a>
-            </div>
-
-            <div class="flex items-center gap-4 md:hidden z-20">
-                <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" 
-                   class="px-4 py-2 bg-pano-lime text-black font-bold text-xs rounded hover:bg-white transition shadow-[0_0_10px_rgba(220,238,106,0.4)]">
-                    Book Audit
-                </a>
-
-                <button id="mobile-menu-btn" class="text-white focus:outline-none p-2">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-<div id="mobile-menu" class="hidden md:hidden bg-black border-b border-[#222] absolute w-full left-0 top-20">
-            <div class="flex flex-col p-6 space-y-4 text-center">
-                <a href="#" class="text-gray-300 hover:text-white text-lg py-2 border-b border-[#222]">Home</a>
-                <a href="marketplace.html" class="text-gray-300 hover:text-white text-lg py-2 border-b border-[#222]">Marketplace</a>
-                
-                <a href="insights.html" class="text-gray-300 hover:text-white text-lg py-2 border-b border-[#222]">Insights</a>
-                
-                <a href="#contact" class="text-gray-300 hover:text-white text-lg py-2">Contact</a>
-            </div>
-        </div>
-    </nav>
-<header class="relative pt-32 pb-20 overflow-hidden min-h-[85vh] flex items-center justify-center">
-        
-        <div class="absolute inset-0 bg-gradient-to-b from-black/90 via-black/20 to-black/90 z-0 pointer-events-none"></div>
-
-        <div class="relative max-w-4xl mx-auto px-4 md:px-6 text-center z-10 hero-content-delayed w-full">
-            
-            <div class="inline-block px-3 py-1 mb-6 border border-pano-border rounded-full text-[10px] md:text-xs text-pano-lime tracking-widest uppercase bg-pano-card/50 backdrop-blur-sm">
-                Revenue, by Design
-            </div>
-            
-            <h1 class="text-4xl md:text-8xl font-bold leading-tight tracking-tight mb-6 md:mb-8 text-white drop-shadow-2xl">
-Growth without the Guesswork.
+            <h1 class="text-4xl sm:text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight mb-8 text-white">
+                AI-enabled RevOps, <span class="text-pano-lime">built and shipped.</span>
             </h1>
-            
-            <p class="text-lg md:text-2xl text-pano-grey mb-8 md:mb-12 max-w-2xl mx-auto leading-relaxed font-light px-2">
-We install the operational layer that unifies your data, teams, and tech. Precise RevOps architecture designed for clarity.
+
+            <p class="text-lg md:text-2xl text-pano-grey mb-4 max-w-3xl mx-auto leading-relaxed font-light">
+                We implement the CRM foundations, integrations and AI agents that turn your revenue data into a working pipeline.
             </p>
-            
-<div class="flex flex-col md:flex-row gap-5 justify-center w-full md:w-auto px-4 md:px-0">
-                
-                <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" class="px-8 py-4 bg-pano-lime text-black font-bold rounded text-lg hover:scale-105 transition duration-300 shadow-[0_0_30px_rgba(220,238,106,0.25)] text-center">
-                    Start Here
-                </a>
+            <p class="text-sm md:text-base text-pano-grey/70 mb-10 md:mb-12">
+                HubSpot and Salesforce, for SaaS and financial services teams.
+            </p>
 
-                <a href="#services" class="px-8 py-4 border border-pano-border text-white font-medium rounded text-lg hover:bg-pano-border hover:text-pano-lime transition backdrop-blur-sm bg-black/40 text-center">
-                    The Vault
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center">
+                <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener"
+                   class="px-8 py-4 bg-pano-lime text-black font-bold rounded text-lg hover:scale-105 transition duration-300 shadow-[0_0_30px_rgba(220,238,106,0.25)] text-center">
+                    Book an audit
                 </a>
-
+                <a href="#offers"
+                   class="px-8 py-4 border border-pano-border text-white font-medium rounded text-lg hover:bg-pano-border hover:text-pano-lime transition backdrop-blur-sm bg-black/40 text-center">
+                    See what we build
+                </a>
             </div>
         </div>
     </header>
 
+    <!-- PROBLEM -->
     <section id="problem" class="py-24 border-t border-pano-border bg-[#0a0a0a]">
         <div class="max-w-7xl mx-auto px-6">
             <h2 class="text-3xl font-bold mb-12">Growth Exposes Structural Inefficiency</h2>
@@ -255,127 +133,132 @@ We install the operational layer that unifies your data, teams, and tech. Precis
         </div>
     </section>
 
-    <section id="solution" class="pt-10 pb-24 border-t border-pano-border">
-        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center gap-16">
-            <div class="md:w-1/2">
-              <h2 class="text-4xl md:text-6xl font-bold text-white">
-    <span class="text-pano-lime">Systems</span> over Services.
-</h2>
-                <p class="text-pano-grey mb-8 leading-relaxed">
-                    RevOps isn’t fixing tools.
-It’s designing how revenue actually flows.<br /> We connect every touchpoint - from first signal to renewal - into a single operating system that scales without friction.
-                </p>
-                <ul class="space-y-4">
-                    <li class="flex items-center gap-3 text-white">
-                        <span class="text-pano-lime">✓</span> GTM alignment across teams
-                    </li>
-                    <li class="flex items-center gap-3 text-white">
-                        <span class="text-pano-lime">✓</span> Revenue data you can trust
-                    </li>
-                    <li class="flex items-center gap-3 text-white">
-                        <span class="text-pano-lime">✓</span> Automation that survives growth
-                    </li>
-                </ul>
-            </div>
-<div class="md:w-1/2 mt-12 md:mt-0 flex justify-center h-[400px]"> <div class="absolute inset-0 bg-pano-lime/5 blur-[80px] rounded-full"></div>
-                
-                <div class="relative w-full max-w-md h-full border border-pano-border rounded-2xl bg-[url('aligned.png')] bg-cover bg-center shadow-xl overflow-hidden">
-                    </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="services" class="py-24 border-t border-pano-border bg-[#0a0a0a]">
+    <!-- OFFERS -->
+    <section id="offers" class="py-24 border-t border-pano-border scroll-mt-20">
         <div class="max-w-5xl mx-auto px-6">
             <div class="text-center mb-16">
-                <h2 class="text-3xl font-bold">Panoramica Services</h2>
-                <p class="text-pano-grey mt-4">Surgical interventions for your revenue system</p>
+                <h2 class="text-3xl md:text-4xl font-bold">What we implement</h2>
+                <p class="text-pano-grey mt-4 max-w-2xl mx-auto">Four layers, built in order. Each one makes the next one work.</p>
             </div>
-            <div class="space-y-6">
-                
-                <div class="group border border-pano-border rounded-xl p-8 hover:bg-white/5 transition duration-300 cursor-pointer">
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                        
-                        <div class="md:col-span-5">
-                            <span class="text-pano-lime text-xs font-mono mb-2 block">01</span>
-                            <h3 class="text-2xl text-white font-bold group-hover:text-pano-lime transition">
-                                The Revenue Diagnostic
-                            </h3>
-                        </div>
-                        
-                        <div class="md:col-span-6">
-                            <p class="text-pano-grey text-base leading-relaxed">
-                                Deep analysis of tech stack and processes. The executive blueprint for growth.
-                            </p>
-                        </div>
-                        
-                        <div class="md:col-span-1 flex justify-end">
-                            <svg class="w-6 h-6 text-pano-lime transform group-hover:translate-x-2 transition duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                        </div>
-                    </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+
+                <div class="p-8 border border-pano-border rounded-xl bg-pano-card hover:border-pano-lime/50 transition duration-300">
+                    <span class="text-pano-lime text-xs font-mono mb-3 block">01</span>
+                    <h3 class="text-2xl text-white font-bold mb-3">The Revenue Diagnostic</h3>
+                    <p class="text-pano-grey leading-relaxed mb-5">Deep analysis of your tech stack and processes. The executive blueprint for growth.</p>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex gap-3"><span class="text-pano-lime">&#10003;</span>Tech stack and process review</li>
+                        <li class="flex gap-3"><span class="text-pano-lime">&#10003;</span>Baseline metrics before anything is built</li>
+                        <li class="flex gap-3"><span class="text-pano-lime">&#10003;</span>A blueprint your leadership team can act on</li>
+                    </ul>
                 </div>
 
-                <div class="group border border-pano-border rounded-xl p-8 hover:bg-white/5 transition duration-300 cursor-pointer">
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                        
-                        <div class="md:col-span-5">
-                            <span class="text-pano-lime text-xs font-mono mb-2 block">02</span>
-                            <h3 class="text-2xl text-white font-bold group-hover:text-pano-lime transition">
-                                The Unified Backbone
-                            </h3>
-                        </div>
-                        
-                        <div class="md:col-span-6">
-                            <p class="text-pano-grey text-base leading-relaxed">
-                                Expert CRM configuration (HubSpot/Salesforce) and integrations. We make your systems talk.
-                            </p>
-                        </div>
-                        
-                        <div class="md:col-span-1 flex justify-end">
-                            <svg class="w-6 h-6 text-pano-lime transform group-hover:translate-x-2 transition duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                        </div>
-                    </div>
+                <div class="p-8 border border-pano-border rounded-xl bg-pano-card hover:border-pano-lime/50 transition duration-300">
+                    <span class="text-pano-lime text-xs font-mono mb-3 block">02</span>
+                    <h3 class="text-2xl text-white font-bold mb-3">The Unified Backbone</h3>
+                    <p class="text-pano-grey leading-relaxed mb-5">Expert CRM configuration (HubSpot or Salesforce) and integrations. We make your systems talk.</p>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex gap-3"><span class="text-pano-lime">&#10003;</span>HubSpot and Salesforce configuration</li>
+                        <li class="flex gap-3"><span class="text-pano-lime">&#10003;</span>Integrations across your stack</li>
+                        <li class="flex gap-3"><span class="text-pano-lime">&#10003;</span>Lifecycle stages, ownership and handover rules</li>
+                    </ul>
                 </div>
 
-                <div class="group border border-pano-border rounded-xl p-8 hover:bg-white/5 transition duration-300 cursor-pointer">
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                        
-                        <div class="md:col-span-5">
-                            <span class="text-pano-lime text-xs font-mono mb-2 block">03</span>
-                            <h3 class="text-2xl text-white font-bold group-hover:text-pano-lime transition">
-                                The Velocity Engine
-                            </h3>
-                        </div>
-                        
-                        <div class="md:col-span-6">
-                            <p class="text-pano-grey text-base leading-relaxed">
-                               Automated workflows that eliminate manual work and accelerate time-to-revenue.
-                            </p>
-                        </div>
-                        
-                        <div class="md:col-span-1 flex justify-end">
-                            <svg class="w-6 h-6 text-pano-lime transform group-hover:translate-x-2 transition duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                        </div>
-                    </div>
+                <div class="p-8 border border-pano-border rounded-xl bg-pano-card hover:border-pano-lime/50 transition duration-300">
+                    <span class="text-pano-lime text-xs font-mono mb-3 block">03</span>
+                    <h3 class="text-2xl text-white font-bold mb-3">The Velocity Engine</h3>
+                    <p class="text-pano-grey leading-relaxed mb-5">Automated workflows that remove manual work and shorten time-to-revenue.</p>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex gap-3"><span class="text-pano-lime">&#10003;</span>Automated workflows across your CRM and tools</li>
+                        <li class="flex gap-3"><span class="text-pano-lime">&#10003;</span>Fewer manual handovers</li>
+                        <li class="flex gap-3"><span class="text-pano-lime">&#10003;</span>Automation built to survive growth</li>
+                    </ul>
+                </div>
+
+                <div class="p-8 border border-pano-lime/40 rounded-xl bg-pano-card hover:border-pano-lime transition duration-300 shadow-[0_0_40px_rgba(220,238,106,0.08)]">
+                    <span class="text-pano-lime text-xs font-mono mb-3 block">04</span>
+                    <h3 class="text-2xl text-white font-bold mb-3">The AI Layer</h3>
+                    <p class="text-pano-grey leading-relaxed mb-5">Research agents, CRM intelligence and custom software, built on top of your CRM.</p>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex gap-3"><span class="text-pano-lime">&#10003;</span>Research agents that keep account data current</li>
+                        <li class="flex gap-3"><span class="text-pano-lime">&#10003;</span>CRM intelligence: scored, briefed lead and deal queues</li>
+                        <li class="flex gap-3"><span class="text-pano-lime">&#10003;</span>Custom software for what configuration can't solve</li>
+                    </ul>
+                    <a href="#marketplace" class="inline-flex items-center gap-2 mt-6 text-sm font-semibold text-pano-lime hover:text-white transition">See the fixed-price tools <span aria-hidden="true">&rarr;</span></a>
                 </div>
 
             </div>
-    </section>
-<section class="py-24 relative overflow-hidden flex items-center justify-center">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-pano-lime/20 blur-[120px] rounded-full pointer-events-none"></div>
-        <div class="relative z-10 text-center px-6">
-            <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
-                Ready to Scale?
-            </h2>
-            <p class="text-pano-grey text-xl mb-10 max-w-2xl mx-auto">
-                Stop guessing. Start engineering your revenue with Panoramica Solutions.
-            </p>
-            <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" class="inline-block px-10 py-5 bg-pano-lime text-black font-bold text-xl rounded hover:scale-105 transition duration-300 shadow-[0_0_40px_rgba(220,238,106,0.3)]">
-                Book Your Consultation
-            </a>
         </div>
     </section>
-<div class="faq-section">
+
+    <!-- HOW IT RUNS -->
+    <section id="how" class="py-24 border-t border-pano-border bg-[#0a0a0a] scroll-mt-20">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold">How an engagement runs</h2>
+                <p class="text-pano-grey mt-4 max-w-2xl mx-auto">Systems that run consistently, measured against where you started.</p>
+            </div>
+
+            <ol class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <li class="p-6 border border-pano-border rounded-xl bg-pano-card">
+                    <span class="text-pano-lime text-xs font-mono block mb-3">Step 1</span>
+                    <h3 class="text-xl font-bold text-white mb-2">Baseline</h3>
+                    <p class="text-sm text-pano-grey leading-relaxed">We identify the metrics that show how the business really performs, before anything is built.</p>
+                </li>
+                <li class="p-6 border border-pano-border rounded-xl bg-pano-card">
+                    <span class="text-pano-lime text-xs font-mono block mb-3">Step 2</span>
+                    <h3 class="text-xl font-bold text-white mb-2">Build</h3>
+                    <p class="text-sm text-pano-grey leading-relaxed">Foundations first: CRM configuration, integrations and workflows. Then the AI layer on top.</p>
+                </li>
+                <li class="p-6 border border-pano-border rounded-xl bg-pano-card">
+                    <span class="text-pano-lime text-xs font-mono block mb-3">Step 3</span>
+                    <h3 class="text-xl font-bold text-white mb-2">Ship</h3>
+                    <p class="text-sm text-pano-grey leading-relaxed">Systems go live with documented operating logic your team can follow without constant supervision.</p>
+                </li>
+                <li class="p-6 border border-pano-border rounded-xl bg-pano-card">
+                    <span class="text-pano-lime text-xs font-mono block mb-3">Step 4</span>
+                    <h3 class="text-xl font-bold text-white mb-2">Measure</h3>
+                    <p class="text-sm text-pano-grey leading-relaxed">We track results against the baseline. Most clients see meaningful improvements within 30 days, and more consistent execution over 8 to 12 weeks.</p>
+                </li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- MARKETPLACE -->
+    <section id="marketplace" class="py-24 border-t border-pano-border scroll-mt-20">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <div class="inline-block px-3 py-1 mb-6 border border-pano-border rounded-full text-[10px] text-pano-lime tracking-widest uppercase bg-pano-card/50">Marketplace</div>
+                <h2 class="text-3xl md:text-4xl font-bold">Or start with a fixed-price tool</h2>
+                <p class="text-pano-grey mt-4 max-w-2xl mx-auto">Engineered systems for specific revenue problems, ready to deploy without a full consulting engagement.</p>
+            </div>
+
+            <div id="product-list"></div>
+
+            <div class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p class="text-xs text-pano-grey/70 text-center sm:text-left">Running costs such as LLM usage and hosting are separate where they apply, and confirmed before launch.</p>
+                <a href="marketplace.html" class="inline-flex items-center gap-2 text-sm font-semibold text-pano-lime hover:text-white transition whitespace-nowrap">Browse the marketplace <span aria-hidden="true">&rarr;</span></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- INSIGHTS -->
+    <section id="insights" class="py-24 border-t border-pano-border bg-[#0a0a0a] scroll-mt-20">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold">Latest insights</h2>
+                    <p class="text-pano-grey mt-3">Strategies, frameworks, and technical deep-dives for revenue leaders.</p>
+                </div>
+                <a href="insights.html" class="inline-flex items-center gap-2 text-sm font-semibold text-pano-lime hover:text-white transition whitespace-nowrap">All insights <span aria-hidden="true">&rarr;</span></a>
+            </div>
+            <div id="latest-posts" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <div class="faq-section">
         <div class="faq-container">
             <div class="faq-header">
                 <h2>FAQs</h2>
@@ -386,11 +269,31 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
                 <div class="faq-question">What does Panoramica actually do? <span class="faq-icon">+</span></div>
                 <div class="faq-answer">
                     <p>
-                        We help businesses replace ad-hoc execution with systems that run consistently.
+                        We implement AI-enabled RevOps: the CRM foundations, integrations, automation and AI agents that replace ad-hoc execution with systems that run consistently.
                         <br><br>
                         Our work focuses on how customers are acquired, how work moves through the organisation, and how decisions are made. We take what is currently implicit or fragmented and turn it into clear, documented operating logic that teams can follow without constant supervision.
                         <br><br>
                         The outcome is simpler execution, fewer handovers, and better use of time and data across the business.
+                    </p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">What does AI-enabled RevOps mean in practice? <span class="faq-icon">+</span></div>
+                <div class="faq-answer">
+                    <p>
+                        AI is applied to specific jobs inside your revenue system: research agents that keep account data current, CRM intelligence that scores and briefs your lead and deal queues, and custom software where configuration alone can't solve the problem.
+                        <br><br>
+                        It sits on top of your CRM, so your team keeps working in the tools they already use.
+                    </p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Do we need clean data before adding AI? <span class="faq-icon">+</span></div>
+                <div class="faq-answer">
+                    <p>
+                        Yes, and that is why implementation starts with a baseline and the CRM foundations. AI amplifies whatever data quality already exists, so we fix the data model, lifecycle stages and handovers first, then build the AI layer on top.
                     </p>
                 </div>
             </div>
@@ -447,227 +350,161 @@ It’s designing how revenue actually flows.<br /> We connect every touchpoint -
 
         </div>
     </div>
-<footer class="border-t border-pano-border bg-black text-white pt-20 pb-10">
-    <div class="max-w-7xl mx-auto px-6">
-        
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-20 gap-8">
-            <div class="max-w-md">
-                <h3 class="text-xl font-bold text-white mb-2">Stay ahead with insights</h3>
-                <p class="text-pano-grey text-sm">Get our latest operational engineering strategies directly to your inbox.</p>
-            </div>
-            
-            <form id="newsletter-form" class="flex w-full md:w-auto gap-3">
-                <input type="email" placeholder="Enter your email" required 
-                       class="bg-[#111] border border-[#333] text-white px-4 py-3 rounded w-full md:w-80 focus:outline-none focus:border-pano-lime transition placeholder-gray-600 text-sm">
-                <button type="submit" 
-                        class="bg-[#222] hover:bg-pano-lime hover:text-black text-white px-6 py-3 rounded font-medium text-sm transition duration-300 border border-[#333] hover:border-pano-lime whitespace-nowrap">
-                    Subscribe
-                </button>
-            </form>
+
+    <!-- CTA -->
+    <section class="py-24 relative overflow-hidden flex items-center justify-center">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] max-w-full bg-pano-lime/20 blur-[120px] rounded-full pointer-events-none"></div>
+        <div class="relative z-10 text-center px-6">
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                Find out where AI fits in your revenue stack
+            </h2>
+            <p class="text-pano-grey text-xl mb-10 max-w-2xl mx-auto">
+                Book an audit and we'll look at your stack, your data and where to start.
+            </p>
+            <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener" class="inline-block px-10 py-5 bg-pano-lime text-black font-bold text-xl rounded hover:scale-105 transition duration-300 shadow-[0_0_40px_rgba(220,238,106,0.3)]">
+                Book an audit
+            </a>
         </div>
+    </section>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-4 mb-20">
+    <!-- FOOTER -->
+    <footer class="border-t border-pano-border bg-black text-white pt-20 pb-10">
+        <div class="max-w-7xl mx-auto px-6">
 
-            <div class="col-span-2 md:col-span-2">
-                <a href="#" class="block">
-                    <img src="PanoramicaChiaro.png" alt="Panoramica Solutions" class="h-8 md:h-10 w-auto opacity-90 hover:opacity-100 transition object-contain">
-                </a>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-20 gap-8">
+                <div class="max-w-md">
+                    <h3 class="text-xl font-bold text-white mb-2">Stay ahead with insights</h3>
+                    <p class="text-pano-grey text-sm">Get our latest operational engineering strategies directly to your inbox.</p>
+                </div>
+
+                <form id="newsletter-form" class="flex w-full md:w-auto gap-3">
+                    <input type="email" placeholder="Enter your email" required
+                           class="bg-[#111] border border-[#333] text-white px-4 py-3 rounded w-full md:w-80 focus:outline-none focus:border-pano-lime transition placeholder-gray-600 text-sm">
+                    <button type="submit"
+                            class="bg-[#222] hover:bg-pano-lime hover:text-black text-white px-6 py-3 rounded font-medium text-sm transition duration-300 border border-[#333] hover:border-pano-lime whitespace-nowrap">
+                        Subscribe
+                    </button>
+                </form>
             </div>
 
-            <div class="col-span-1">
-                <h4 class="font-bold mb-6 text-sm">Quick links</h4>
-                <ul class="space-y-4 text-sm text-pano-grey">
-                    <li><a href="#" class="hover:text-pano-lime transition">Home</a></li>
-                    <li><a href="#services" class="hover:text-pano-lime transition">Solutions</a></li>
-                    <li><a href="insights.html" class="hover:text-pano-lime transition">Insights</a></li>
-                    <li><a href="marketplace.html" class="hover:text-pano-lime transition">Marketplace</a></li>
-                    <li><a href="https://meetings-eu1.hubspot.com/panoramica-solutions" class="hover:text-pano-lime transition">Book call</a></li>
-                </ul>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-4 mb-20">
+
+                <div class="col-span-2 md:col-span-2">
+                    <a href="index.html" class="block">
+                        <img src="PanoramicaChiaro.png" alt="Panoramica Solutions" class="h-8 md:h-10 w-auto opacity-90 hover:opacity-100 transition object-contain">
+                    </a>
+                </div>
+
+                <div class="col-span-1">
+                    <h4 class="font-bold mb-6 text-sm">Quick links</h4>
+                    <ul class="space-y-4 text-sm text-pano-grey">
+                        <li><a href="index.html" class="hover:text-pano-lime transition">Home</a></li>
+                        <li><a href="#offers" class="hover:text-pano-lime transition">Solutions</a></li>
+                        <li><a href="insights.html" class="hover:text-pano-lime transition">Insights</a></li>
+                        <li><a href="marketplace.html" class="hover:text-pano-lime transition">Marketplace</a></li>
+                        <li><a href="https://meetings-eu1.hubspot.com/panoramica-solutions" class="hover:text-pano-lime transition">Book call</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-span-1">
+                    <h4 class="font-bold mb-6 text-sm">Legal</h4>
+                    <ul class="space-y-4 text-sm text-pano-grey">
+                        <li><a href="/privacy.html" class="hover:text-pano-lime transition">Privacy policy</a></li>
+                        <li><a href="/terms.html" class="hover:text-pano-lime transition">Terms and Conditions</a></li>
+                    </ul>
+                </div>
             </div>
 
-            <div class="col-span-1">
-                <h4 class="font-bold mb-6 text-sm">Legal</h4>
-                <ul class="space-y-4 text-sm text-pano-grey">
-                    <li><a href="/privacy.html" class="hover:text-pano-lime transition">Privacy policy</a></li>
-                    <li><a href="/terms.html" class="hover:text-pano-lime transition">Terms and Conditions</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="border-t border-[#222] pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-xs text-pano-grey">
-                <span>&copy; 2026 Panoramica Solutions. All rights reserved.</span>
-                <div class="flex gap-6">
-                    <a href="/privacy.html" class="hover:text-white transition">Privacy policy</a>
-                    <a href="/terms.html" class="hover:text-white transition">Terms and Conditions</a>
+            <div class="border-t border-[#222] pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-xs text-pano-grey">
+                    <span>&copy; 2026 Panoramica Solutions. All rights reserved.</span>
+                    <div class="flex gap-6">
+                        <a href="/privacy.html" class="hover:text-white transition">Privacy policy</a>
+                        <a href="/terms.html" class="hover:text-white transition">Terms and Conditions</a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</footer>
-    <div id="custom-cursor">
-        <img src="hero-logo.png" alt="" class="w-full h-full object-contain">
-    </div>
+    </footer>
 
+    <script src="products.js"></script>
     <script>
-        const cursor = document.getElementById('custom-cursor');
-        
-        // Controlla se siamo su un dispositivo con mouse (non touch)
-        if (window.matchMedia("(pointer: fine)").matches) {
-            
-            // Mostra il cursore custom
-            cursor.style.display = 'block';
-
-            // Aggiorna la posizione al movimento
-            document.addEventListener('mousemove', (e) => {
-                cursor.style.left = e.clientX + 'px';
-                cursor.style.top = e.clientY + 'px';
-            });
-
-            // Gestisce quando il mouse esce dalla finestra
-            document.addEventListener('mouseleave', () => {
-                cursor.style.opacity = '0';
-            });
-            document.addEventListener('mouseenter', () => {
-                cursor.style.opacity = '1';
-            });
-        }
+        PanoProducts.mountList(document.getElementById('product-list')).catch(function () {
+            document.getElementById('product-list').innerHTML = '<p class="text-center text-pano-grey">Browse the tools on the marketplace page.</p>';
+        });
     </script>
-    <div style="text-align: center; padding: 20px; font-family: sans-serif; font-size: 12px; color: #666;">
-</div>
+
     <script>
-    document.querySelectorAll('.faq-question').forEach(item => {
-        item.addEventListener('click', () => {
-            const parent = item.parentElement;
-            const answer = parent.querySelector('.faq-answer');
-            
-            document.querySelectorAll('.faq-item').forEach(child => {
-                if (child !== parent) {
-                    child.classList.remove('active');
-                    child.querySelector('.faq-answer').style.maxHeight = null;
+        fetch('posts.json')
+            .then(function (r) { return r.json(); })
+            .then(function (posts) {
+                posts.sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
+                var grid = document.getElementById('latest-posts');
+                grid.innerHTML = posts.slice(0, 3).map(function (post) {
+                    return '<a href="article.html?id=' + post.id + '" class="group block bg-[#0F0F0F] border border-pano-border rounded-xl overflow-hidden hover:border-pano-lime transition duration-300">'
+                        + '<div class="h-48 overflow-hidden bg-[#141414]">'
+                        + '<img src="' + post.image + '" alt="" onerror="this.remove()" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-80 group-hover:opacity-100">'
+                        + '</div>'
+                        + '<div class="p-6">'
+                        + '<div class="flex justify-between items-center mb-3">'
+                        + '<span class="text-xs font-bold text-pano-lime uppercase tracking-widest">' + post.category + '</span>'
+                        + '<span class="text-xs text-pano-grey">' + post.date + '</span>'
+                        + '</div>'
+                        + '<h3 class="text-xl font-bold text-white mb-3 group-hover:text-pano-lime transition">' + post.title + '</h3>'
+                        + '<p class="text-sm text-pano-grey line-clamp-3">' + post.excerpt + '</p>'
+                        + '<div class="mt-4 text-sm font-bold text-white flex items-center gap-2">Read Article <span class="group-hover:translate-x-1 transition">&rarr;</span></div>'
+                        + '</div></a>';
+                }).join('');
+            });
+    </script>
+
+    <script>
+        document.querySelectorAll('.faq-question').forEach(function (item) {
+            item.addEventListener('click', function () {
+                var parent = item.parentElement;
+                var answer = parent.querySelector('.faq-answer');
+
+                document.querySelectorAll('.faq-item').forEach(function (child) {
+                    if (child !== parent) {
+                        child.classList.remove('active');
+                        child.querySelector('.faq-answer').style.maxHeight = null;
+                    }
+                });
+
+                parent.classList.toggle('active');
+                if (parent.classList.contains('active')) {
+                    answer.style.maxHeight = answer.scrollHeight + 'px';
+                } else {
+                    answer.style.maxHeight = null;
                 }
             });
-
-            parent.classList.toggle('active');
-            if (parent.classList.contains('active')) {
-                answer.style.maxHeight = answer.scrollHeight + "px";
-            } else {
-                answer.style.maxHeight = null;
-            }
         });
-    });
-</script>
-<script>
-    // Newsletter Simulation Script
-    const form = document.getElementById('newsletter-form');
-    form.addEventListener('submit', (e) => {
-        e.preventDefault(); // Impedisce il ricaricamento della pagina
-        const btn = form.querySelector('button');
-        const input = form.querySelector('input');
-        
-        // Cambio stato visivo (Loading)
-        const originalText = btn.innerText;
-        btn.innerText = "Joining...";
-        btn.style.opacity = "0.7";
-        
-        // Simulazione ritardo di rete (1 secondo)
-        setTimeout(() => {
-            // Successo!
-            btn.innerText = "Subscribed!";
-            btn.classList.remove('bg-[#222]', 'text-white');
-            btn.classList.add('bg-pano-lime', 'text-black', 'border-pano-lime');
-            input.value = ""; // Pulisce il campo
-            
-            // Reset dopo 3 secondi
-            setTimeout(() => {
-                btn.innerText = originalText;
-                btn.classList.remove('bg-pano-lime', 'text-black', 'border-pano-lime');
-                btn.classList.add('bg-[#222]', 'text-white');
-                btn.style.opacity = "1";
-            }, 3000);
-        }, 1000);
-    });
-</script>
-<script>
-</body> 
+    </script>
+
+    <script>
+        var form = document.getElementById('newsletter-form');
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var btn = form.querySelector('button');
+            var input = form.querySelector('input');
+            var originalText = btn.innerText;
+            btn.innerText = 'Joining...';
+            btn.style.opacity = '0.7';
+
+            setTimeout(function () {
+                btn.innerText = 'Subscribed!';
+                btn.classList.remove('bg-[#222]', 'text-white');
+                btn.classList.add('bg-pano-lime', 'text-black', 'border-pano-lime');
+                input.value = '';
+
+                setTimeout(function () {
+                    btn.innerText = originalText;
+                    btn.classList.remove('bg-pano-lime', 'text-black', 'border-pano-lime');
+                    btn.classList.add('bg-[#222]', 'text-white');
+                    btn.style.opacity = '1';
+                }, 3000);
+            }, 1000);
+        });
+    </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

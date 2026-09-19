@@ -25,23 +25,7 @@
         }
     </script>
     <style>
-        body { background-color: #050505; color: white; cursor: none; }
-        @media (hover: none) { body { cursor: auto; } }
-
-        #custom-cursor {
-            position: fixed; top: 0; left: 0;
-            width: 30px; height: auto;
-            pointer-events: none; z-index: 10000;
-            transform: translate(-50%, -50%);
-            transition: transform 0.1s ease-out;
-            display: none;
-            filter: drop-shadow(0 0 5px rgba(220, 238, 106, 0.5));
-        }
-        body:has(a:hover) #custom-cursor,
-        body:has(button:hover) #custom-cursor {
-            transform: translate(-50%, -50%) scale(1.3);
-        }
-        @media (hover: none) { #custom-cursor { display: none !important; } }
+        body { background-color: #050505; color: white; }
 
         @keyframes pulse-glow {
             0%, 100% { opacity: 0.15; }
@@ -51,44 +35,13 @@
     </style>
 </head>
 <body class="antialiased selection:bg-pano-lime selection:text-black min-h-screen flex flex-col">
-
-    <!-- NAV -->
-    <nav class="fixed w-full z-50 bg-black/90 backdrop-blur-md border-b border-[#222]">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative">
-
-            <div class="flex-shrink-0 cursor-pointer z-20">
-                <a href="index.html">
-                    <img src="PanoramicaChiaro.png" alt="Panoramica" class="h-6 md:h-8 w-auto object-contain">
-                </a>
-            </div>
-
-            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300 absolute left-1/2 -translate-x-1/2 mt-2">
-                <a href="index.html" class="hover:text-white transition">Home</a>
-                <a href="marketplace.html" class="text-white transition">Marketplace</a>
-                <a href="insights.html" class="hover:text-white transition">Insights</a>
-            </div>
-
-            <div class="hidden md:flex items-center gap-6 z-20">
-                <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank"
-                   class="px-5 py-2.5 bg-pano-lime text-black font-bold text-sm rounded hover:bg-white transition shadow-[0_0_15px_rgba(220,238,106,0.4)]">
-                    Book Audit
-                </a>
-            </div>
-
-            <div class="flex items-center gap-4 md:hidden z-20">
-                <a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank"
-                   class="px-4 py-2 bg-pano-lime text-black font-bold text-xs rounded hover:bg-white transition">
-                    Book Audit
-                </a>
-            </div>
-        </div>
-    </nav>
+    <script src="nav.js" data-active="marketplace"></script>
 
     <!-- MAIN -->
-    <main class="flex-1 px-6 pt-36 pb-28 relative">
+    <main class="flex-1 px-6 pt-36 pb-28 relative overflow-x-clip">
 
         <!-- Glow -->
-        <div class="absolute top-40 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-pano-lime/10 blur-[120px] rounded-full pointer-events-none glow-pulse"></div>
+        <div class="absolute top-40 left-1/2 -translate-x-1/2 w-[500px] h-[500px] max-w-full bg-pano-lime/10 blur-[120px] rounded-full pointer-events-none glow-pulse"></div>
 
         <div class="relative z-10 max-w-2xl mx-auto text-center mb-16">
             <div class="inline-block px-3 py-1 mb-8 border border-pano-border rounded-full text-[10px] text-pano-lime tracking-widest uppercase bg-pano-card/50 backdrop-blur-sm">
@@ -104,75 +57,7 @@
             </p>
         </div>
 
-        <div class="relative z-10 max-w-5xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <a href="goldmine.html"
-               class="group relative block p-8 rounded-2xl border border-pano-border bg-pano-card hover:border-pano-lime/50 transition duration-300 shadow-[0_0_0_rgba(220,238,106,0)] hover:shadow-[0_0_40px_rgba(220,238,106,0.12)]">
-                <div class="w-14 h-14 rounded-full border border-pano-border flex items-center justify-center mb-6 group-hover:border-pano-lime/60 transition">
-                    <svg viewBox="0 0 229.39 76.81" class="w-7 h-auto" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="#DCEE6A" opacity="0.55" d="M177.49 0 203.7 76.81 0 76.81 177.49 0z"/>
-                        <path fill="#DCEE6A" d="M229.39,25.69h0C208.97,26.92,189.46,17.11,178.27,0h0s0,0,0,0c1.23,20.42-8.57,39.93-25.69,51.12h0s0,0,0,0c20.42-1.23,39.93,8.57,51.12,25.69h0s0,0,0,0c-1.23-20.42,8.57-39.93,25.69-51.12h0Z"/>
-                    </svg>
-                </div>
-                <div class="text-[10px] uppercase tracking-widest text-pano-lime font-bold mb-2">CRM Intelligence</div>
-                <h3 class="text-2xl font-bold text-white mb-3">The Goldmine</h3>
-                <p class="text-sm text-pano-grey leading-relaxed mb-6">Turns a CRM full of noise into a working lead queue, scored, briefed, and kept up to date. From &pound;6,000.</p>
-                <span class="text-sm font-semibold text-pano-lime inline-flex items-center gap-1.5">
-                    View the offer
-                    <span class="inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
-                </span>
-            </a>
-
-            <a href="the-brief.html"
-               class="group relative block p-8 rounded-2xl border border-pano-border bg-pano-card hover:border-pano-lime/50 transition duration-300 shadow-[0_0_0_rgba(220,238,106,0)] hover:shadow-[0_0_40px_rgba(220,238,106,0.12)]">
-                <div class="w-14 h-14 rounded-full border border-pano-border flex items-center justify-center mb-6 group-hover:border-pano-lime/60 transition">
-                    <svg viewBox="0 0 229.39 76.81" class="w-7 h-auto" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="#DCEE6A" opacity="0.55" d="M177.49 0 203.7 76.81 0 76.81 177.49 0z"/>
-                        <path fill="#DCEE6A" d="M229.39,25.69h0C208.97,26.92,189.46,17.11,178.27,0h0s0,0,0,0c1.23,20.42-8.57,39.93-25.69,51.12h0s0,0,0,0c20.42-1.23,39.93,8.57,51.12,25.69h0s0,0,0,0c-1.23-20.42,8.57-39.93,25.69-51.12h0Z"/>
-                    </svg>
-                </div>
-                <div class="text-[10px] uppercase tracking-widest text-pano-lime font-bold mb-2">Meeting Intelligence</div>
-                <h3 class="text-2xl font-bold text-white mb-3">The Brief</h3>
-                <p class="text-sm text-pano-grey leading-relaxed mb-6">A synthesised brief lands in Gmail 30 minutes before every meeting, pulled from your calendar, CRM, and call history. &pound;1,000.</p>
-                <span class="text-sm font-semibold text-pano-lime inline-flex items-center gap-1.5">
-                    View the offer
-                    <span class="inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
-                </span>
-            </a>
-
-            <a href="revenue-architect.html"
-               class="group relative block p-8 rounded-2xl border border-pano-border bg-pano-card hover:border-pano-lime/50 transition duration-300 shadow-[0_0_0_rgba(220,238,106,0)] hover:shadow-[0_0_40px_rgba(220,238,106,0.12)]">
-                <div class="w-14 h-14 rounded-full border border-pano-border flex items-center justify-center mb-6 group-hover:border-pano-lime/60 transition">
-                    <svg viewBox="0 0 229.39 76.81" class="w-7 h-auto" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="#DCEE6A" opacity="0.55" d="M177.49 0 203.7 76.81 0 76.81 177.49 0z"/>
-                        <path fill="#DCEE6A" d="M229.39,25.69h0C208.97,26.92,189.46,17.11,178.27,0h0s0,0,0,0c1.23,20.42-8.57,39.93-25.69,51.12h0s0,0,0,0c20.42-1.23,39.93,8.57,51.12,25.69h0s0,0,0,0c-1.23-20.42,8.57-39.93,25.69-51.12h0Z"/>
-                    </svg>
-                </div>
-                <div class="text-[10px] uppercase tracking-widest text-pano-lime font-bold mb-2">Revenue Diagnostic</div>
-                <h3 class="text-2xl font-bold text-white mb-3">Revenue Architect</h3>
-                <p class="text-sm text-pano-grey leading-relaxed mb-6">A benchmarked conversation that finds the real constraint on your growth and hands you a report built around it. &pound;149.</p>
-                <span class="text-sm font-semibold text-pano-lime inline-flex items-center gap-1.5">
-                    View the offer
-                    <span class="inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
-                </span>
-            </a>
-
-            <a href="the-studio.html"
-               class="group relative block p-8 rounded-2xl border border-pano-border bg-pano-card hover:border-pano-lime/50 transition duration-300 shadow-[0_0_0_rgba(220,238,106,0)] hover:shadow-[0_0_40px_rgba(220,238,106,0.12)]">
-                <div class="w-14 h-14 rounded-full border border-pano-border flex items-center justify-center mb-6 group-hover:border-pano-lime/60 transition">
-                    <svg viewBox="0 0 229.39 76.81" class="w-7 h-auto" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="#DCEE6A" opacity="0.55" d="M177.49 0 203.7 76.81 0 76.81 177.49 0z"/>
-                        <path fill="#DCEE6A" d="M229.39,25.69h0C208.97,26.92,189.46,17.11,178.27,0h0s0,0,0,0c1.23,20.42-8.57,39.93-25.69,51.12h0s0,0,0,0c20.42-1.23,39.93,8.57,51.12,25.69h0s0,0,0,0c-1.23-20.42,8.57-39.93,25.69-51.12h0Z"/>
-                    </svg>
-                </div>
-                <div class="text-[10px] uppercase tracking-widest text-pano-lime font-bold mb-2">Marketing Compliance Engine</div>
-                <h3 class="text-2xl font-bold text-white mb-3">The Studio</h3>
-                <p class="text-sm text-pano-grey leading-relaxed mb-6">AI-generated campaigns and landing pages, checked against FCA promotion rules before anyone signs off. &pound;7,500.</p>
-                <span class="text-sm font-semibold text-pano-lime inline-flex items-center gap-1.5">
-                    View the offer
-                    <span class="inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
-                </span>
-            </a>
-        </div>
+        <div id="products" class="relative z-10 max-w-4xl mx-auto"></div>
 
         <p class="relative z-10 text-center text-sm text-pano-grey/60 mt-14">More tools land here as they're built and proven.</p>
     </main>
@@ -188,21 +73,11 @@
         </div>
     </footer>
 
-    <div id="custom-cursor">
-        <img src="hero-logo.png" alt="" class="w-full h-full object-contain">
-    </div>
-
+    <script src="products.js"></script>
     <script>
-        const cursor = document.getElementById('custom-cursor');
-        if (window.matchMedia("(pointer: fine)").matches) {
-            cursor.style.display = 'block';
-            document.addEventListener('mousemove', (e) => {
-                cursor.style.left = e.clientX + 'px';
-                cursor.style.top = e.clientY + 'px';
-            });
-            document.addEventListener('mouseleave', () => { cursor.style.opacity = '0'; });
-            document.addEventListener('mouseenter', () => { cursor.style.opacity = '1'; });
-        }
+        PanoProducts.mount(document.getElementById('products')).catch(function () {
+            document.getElementById('products').innerHTML = '<p class="text-center text-pano-grey">The marketplace could not load. Please refresh the page.</p>';
+        });
     </script>
 </body>
 </html>
