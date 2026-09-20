@@ -12,6 +12,7 @@
 <meta property="og:description" content="Answer seven quick questions and get a practical first recommendation for the revenue workflow to fix first. No email required.">
 <meta property="og:url" content="https://www.panoramica.solutions/diagnostic.html">
 <link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/diagnostic.css">
 </head>
 <body data-nav="diagnostic">
 <!-- shell:header -->
@@ -51,13 +52,15 @@
       <p class="eyebrow">Free diagnostic</p>
       <h1>Find the first revenue workflow to fix</h1>
       <p class="lead">Answer seven quick questions and get a practical first recommendation. No email required.</p>
+      <p class="small">Your answers stay in your browser. Nothing is sent anywhere.</p>
     </div>
   </section>
 
   <section class="section section--tint" aria-labelledby="dx-h">
     <div class="wrap wrap--narrow">
       <h2 class="sr-only" id="dx-h">Diagnostic</h2>
-      <div id="dx-app">
+      <div id="dx-app"></div>
+      <noscript>
         <div class="card">
           <p>The diagnostic runs in your browser and needs JavaScript. Without it, you can still see everything we fix or talk it through with us.</p>
           <div class="btn-row">
@@ -65,7 +68,7 @@
             <a class="cta-link" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a call<span class="sr-only"> (opens in a new tab)</span></a>
           </div>
         </div>
-      </div>
+      </noscript>
     </div>
   </section>
 
@@ -110,6 +113,9 @@
   <div class="wrap footer-base"><p>&copy; 2026 Panoramica Solutions. All rights reserved.</p></div>
 </footer>
 <!-- /shell:footer -->
+<script src="assets/routes.js" defer></script>
+<script src="assets/diagnostic-logic.js" defer></script>
+<script src="assets/diagnostic.js" defer></script>
 <script src="assets/site.js" defer></script>
 </body>
 </html>

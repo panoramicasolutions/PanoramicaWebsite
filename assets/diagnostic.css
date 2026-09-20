@@ -1,0 +1,49 @@
+/* Diagnostic UI. Builds on the tokens in site.css. */
+
+.dx { background: var(--surface); border: 2px solid var(--ink); border-radius: var(--r-lg); padding: var(--sp-5); }
+@media (min-width: 720px) { .dx { padding: var(--sp-6); } }
+
+.dx-count { margin: 0 0 var(--sp-2); font-size: var(--fs-label); font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); }
+.dx-progress { height: 8px; border-radius: 999px; background: var(--tint); overflow: hidden; margin-bottom: var(--sp-5); }
+.dx-progress__bar { display: block; height: 100%; background: var(--ink); border-radius: 999px; transition: width 0.25s; }
+
+.dx fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.dx legend { display: block; width: 100%; padding: 0; margin: 0 0 var(--sp-5); font-size: clamp(1.375rem, 1.1rem + 1.2vw, 1.875rem); font-weight: 800; line-height: 1.2; letter-spacing: -0.01em; }
+.dx legend:focus { outline: none; }
+.dx legend:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+.dx-hint { margin: calc(-1 * var(--sp-3)) 0 var(--sp-4); color: var(--ink-2); font-size: var(--fs-small); }
+
+.dx-opt { position: relative; display: block; margin: 0 0 var(--sp-3); }
+.dx-opt input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.dx-opt__text {
+  display: flex; align-items: center; gap: var(--sp-3); min-height: 56px; padding: var(--sp-3) var(--sp-4);
+  border: 2px solid var(--ink-3); border-radius: var(--r-md); background: var(--surface);
+  font-weight: 600; line-height: 1.35; transition: background 0.15s, border-color 0.15s;
+}
+.dx-opt__text::before {
+  content: ""; flex: 0 0 22px; width: 22px; height: 22px; border: 2px solid var(--ink); border-radius: 50%; background: var(--surface);
+  box-shadow: inset 0 0 0 4px var(--surface);
+}
+.dx-opt--multi .dx-opt__text::before { border-radius: 5px; box-shadow: none; }
+.dx-opt:hover .dx-opt__text { border-color: var(--ink); }
+.dx-opt input:checked + .dx-opt__text { border-color: var(--ink); background: var(--lime); }
+.dx-opt input:checked + .dx-opt__text::before { background: var(--ink); }
+.dx-opt--multi input:checked + .dx-opt__text::before { content: "\2713"; display: flex; align-items: center; justify-content: center; color: var(--lime); font-size: 0.85rem; font-weight: 800; line-height: 1; }
+.dx-opt input:focus-visible + .dx-opt__text { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+.dx-error { margin: 0 0 var(--sp-3); padding: var(--sp-2) var(--sp-3); border-left: 4px solid var(--ink); background: var(--tint); font-weight: 700; }
+.dx-error[hidden] { display: none; }
+
+.dx-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-4); margin-top: var(--sp-5); }
+.dx-actions .btn[hidden] { display: none; }
+.dx-reset { margin: var(--sp-5) 0 0; }
+.dx-link { display: inline-flex; align-items: center; min-height: 44px; padding: 0; border: 0; background: none; font: inherit; font-weight: 700; color: inherit; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.22em; cursor: pointer; }
+.dx-link:hover { background: var(--lime); }
+
+.dx-result h2 { font-size: clamp(1.75rem, 1.3rem + 1.7vw, 2.5rem); margin-bottom: var(--sp-3); }
+.dx-result h2:focus { outline: none; }
+.dx-result h2:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+.dx-facts { margin: var(--sp-5) 0; display: grid; gap: var(--sp-4); }
+.dx-facts dt { font-size: var(--fs-label); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.dx-facts dd { margin: var(--sp-1) 0 0; max-width: var(--measure); }
+.dx-facts a { font-weight: 700; }
