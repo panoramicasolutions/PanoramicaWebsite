@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What we fix | Panoramica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pano-bg': '#050505',
+                        'pano-card': '#0F0F0F',
+                        'pano-lime': '#DCEE6A',
+                        'pano-grey': '#A0A0A0',
+                        'pano-border': '#262626',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #050505; color: white; }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.15; }
+            50% { opacity: 0.3; }
+        }
+        .glow-pulse { animation: pulse-glow 3s ease-in-out infinite; }
+    </style>
+</head>
+<body class="antialiased selection:bg-pano-lime selection:text-black min-h-screen flex flex-col">
+    <script src="nav.js" data-active="marketplace"></script>
+
+    <!-- MAIN -->
+    <main class="flex-1 px-6 pt-36 pb-28 relative overflow-x-clip">
+
+        <!-- Glow -->
+        <div class="absolute top-40 left-1/2 -translate-x-1/2 w-[500px] h-[500px] max-w-full bg-pano-lime/10 blur-[120px] rounded-full pointer-events-none glow-pulse"></div>
+
+        <div class="relative z-10 max-w-2xl mx-auto text-center mb-16">
+            <div class="inline-block px-3 py-1 mb-8 border border-pano-border rounded-full text-[10px] text-pano-lime tracking-widest uppercase bg-pano-card/50 backdrop-blur-sm">
+                Marketplace
+            </div>
+
+            <h1 class="text-4xl md:text-6xl font-bold leading-tight tracking-tight mb-6 text-white">
+                Revenue infrastructure,<br/>without the retainer
+            </h1>
+
+            <p class="text-lg text-pano-grey max-w-lg mx-auto leading-relaxed font-light">
+                Engineered systems for specific revenue problems, ready to deploy without a full consulting engagement.
+            </p>
+        </div>
+
+        <div id="products" class="relative z-10 max-w-4xl mx-auto"></div>
+
+        <p class="relative z-10 text-center text-sm text-pano-grey/60 mt-14">More tools land here as they're built and proven.</p>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-pano-border bg-black text-white py-8">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-pano-grey">
+            <span>&copy; 2026 Panoramica Solutions. All rights reserved.</span>
+            <div class="flex gap-6">
+                <a href="/privacy.html" class="hover:text-white transition">Privacy policy</a>
+                <a href="/terms.html" class="hover:text-white transition">Terms and Conditions</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="products.js"></script>
+    <script>
+        PanoProducts.mount(document.getElementById('products')).catch(function () {
+            document.getElementById('products').innerHTML = '<p class="text-center text-pano-grey">The marketplace could not load. Please refresh the page.</p>';
+        });
+    </script>
+</body>
+</html>
