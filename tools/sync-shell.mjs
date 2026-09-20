@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { applyShell, hasShell } from './shell.mjs';
+import { applyPosts, hasPosts } from './posts.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const check = process.argv.includes('--check');
@@ -13,7 +14,8 @@ for (const f of fs.readdirSync(root).filter((n) => n.endsWith('.html')).sort()) 
   const p = path.join(root, f);
   const html = fs.readFileSync(p, 'utf8');
   if (!hasShell(html)) continue;
-  const next = applyShell(html);
+  let next = applyShell(html);
+  if (hasPosts(next)) next = applyPosts(next);
   if (next === html) continue;
   stale++;
   if (check) console.log('stale shell:', f);

@@ -82,7 +82,7 @@ if (strict) {
       if (!/<meta\s+name="description"\s+content="[^"]{40,}"/i.test(h)) err(`${f}: missing or short meta description`);
       if (!/<link\s+rel="canonical"\s+href="https:\/\/www\.panoramica\.solutions\/[^"]*"/i.test(h)) err(`${f}: missing canonical`);
     }
-    for (const prop of ['og:title', 'og:description', 'og:type', 'og:site_name']) {
+    for (const prop of ['og:title', 'og:description', 'og:type', 'og:site_name', 'og:image']) {
       if (!new RegExp(`property="${prop}"`).test(h)) err(`${f}: missing ${prop}`);
     }
 
