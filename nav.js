@@ -4,7 +4,7 @@
   var BOOK = 'https://meetings-eu1.hubspot.com/panoramica-solutions';
   var LINKS = [
     { href: 'index.html', label: 'Home', key: 'home' },
-    { href: 'what-we-fix.html', label: 'Marketplace', key: 'marketplace' },
+    { href: 'what-we-fix.html', label: 'What we fix', key: 'marketplace' },
     { href: 'insights.html', label: 'Insights', key: 'insights' }
   ];
   var BARS = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
@@ -45,11 +45,11 @@
     +     '<a class="pn-logo" href="index.html" aria-label="Panoramica home">' + LOGO + '</a>'
     +     '<nav class="pn-links" aria-label="Primary">' + items + '</nav>'
     +     '<div class="pn-actions">'
-    +       '<a class="pn-cta" href="' + BOOK + '" target="_blank" rel="noopener">Book Audit</a>'
+    +       '<a class="pn-cta" href="' + BOOK + '" target="_blank" rel="noopener">Book a call</a>'
     +       '<button class="pn-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="pn-menu">' + BARS + '</button>'
     +     '</div>'
     +   '</div>'
-    +   '<nav class="pn-menu" id="pn-menu" aria-label="Mobile" hidden>' + items + '<a class="pn-menu-cta" href="' + BOOK + '" target="_blank" rel="noopener">Book Audit</a></nav>'
+    +   '<nav class="pn-menu" id="pn-menu" aria-label="Mobile" hidden>' + items + '<a class="pn-menu-cta" href="' + BOOK + '" target="_blank" rel="noopener">Book a call</a></nav>'
     + '</header>';
 
   var style = document.createElement('style');
