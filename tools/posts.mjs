@@ -19,8 +19,8 @@ export function renderPostCards(limit = Infinity) {
         <div class="post-card__body">
           <div class="post-card__meta"><span>${esc(p.category)}</span><span>${esc(p.date)}</span></div>
           <${h}><a class="card__link" href="article.html?id=${encodeURIComponent(p.id)}">${esc(p.title)}</a></${h}>
-          <p>${esc(p.excerpt)}</p>
-        </div>
+${Number.isFinite(limit) ? '' : `          <p>${esc(p.excerpt)}</p>
+`}        </div>
       </article>`);
   const tag = Number.isFinite(limit) ? `<!-- posts:start limit=${limit} -->` : '<!-- posts:start -->';
   return `${tag}\n${cards.join('\n')}\n      <!-- posts:end -->`;
