@@ -225,6 +225,11 @@ li { margin-bottom: var(--sp-2); }
 .section--dark .steps li { border-top-color: var(--lime); }
 @media (min-width: 900px) { .steps { grid-template-columns: repeat(3, 1fr); } }
 
+.steps--stack li { display: grid; grid-template-columns: 3rem 1fr; column-gap: var(--sp-4); }
+.steps--stack li::before { grid-row: 1 / span 2; margin-bottom: 0; }
+.steps--stack li > * { grid-column: 2; }
+@media (min-width: 900px) { .steps.steps--stack { grid-template-columns: 1fr; } }
+
 /* choice cards (problem recognition) */
 .choice { display: flex; flex-direction: column; gap: var(--sp-2); min-height: 100%; }
 .choice h3 { font-size: 1.25rem; margin: 0; }

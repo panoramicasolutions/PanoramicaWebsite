@@ -2,296 +2,92 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Goldmine</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" onload="document.documentElement.classList.add('gsap-ready')" onerror="document.documentElement.classList.remove('gsap-ready')"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<style>
-
-:root {
-  --bg:         #0A0F0D;
-  --surface:    #121712;
-  --card:       #161C16;
-  --ink:        #F2FFEB;
-  --ink-2:      #B9C7B0;
-  --ink-3:      #71806B;
-  --accent:        #EEFA63;
-  --accent-bright: #F9FF5C;
-  --accent-ink:    #0A0F0D;
-  --accent-bg:     rgba(238,250,99,0.08);
-  --accent-border: rgba(238,250,99,0.28);
-  --border:     #232C21;
-  --ff-h: 'Fraunces', serif;
-  --ff-b: 'Inter', sans-serif;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--ink); font-family: var(--ff-b); font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-
-.wrap { max-width: 900px; margin: 0 auto; padding: 0 32px; }
-
-.topbar-outer { border-bottom: 1px solid var(--border); }
-.topbar { display: flex; align-items: center; justify-content: space-between; padding: 30px 0; }
-.logo-mark { height: 34px; width: auto; }
-.logo-mark .glyph { fill: var(--ink); }
-.topbar-tag { font-size: 12px; color: var(--ink-3); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; white-space: nowrap; }
-@media (max-width: 480px) { .topbar-tag { display: none; } }
-
-/* Hero */
-.hero { position: relative; padding: 104px 0 96px; overflow: hidden; text-align: center; }
-.hero-glow { position: absolute; top: 0; left: 50%; width: 760px; height: 760px; transform: translate(-50%, -38%); background: radial-gradient(circle, var(--accent) 0%, transparent 60%); opacity: 0.18; filter: blur(10px); pointer-events: none; z-index: 0; }
-.hero-icon { position: relative; z-index: 1; display: block; width: 92px; height: auto; margin: 0 auto 26px; }
-@media (max-width: 700px) { .hero-icon { width: 68px; margin-bottom: 18px; } }
-.hero-icon .beam { fill: var(--accent); opacity: 0.5; }
-.hero-icon .star { fill: var(--accent); }
-.hero-inner { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
-.hero-eyebrow { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--ff-b); font-size: 12.5px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 22px; }
-.hero-eyebrow::before, .hero-eyebrow::after { content: ''; width: 20px; height: 2px; background: var(--accent); }
-.hero-title { font-family: var(--ff-h); font-size: clamp(38px, 5.2vw, 58px); font-weight: 600; line-height: 1.08; letter-spacing: -0.01em; margin-bottom: 24px; }
-.hero-title mark { background: none; color: var(--accent-bright); font-style: italic; }
-.hero-sub { font-size: 19px; color: var(--ink-2); max-width: 560px; margin: 0 auto 36px; }
-.hero-row { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
-.btn { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; padding: 16px 30px; border-radius: 999px; }
-.btn-solid { background: var(--accent); color: var(--accent-ink); }
-
-.section { padding: 88px 0; border-top: 1px solid var(--border); }
-.section-inner { text-align: center; }
-.section-label { font-size: 11.5px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 12px; display: block; }
-.section-title { font-family: var(--ff-h); font-size: 34px; font-weight: 600; letter-spacing: -0.005em; margin-bottom: 16px; line-height: 1.2; }
-.section-title em { font-style: italic; color: var(--accent-bright); }
-.section-sub { font-size: 16.5px; color: var(--ink-2); max-width: 480px; margin: 0 auto; }
-
-/* Flow diagram */
-.flow { display: flex; align-items: flex-start; justify-content: center; gap: 6px; margin: 56px 0 8px; flex-wrap: wrap; row-gap: 30px; }
-.flow-node { display: flex; flex-direction: column; align-items: center; gap: 13px; width: 108px; }
-.flow-icon-circle { width: 66px; height: 66px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--card); display: flex; align-items: center; justify-content: center; color: var(--ink-2); flex-shrink: 0; }
-.flow-icon-circle svg { width: 27px; height: 27px; }
-.flow-icon-circle.hub { border-color: var(--accent-border); box-shadow: 0 0 32px rgba(238,250,99,0.32); color: var(--accent); }
-.flow-icon-circle.hub svg { width: 32px; height: 32px; }
-.flow-icon-circle.output { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent); }
-.flow-label { font-size: 12.5px; color: var(--ink-2); text-align: center; line-height: 1.4; font-weight: 500; }
-.flow-line { width: 28px; height: 0; border-top: 1.5px dashed var(--accent-border); flex-shrink: 0; align-self: flex-start; margin-top: 32px; position: relative; }
-.flow-line::after { content: '\203A'; position: absolute; right: -9px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 15px; line-height: 1; }
-@media (max-width: 720px) {
-  .flow { flex-wrap: wrap; row-gap: 26px; column-gap: 18px; }
-  .flow-node { width: 84px; }
-  .flow-icon-circle { width: 58px; height: 58px; }
-  .flow-icon-circle svg { width: 24px; height: 24px; }
-  .flow-icon-circle.hub { width: 58px; height: 58px; }
-  .flow-icon-circle.hub svg { width: 28px; height: 28px; }
-  .flow-line { display: none; }
-}
-
-.chip-row { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin: 46px 0 26px; }
-.chip { font-size: 13px; color: var(--ink-2); border: 1px solid var(--border); background: var(--card); padding: 9px 16px; border-radius: 999px; white-space: nowrap; }
-.flow-spotlight { font-size: 15px; color: var(--ink-2); line-height: 1.6; max-width: 540px; margin: 0 auto; }
-.flow-spotlight b { color: var(--ink); }
-
-/* Stack / integrations row */
-.stack-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 32px; margin: 48px 0 8px; }
-.stack-item { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 108px; }
-.stack-icon-circle { width: 66px; height: 66px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--card); display: flex; align-items: center; justify-content: center; }
-.stack-item.proven .stack-icon-circle { border-color: var(--accent-border); box-shadow: 0 0 28px rgba(238,250,99,0.26); }
-.stack-icon { width: 30px; height: 30px; background-color: var(--ink-2); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; display: block; }
-.stack-item.proven .stack-icon { background-color: var(--accent); }
-.stack-label { font-size: 12.5px; color: var(--ink-2); text-align: center; }
-.stack-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
-.stack-tag.muted { color: var(--ink-3); }
-
-/* Big stat block */
-.stat-hero { background: var(--accent); border-radius: 20px; padding: 52px 36px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; margin: 48px 0 24px; }
-.stat-hero-num { font-family: var(--ff-h); font-size: clamp(34px, 4.5vw, 48px); font-weight: 700; color: var(--accent-ink); letter-spacing: -0.01em; }
-.stat-hero-label { font-size: 13.5px; color: var(--accent-ink); opacity: 0.72; margin-top: 10px; line-height: 1.45; }
-@media (max-width: 700px) { .stat-hero { grid-template-columns: repeat(2, 1fr); padding: 36px 24px; } }
-
-.estimate-box { border: 1px solid var(--border); background: var(--card); border-radius: 12px; padding: 24px 28px; font-size: 14px; color: var(--ink-2); line-height: 1.65; text-align: left; max-width: 660px; margin: 0 auto; }
-.estimate-box b { color: var(--ink); }
-.estimate-tag { font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); display: block; margin-bottom: 8px; }
-
-.stat-row-sm { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 40px; max-width: 640px; margin-left: auto; margin-right: auto; }
-.stat-box-sm { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 14px; text-align: center; }
-.stat-box-sm-num { font-family: var(--ff-h); font-size: 28px; font-weight: 600; color: var(--accent-bright); letter-spacing: -0.01em; }
-.stat-box-sm-label { font-size: 12px; color: var(--ink-3); margin-top: 8px; line-height: 1.4; }
-@media (max-width: 600px) { .stat-row-sm { grid-template-columns: 1fr; } }
-
-.fit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 40px; text-align: left; }
-.fit-col { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 26px; }
-.fit-col.no { opacity: 0.7; }
-.fit-col-title { font-family: var(--ff-h); font-size: 18px; font-weight: 600; margin-bottom: 16px; }
-.fit-col.yes .fit-col-title { color: var(--accent-bright); }
-.fit-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-.fit-list li { font-size: 14px; color: var(--ink-2); line-height: 1.5; padding-left: 20px; position: relative; }
-.fit-list li::before { content: '+'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
-.fit-col.no .fit-list li::before { content: '\2212'; color: var(--ink-3); }
-@media (max-width: 620px) { .fit-grid { grid-template-columns: 1fr; } }
-
-.pricing-wrap { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin: 44px 0 22px; text-align: left; }
-.price-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 26px; transition: transform 0.15s ease, border-color 0.15s ease; }
-.price-card.featured { background: var(--accent-bg); border-color: var(--accent-border); }
-.price-badge { font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); display: block; margin-bottom: 12px; }
-.price-card.featured .price-badge { color: var(--ink-2); }
-.price-amount { font-family: var(--ff-h); font-size: 32px; font-weight: 600; letter-spacing: -0.01em; }
-.price-sub { font-size: 12.5px; color: var(--ink-3); margin-top: 6px; }
-.price-note { font-size: 13px; color: var(--ink-3); line-height: 1.6; max-width: 580px; margin: 0 auto; }
-@media (max-width: 640px) { .pricing-wrap { grid-template-columns: 1fr; } }
-
-.cta-block { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 56px 36px; text-align: center; position: relative; overflow: hidden; }
-.cta-glow { position: absolute; top: -60%; left: 50%; width: 500px; height: 500px; transform: translateX(-50%); background: radial-gradient(circle, var(--accent) 0%, transparent 65%); opacity: 0.12; pointer-events: none; }
-.cta-title { font-family: var(--ff-h); font-size: 32px; font-weight: 600; letter-spacing: -0.005em; margin-bottom: 28px; position: relative; }
-.cta-email { font-size: 14px; color: var(--ink-3); position: relative; margin-top: 16px; }
-.cta-email a { color: var(--ink-2); }
-
-.footer { padding: 40px 0; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 12.5px; color: var(--ink-3); }
-.footer-mark { height: 16px; width: auto; opacity: 0.6; }
-.footer-mark .glyph { fill: var(--ink-3); }
-
-.reveal { opacity: 1; transform: none; }
-.gsap-ready .reveal { opacity: 0; transform: translateY(24px); }
-
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
-</style>
-<style>
-body { padding-top: 81px; }
-.backrow { display: flex; align-items: center; justify-content: space-between; padding-top: 28px; font-size: 13px; }
-.backrow a { color: var(--ink-2); text-decoration: none; font-weight: 500; }
-.backrow a:hover { color: var(--ink); }
-.backrow span { color: var(--ink-3); letter-spacing: 0.1em; text-transform: uppercase; font-size: 12px; font-weight: 500; }
-@media (max-width: 480px) { .backrow span { display: none; } }
-.hero { padding-top: 64px; }
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goldmine CRM prioritization | Panoramica</title>
+<meta name="description" content="Goldmine turns your existing CRM history, web research and call context into a prioritized working queue, with explicit rules, record checks and write-back.">
+<link rel="canonical" href="https://www.panoramica.solutions/goldmine.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Panoramica">
+<meta property="og:title" content="Goldmine CRM prioritization | Panoramica">
+<meta property="og:description" content="Goldmine turns your existing CRM history, web research and call context into a prioritized working queue, with explicit rules, record checks and write-back.">
+<meta property="og:url" content="https://www.panoramica.solutions/goldmine.html">
+<link rel="stylesheet" href="assets/site.css">
 </head>
-<body>
+<body data-nav="whatWeFix">
+<!-- shell:header -->
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap site-header__bar">
+    <a class="brand" href="index.html" aria-label="Panoramica, home"><svg viewBox="0 0 380.23 39.18" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" focusable="false"><path d="M4.89,25.4v13.04H0V.86h15.42c1.82,0,3.5.31,5.03.93,1.53.62,2.85,1.47,3.95,2.56s1.97,2.39,2.58,3.9c.62,1.51.93,3.15.93,4.92s-.31,3.43-.93,4.92c-.62,1.49-1.47,2.78-2.57,3.87-1.1,1.09-2.4,1.93-3.91,2.54-1.51.61-3.17.91-4.97.91H4.89ZM15.31,21.11c1.11,0,2.13-.2,3.07-.61.94-.41,1.75-.96,2.45-1.67s1.23-1.55,1.62-2.51c.39-.97.58-2.02.58-3.16s-.2-2.17-.59-3.15c-.4-.98-.94-1.82-1.63-2.54s-1.51-1.28-2.46-1.7-1.98-.62-3.08-.62H4.89v15.97h10.42Z"/><path d="M103.21,38.44h-4.15l-23.13-28.99v28.99h-4.89V.86h4.12l23.16,29.04V.86h4.89v37.58Z"/><path d="M112.11,19.62c0-1.82.24-3.57.72-5.25.48-1.68,1.16-3.24,2.03-4.7.88-1.46,1.93-2.78,3.15-3.97,1.23-1.19,2.58-2.21,4.06-3.05,1.48-.85,3.08-1.5,4.79-1.96,1.71-.46,3.5-.69,5.36-.69s3.65.23,5.36.69c1.71.46,3.32,1.11,4.81,1.96,1.49.85,2.86,1.87,4.09,3.05,1.23,1.19,2.29,2.51,3.16,3.97.88,1.46,1.55,3.02,2.03,4.7.48,1.68.72,3.43.72,5.25s-.24,3.55-.72,5.22c-.48,1.68-1.16,3.24-2.03,4.68-.88,1.45-1.93,2.76-3.16,3.95-1.23,1.19-2.6,2.21-4.09,3.05s-3.09,1.5-4.81,1.96c-1.71.46-3.5.69-5.36.69s-3.65-.23-5.36-.69c-1.71-.46-3.31-1.11-4.79-1.96-1.48-.85-2.84-1.87-4.06-3.05-1.23-1.19-2.28-2.51-3.15-3.95s-1.55-3.01-2.03-4.68c-.48-1.68-.72-3.42-.72-5.22ZM117,19.62c0,1.44.18,2.81.54,4.12.36,1.31.87,2.53,1.53,3.66.66,1.13,1.46,2.16,2.39,3.08.93.92,1.96,1.71,3.08,2.36,1.12.65,2.34,1.16,3.63,1.52s2.65.54,4.05.54,2.78-.18,4.08-.54,2.51-.87,3.65-1.52c1.13-.65,2.16-1.44,3.09-2.36.93-.92,1.73-1.95,2.39-3.08.66-1.13,1.17-2.35,1.53-3.66.36-1.31.54-2.68.54-4.12,0-2.16-.4-4.17-1.2-6.04-.8-1.87-1.89-3.5-3.27-4.88s-3-2.46-4.85-3.25c-1.85-.78-3.84-1.17-5.96-1.17s-4.08.39-5.93,1.17c-1.85.78-3.46,1.87-4.84,3.25-1.37,1.38-2.46,3.01-3.26,4.88-.8,1.87-1.2,3.88-1.2,6.04Z"/><path d="M176.6,24.48h-10.42v13.96h-4.89V.86h15.97c1.82,0,3.5.28,5.02.84,1.52.56,2.83,1.36,3.94,2.4,1.11,1.04,1.97,2.29,2.58,3.74.62,1.46.93,3.07.93,4.84,0,1.4-.19,2.7-.58,3.91s-.93,2.28-1.63,3.23c-.7.95-1.55,1.77-2.54,2.46s-2.1,1.22-3.32,1.59l8.9,14.56h-5.66l-8.29-13.96ZM177.16,20.2c1.11,0,2.12-.18,3.05-.54.93-.36,1.74-.87,2.43-1.52.69-.65,1.23-1.44,1.62-2.36s.58-1.94.58-3.07-.2-2.15-.59-3.08-.94-1.73-1.63-2.39c-.69-.66-1.51-1.18-2.46-1.55s-1.98-.55-3.08-.55h-10.89v15.06h10.97Z"/><path d="M221.37,30.01h-19.01l-3.56,8.43h-5.2L209.51.86h4.7l15.92,37.58h-5.2l-3.56-8.43ZM204.15,25.75h15.42l-7.54-17.85-.17-.69-.17.69-7.54,17.85Z"/><path d="M254.5,26.14l-12.88-17.22v29.51h-4.89V.86h4.23l14.29,18.87,14.29-18.87h4.28v37.58h-4.89V8.95l-12.99,17.19h-1.44Z"/><path d="M284.59.86h4.89v37.58h-4.89V.86Z"/><path d="M332.07,12.74c-.61-1.31-1.38-2.48-2.32-3.52s-2-1.93-3.18-2.67c-1.18-.74-2.45-1.3-3.83-1.69s-2.79-.58-4.24-.58c-2.1,0-4.08.39-5.93,1.17-1.85.78-3.46,1.87-4.84,3.25-1.37,1.38-2.46,3.01-3.26,4.88-.8,1.87-1.2,3.88-1.2,6.04,0,1.44.18,2.81.54,4.12s.87,2.53,1.53,3.66,1.46,2.16,2.39,3.08c.93.92,1.96,1.71,3.08,2.36,1.12.65,2.34,1.16,3.63,1.52s2.65.54,4.05.54,2.87-.19,4.24-.58c1.37-.39,2.64-.94,3.81-1.66,1.17-.72,2.22-1.6,3.16-2.64s1.71-2.22,2.32-3.52h5.08c-.68,2.01-1.66,3.8-2.94,5.37-1.28,1.58-2.75,2.9-4.42,3.98-1.67,1.08-3.47,1.9-5.4,2.47-1.93.57-3.89.86-5.86.86-1.86,0-3.65-.23-5.36-.69-1.71-.46-3.31-1.11-4.79-1.96-1.48-.85-2.84-1.87-4.06-3.05-1.23-1.19-2.28-2.51-3.15-3.95s-1.55-3.01-2.03-4.68-.72-3.42-.72-5.22.24-3.57.72-5.25,1.16-3.24,2.03-4.7c.88-1.46,1.93-2.78,3.15-3.97,1.23-1.19,2.58-2.21,4.06-3.05,1.48-.85,3.08-1.5,4.79-1.96,1.71-.46,3.5-.69,5.36-.69,1.95,0,3.9.28,5.83.84,1.93.56,3.74,1.38,5.4,2.46,1.67,1.08,3.15,2.41,4.44,3.99,1.29,1.58,2.28,3.4,2.96,5.44h-5.06Z"/><path d="M351.27,38.44h-4.84l.06-37.58h5.17l28.57,37.58h-5.78l-6.25-8.15h-16.94v8.15ZM351.96,9.15l-.64-1.41h-.06v18.9h14.12l-13.43-17.49Z"/><path d="M56.87,30.29h-16.94s-6.25,8.15-6.25,8.15h-5.78S56.48.86,56.48.86h5.17s.06,37.58.06,37.58h-4.84v-8.15ZM42.75,26.64h14.12s0-18.9,0-18.9h-.06l-.64,1.41-13.43,17.49Z"/></svg></a>
+    <nav class="nav" aria-label="Primary">
+      <a href="what-we-fix.html" aria-current="page">What we fix</a>
+      <a href="diagnostic.html">Free diagnostic</a>
+      <a href="index.html#about">About</a>
+      <a href="insights.html">Insights</a>
+    </nav>
+    <div class="site-header__actions">
+      <a class="btn btn--primary btn--sm header-cta" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a call<span class="sr-only"> (opens in a new tab)</span></a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-panel" aria-label="Open menu">
+        <svg class="icon-open" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <svg class="icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </div>
+  <nav class="nav-panel" id="nav-panel" aria-label="Mobile" hidden>
+    <div class="wrap">
+      <a href="what-we-fix.html" aria-current="page">What we fix</a>
+      <a href="diagnostic.html">Free diagnostic</a>
+      <a href="index.html#about">About</a>
+      <a href="insights.html">Insights</a>
+      <a class="btn btn--primary" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a call<span class="sr-only"> (opens in a new tab)</span></a>
+    </div>
+  </nav>
+</header>
+<!-- /shell:header -->
+<main id="main">
 
-  <script src="nav.js" data-active="marketplace"></script>
-  <div class="wrap backrow"><a href="what-we-fix.html">&larr; Marketplace</a><span>CRM Intelligence Layer</span></div>
-
-<section class="hero">
-    <div class="hero-glow"></div>
-    <svg class="hero-icon" viewBox="0 0 229.39 76.81" xmlns="http://www.w3.org/2000/svg">
-      <path class="star" d="M229.39,25.69h0C208.97,26.92,189.46,17.11,178.27,0h0s0,0,0,0c1.23,20.42-8.57,39.93-25.69,51.12h0s0,0,0,0c20.42-1.23,39.93,8.57,51.12,25.69h0s0,0,0,0c-1.23-20.42,8.57-39.93,25.69-51.12h0Z"/>
-      <polygon class="beam" points="177.49 0 203.7 76.81 0 76.81 177.49 0"/>
-    </svg>
-    <div class="hero-inner">
-      <div class="hero-eyebrow">The Goldmine</div>
-      <h1 class="hero-title">Your CRM is a <mark>goldmine</mark> you're not mining</h1>
-      <p class="hero-sub">Reads your CRM, cross-references it with web research and call transcripts, and turns it into a working queue for every lead</p>
-      <div class="hero-row">
-        <a class="btn btn-solid" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a discovery call →</a>
+  <section class="hero">
+    <div class="wrap">
+      <p class="crumb"><a class="text-link" href="what-we-fix.html">&larr; What we fix</a></p>
+      <p class="eyebrow">Goldmine</p>
+      <h1>Know who to contact next from the CRM history you already have</h1>
+      <p class="lead">Goldmine turns your existing CRM data, web research and call or note context into a prioritized working queue, with explicit rules, checks and write-back.</p>
+      <div class="price-line">
+        <span class="chip chip--lime">&pound;6,000 / &pound;8,500 / &pound;11,000</span>
+        <a class="btn btn--primary" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Check if my CRM is ready<span class="sr-only"> (opens in a new tab)</span></a>
       </div>
     </div>
   </section>
 
-  <!-- HOW IT WORKS -->
-  <section class="section reveal">
-    <div class="wrap section-inner">
-      <span class="section-label">How it works</span>
-      <h2 class="section-title">Its own queue, not just a layer on your CRM</h2>
-      <p class="section-sub">Meeting Briefs and Deal Intelligence, built into a queue reps actually use</p>
-
-      <div class="flow">
-        <div class="flow-node">
-          <div class="flow-icon-circle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="7" ry="2.5"/><path d="M5 5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V5"/><path d="M5 11v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6"/></svg>
-          </div>
-          <div class="flow-label">CRM Data</div>
-        </div>
-        <div class="flow-line"></div>
-        <div class="flow-node">
-          <div class="flow-icon-circle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><ellipse cx="12" cy="12" rx="3.5" ry="8.5"/><path d="M3.5 12h17"/></svg>
-          </div>
-          <div class="flow-label">Web Research</div>
-        </div>
-        <div class="flow-line"></div>
-        <div class="flow-node">
-          <div class="flow-icon-circle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v10H9l-4 4V5z"/><path d="M7.5 9h9M7.5 12h6"/></svg>
-          </div>
-          <div class="flow-label">Calls &amp; Notes</div>
-        </div>
-        <div class="flow-line"></div>
-        <div class="flow-node">
-          <div class="flow-icon-circle hub">
-            <svg viewBox="0 0 229.39 76.81" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" opacity="0.55" d="M177.49 0 203.7 76.81 0 76.81 177.49 0z"/><path fill="currentColor" d="M229.39,25.69h0C208.97,26.92,189.46,17.11,178.27,0h0s0,0,0,0c1.23,20.42-8.57,39.93-25.69,51.12h0s0,0,0,0c20.42-1.23,39.93,8.57,51.12,25.69h0s0,0,0,0c-1.23-20.42,8.57-39.93,25.69-51.12h0Z"/></svg>
-          </div>
-          <div class="flow-label">The Goldmine</div>
-        </div>
-        <div class="flow-line"></div>
-        <div class="flow-node">
-          <div class="flow-icon-circle output">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="7" r="1.3" fill="currentColor" stroke="none"/><path d="M9 7h11"/><circle cx="5" cy="12" r="1.3" fill="currentColor" stroke="none"/><path d="M9 12h11"/><circle cx="5" cy="17" r="1.3" fill="currentColor" stroke="none"/><path d="M9 17h11"/></svg>
-          </div>
-          <div class="flow-label">Your working queue</div>
-        </div>
-      </div>
-
-      <div class="chip-row">
-        <span class="chip">14-day hot decay</span>
-        <span class="chip">30-day cold decay</span>
-        <span class="chip">3-channel ghosting</span>
-        <span class="chip">Score floor + cap</span>
-        <span class="chip">Next contact date, from transcripts</span>
-        <span class="chip">Compliance-aware fields</span>
-      </div>
-      <p class="flow-spotlight">Outputs are checked against the record first, built in after AI once mistook a lost deal for a live investment</p>
+  <section class="section section--tint" aria-labelledby="problem-h">
+    <div class="wrap">
+      <div class="section-head"><h2 id="problem-h">The problem</h2></div>
+      <p>Stale scores, missed follow-ups and fragmented signals leave reps unsure who to contact next.</p>
+      <ul class="crosses">
+        <li>Scores that no longer reflect what has happened with a lead</li>
+        <li>Follow-ups that slip because nothing says a lead is due</li>
+        <li>Signals spread across CRM fields, notes and call transcripts</li>
+      </ul>
     </div>
   </section>
 
-  <!-- WHY THIS MATTERS -->
-  <section class="section reveal">
-    <div class="wrap section-inner">
-      <span class="section-label">Why this matters</span>
-      <h2 class="section-title">Real numbers, already sitting in the data</h2>
-      <div class="stat-hero">
-        <div><div class="stat-hero-num" data-count="58" data-suffix="%">0%</div><div class="stat-hero-label">of "hot" leads hadn't been touched in 60+ days</div></div>
-        <div><div class="stat-hero-num" data-count="1257">0</div><div class="stat-hero-label">leads still scored like new after 90+ days of no reply</div></div>
-        <div><div class="stat-hero-num" data-count="1338">0</div><div class="stat-hero-label">leads kept their ranking through 3+ unanswered calls</div></div>
-        <div><div class="stat-hero-num" data-count="2455">0</div><div class="stat-hero-label">unreplied emails carried no signal before this layer</div></div>
-      </div>
-      <div class="estimate-box">
-        <span class="estimate-tag">Modelled estimate, not a measured result</span>
-        Fixing the 58% figure alone saves an estimated <b>17+ hours</b> in one dataset, not yet measured live, so treat it as modelled, not proven
-      </div>
-    </div>
-  </section>
-
-  <!-- WHAT IT'S BUILT TO MOVE -->
-  <section class="section reveal">
-    <div class="wrap section-inner">
-      <span class="section-label">What it's built to move</span>
-      <h2 class="section-title">What better prioritisation is <em>built to move</em></h2>
-      <p class="section-sub">Illustrative ranges, not measured results, what you'll see depends on your data</p>
-      <div class="stat-row-sm">
-        <div class="stat-box-sm"><div class="stat-box-sm-num">+15%</div><div class="stat-box-sm-label">connectivity rate</div></div>
-        <div class="stat-box-sm"><div class="stat-box-sm-num">-10%</div><div class="stat-box-sm-label">deal cycle time</div></div>
-        <div class="stat-box-sm"><div class="stat-box-sm-num">+25%</div><div class="stat-box-sm-label">opportunities created</div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- WHO THIS IS FOR -->
-  <section class="section reveal">
-    <div class="wrap section-inner">
-      <span class="section-label">Who this is for</span>
-      <h2 class="section-title">Built for CRMs with real volume behind them</h2>
-      <div class="fit-grid">
-        <div class="fit-col yes">
-          <div class="fit-col-title">Good fit</div>
-          <ul class="fit-list">
-            <li>5+ person sales or BD team</li>
-            <li>10,000-20,000+ contact and deal records already in the CRM</li>
-            <li>HubSpot, proven at production scale (other CRMs on request)</li>
-            <li>A CRM your team already uses daily, just doesn't fully trust</li>
-            <li>Regulated or compliance-sensitive data welcome</li>
+  <section class="section" aria-labelledby="fits-h">
+    <div class="wrap">
+      <div class="section-head"><h2 id="fits-h">Who it fits</h2></div>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>A good fit</h3>
+          <ul class="checks">
+            <li>A sales or BD team of five or more</li>
+            <li>A CRM your team already uses daily but does not fully trust</li>
+            <li>Regulated or compliance-sensitive data is welcome</li>
           </ul>
         </div>
-        <div class="fit-col no">
-          <div class="fit-col-title">Not yet a fit</div>
-          <ul class="fit-list">
-            <li>Brand-new or near-empty CRM (that's a Pipeline Ignition Sprint, not this)</li>
-            <li>Fewer than 5 reps (this problem usually isn't painful yet at that size)</li>
+        <div class="card">
+          <h3>Not yet a fit</h3>
+          <ul class="crosses">
+            <li>A brand-new or near-empty CRM: start with <a class="text-link" href="database.html">database cleanup or creation</a></li>
+            <li>Fewer than five reps, where this problem is usually not painful yet</li>
             <li>No CRM in place at all</li>
           </ul>
         </div>
@@ -299,140 +95,151 @@ body { padding-top: 81px; }
     </div>
   </section>
 
-  <!-- STACK -->
-  <section class="section reveal">
-    <div class="wrap section-inner">
-      <span class="section-label">Works with your stack</span>
-      <h2 class="section-title">Built on HubSpot, extendable from there</h2>
-      <div class="stack-row">
-        <div class="stack-item proven">
-          <div class="stack-icon-circle"><span class="stack-icon" style="mask-image:url('https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/hubspot.svg');-webkit-mask-image:url('https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/hubspot.svg');"></span></div>
-          <div class="stack-label">HubSpot</div>
-          <div class="stack-tag">Proven</div>
-        </div>
-        <div class="stack-item">
-          <div class="stack-icon-circle"><span class="stack-icon" style="mask-image:url('https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/salesforce.svg');-webkit-mask-image:url('https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/salesforce.svg');"></span></div>
-          <div class="stack-label">Salesforce</div>
-          <div class="stack-tag muted">On request</div>
-        </div>
-        <div class="stack-item">
-          <div class="stack-icon-circle"><span class="stack-icon" style="mask-image:url('https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/google.svg');-webkit-mask-image:url('https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/google.svg');"></span></div>
-          <div class="stack-label">Google Workspace</div>
-          <div class="stack-tag muted">On request</div>
-        </div>
-        <div class="stack-item">
-          <div class="stack-icon-circle"><span style="font-family:var(--ff-h); font-size:24px; font-weight:600; color:var(--ink-2);">P</span></div>
-          <div class="stack-label">Pipedrive</div>
-          <div class="stack-tag muted">On request</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PRICING -->
-  <section class="section reveal">
-    <div class="wrap section-inner">
-      <span class="section-label">Investment</span>
-      <h2 class="section-title">Fixed scope, priced by depth</h2>
-      <div class="pricing-wrap">
-        <div class="price-card">
-          <span class="price-badge">Core</span>
-          <div class="price-amount">£6,000</div>
-          <div class="price-sub">Scoring + write-back, single pipeline</div>
-        </div>
-        <div class="price-card featured">
-          <span class="price-badge">Full Build</span>
-          <div class="price-amount">£8,500</div>
-          <div class="price-sub">+ gated AI synthesis, multi-pipeline</div>
-        </div>
-        <div class="price-card">
-          <span class="price-badge">Extended</span>
-          <div class="price-amount">£11,000</div>
-          <div class="price-sub">+ custom signals, reporting dashboard</div>
-        </div>
-      </div>
-      <div class="price-note">A custom build, not off-the-shelf software, you own it once it's live, LLM and hosting costs are separate from the build fee, confirmed before launch</div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="section reveal" style="border-top: none; padding-top: 0;">
+  <section class="section section--tint" aria-labelledby="uses-h">
     <div class="wrap">
-      <div class="cta-block">
-        <div class="cta-glow"></div>
-        <div class="cta-title">One call to see if your data's ready</div>
-        <a class="btn btn-solid" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a discovery call →</a>
-        <div class="cta-email">Or email: <a href="mailto:lorenzo@panoramica.solutions">lorenzo@panoramica.solutions</a></div>
+      <div class="section-head"><h2 id="uses-h">What the working queue uses</h2></div>
+      <div class="grid cols-3">
+        <article class="card">
+          <h3>CRM data</h3>
+          <p>The contact, company and activity records already in your CRM.</p>
+        </article>
+        <article class="card">
+          <h3>Web research</h3>
+          <p>Public information about the company and the contact.</p>
+        </article>
+        <article class="card">
+          <h3>Calls and notes</h3>
+          <p>Call transcripts and notes, including evidence of when to make the next contact.</p>
+        </article>
       </div>
     </div>
   </section>
 
-  <footer class="footer wrap">
-    <svg class="footer-mark" viewBox="0 0 380.23 39.18" xmlns="http://www.w3.org/2000/svg">
-      <path class="glyph" d="M4.89,25.4v13.04H0V.86h15.42c1.82,0,3.5.31,5.03.93,1.53.62,2.85,1.47,3.95,2.56s1.97,2.39,2.58,3.9c.62,1.51.93,3.15.93,4.92s-.31,3.43-.93,4.92c-.62,1.49-1.47,2.78-2.57,3.87-1.1,1.09-2.4,1.93-3.91,2.54-1.51.61-3.17.91-4.97.91H4.89ZM15.31,21.11c1.11,0,2.13-.2,3.07-.61.94-.41,1.75-.96,2.45-1.67s1.23-1.55,1.62-2.51c.39-.97.58-2.02.58-3.16s-.2-2.17-.59-3.15c-.4-.98-.94-1.82-1.63-2.54s-1.51-1.28-2.46-1.7-1.98-.62-3.08-.62H4.89v15.97h10.42Z"/>
-      <path class="glyph" d="M103.21,38.44h-4.15l-23.13-28.99v28.99h-4.89V.86h4.12l23.16,29.04V.86h4.89v37.58Z"/>
-      <path class="glyph" d="M112.11,19.62c0-1.82.24-3.57.72-5.25.48-1.68,1.16-3.24,2.03-4.7.88-1.46,1.93-2.78,3.15-3.97,1.23-1.19,2.58-2.21,4.06-3.05,1.48-.85,3.08-1.5,4.79-1.96,1.71-.46,3.5-.69,5.36-.69s3.65.23,5.36.69c1.71.46,3.32,1.11,4.81,1.96,1.49.85,2.86,1.87,4.09,3.05,1.23,1.19,2.29,2.51,3.16,3.97.88,1.46,1.55,3.02,2.03,4.7.48,1.68.72,3.43.72,5.25s-.24,3.55-.72,5.22c-.48,1.68-1.16,3.24-2.03,4.68-.88,1.45-1.93,2.76-3.16,3.95-1.23,1.19-2.6,2.21-4.09,3.05s-3.09,1.5-4.81,1.96c-1.71.46-3.5.69-5.36.69s-3.65-.23-5.36-.69c-1.71-.46-3.31-1.11-4.79-1.96-1.48-.85-2.84-1.87-4.06-3.05-1.23-1.19-2.28-2.51-3.15-3.95s-1.55-3.01-2.03-4.68c-.48-1.68-.72-3.42-.72-5.22ZM117,19.62c0,1.44.18,2.81.54,4.12.36,1.31.87,2.53,1.53,3.66.66,1.13,1.46,2.16,2.39,3.08.93.92,1.96,1.71,3.08,2.36,1.12.65,2.34,1.16,3.63,1.52s2.65.54,4.05.54,2.78-.18,4.08-.54,2.51-.87,3.65-1.52c1.13-.65,2.16-1.44,3.09-2.36.93-.92,1.73-1.95,2.39-3.08.66-1.13,1.17-2.35,1.53-3.66.36-1.31.54-2.68.54-4.12,0-2.16-.4-4.17-1.2-6.04-.8-1.87-1.89-3.5-3.27-4.88s-3-2.46-4.85-3.25c-1.85-.78-3.84-1.17-5.96-1.17s-4.08.39-5.93,1.17c-1.85.78-3.46,1.87-4.84,3.25-1.37,1.38-2.46,3.01-3.26,4.88-.8,1.87-1.2,3.88-1.2,6.04Z"/>
-      <path class="glyph" d="M176.6,24.48h-10.42v13.96h-4.89V.86h15.97c1.82,0,3.5.28,5.02.84,1.52.56,2.83,1.36,3.94,2.4,1.11,1.04,1.97,2.29,2.58,3.74.62,1.46.93,3.07.93,4.84,0,1.4-.19,2.7-.58,3.91s-.93,2.28-1.63,3.23c-.7.95-1.55,1.77-2.54,2.46s-2.1,1.22-3.32,1.59l8.9,14.56h-5.66l-8.29-13.96ZM177.16,20.2c1.11,0,2.12-.18,3.05-.54.93-.36,1.74-.87,2.43-1.52.69-.65,1.23-1.44,1.62-2.36s.58-1.94.58-3.07-.2-2.15-.59-3.08-.94-1.73-1.63-2.39c-.69-.66-1.51-1.18-2.46-1.55s-1.98-.55-3.08-.55h-10.89v15.06h10.97Z"/>
-      <path class="glyph" d="M221.37,30.01h-19.01l-3.56,8.43h-5.2L209.51.86h4.7l15.92,37.58h-5.2l-3.56-8.43ZM204.15,25.75h15.42l-7.54-17.85-.17-.69-.17.69-7.54,17.85Z"/>
-      <path class="glyph" d="M254.5,26.14l-12.88-17.22v29.51h-4.89V.86h4.23l14.29,18.87,14.29-18.87h4.28v37.58h-4.89V8.95l-12.99,17.19h-1.44Z"/>
-      <path class="glyph" d="M284.59.86h4.89v37.58h-4.89V.86Z"/>
-      <path class="glyph" d="M332.07,12.74c-.61-1.31-1.38-2.48-2.32-3.52s-2-1.93-3.18-2.67c-1.18-.74-2.45-1.3-3.83-1.69s-2.79-.58-4.24-.58c-2.1,0-4.08.39-5.93,1.17-1.85.78-3.46,1.87-4.84,3.25-1.37,1.38-2.46,3.01-3.26,4.88-.8,1.87-1.2,3.88-1.2,6.04,0,1.44.18,2.81.54,4.12s.87,2.53,1.53,3.66,1.46,2.16,2.39,3.08c.93.92,1.96,1.71,3.08,2.36,1.12.65,2.34,1.16,3.63,1.52s2.65.54,4.05.54,2.87-.19,4.24-.58c1.37-.39,2.64-.94,3.81-1.66,1.17-.72,2.22-1.6,3.16-2.64s1.71-2.22,2.32-3.52h5.08c-.68,2.01-1.66,3.8-2.94,5.37-1.28,1.58-2.75,2.9-4.42,3.98-1.67,1.08-3.47,1.9-5.4,2.47-1.93.57-3.89.86-5.86.86-1.86,0-3.65-.23-5.36-.69-1.71-.46-3.31-1.11-4.79-1.96-1.48-.85-2.84-1.87-4.06-3.05-1.23-1.19-2.28-2.51-3.15-3.95s-1.55-3.01-2.03-4.68-.72-3.42-.72-5.22.24-3.57.72-5.25,1.16-3.24,2.03-4.7c.88-1.46,1.93-2.78,3.15-3.97,1.23-1.19,2.58-2.21,4.06-3.05,1.48-.85,3.08-1.5,4.79-1.96,1.71-.46,3.5-.69,5.36-.69,1.95,0,3.9.28,5.83.84,1.93.56,3.74,1.38,5.4,2.46,1.67,1.08,3.15,2.41,4.44,3.99,1.29,1.58,2.28,3.4,2.96,5.44h-5.06Z"/>
-      <path class="glyph" d="M351.27,38.44h-4.84l.06-37.58h5.17l28.57,37.58h-5.78l-6.25-8.15h-16.94v8.15ZM351.96,9.15l-.64-1.41h-.06v18.9h14.12l-13.43-17.49Z"/>
-      <path class="glyph" d="M56.87,30.29h-16.94s-6.25,8.15-6.25,8.15h-5.78S56.48.86,56.48.86h5.17s.06,37.58.06,37.58h-4.84v-8.15ZM42.75,26.64h14.12s0-18.9,0-18.9h-.06l-.64,1.41-13.43,17.49Z"/>
-    </svg>
-    <div>London · panoramica.solutions</div>
-  </footer>
+  <section class="section" aria-labelledby="delivered-h">
+    <div class="wrap">
+      <div class="section-head"><h2 id="delivered-h">What gets delivered</h2></div>
+      <ul class="checks">
+        <li>A prioritized working queue built from your existing CRM data</li>
+        <li>Scoring rules written so your team can read and check them</li>
+        <li>Write-back to your CRM</li>
+      </ul>
+      <p>Example rules in the current build:</p>
+      <ul class="plain">
+        <li>14-day hot decay and 30-day cold decay</li>
+        <li>3-channel ghosting</li>
+        <li>Score floor and cap</li>
+        <li>Next contact date, from transcripts</li>
+        <li>Compliance-aware fields</li>
+      </ul>
+      <div class="note">
+        <p><strong>Record-check safeguards.</strong> Outputs are checked against the CRM record before anyone sees them. Any AI synthesis is gated by those record checks and by rules a person can read.</p>
+      </div>
+    </div>
+  </section>
 
-<script>
-if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
-  document.documentElement.classList.remove('gsap-ready');
-} else {
-gsap.registerPlugin(ScrollTrigger);
+  <section class="section section--tint" aria-labelledby="ready-h">
+    <div class="wrap">
+      <div class="section-head"><h2 id="ready-h">What your CRM needs to be ready</h2></div>
+      <ul class="checks">
+        <li>An existing CRM: HubSpot is proven at production scale, and other CRMs are available on request</li>
+        <li>Roughly 10,000 to 20,000+ contact and deal records already in it</li>
+        <li>Enough usable history on those records to score from</li>
+      </ul>
+      <p>If your data is not there yet, <a class="text-link" href="database.html">database cleanup or creation</a> comes first.</p>
+    </div>
+  </section>
 
-document.querySelectorAll('.reveal').forEach((el) => {
-  gsap.to(el, {
-    opacity: 1,
-    y: 0,
-    duration: 0.7,
-    ease: 'power2.out',
-    scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' }
-  });
-});
+  <section class="section" aria-labelledby="scope-h">
+    <div class="wrap">
+      <div class="section-head"><h2 id="scope-h">Scope and exclusions</h2></div>
+      <ul class="crosses">
+        <li>It is not a net-new database build</li>
+        <li>It does not promise connectivity, cycle-time or opportunity results, and this page shows none</li>
+        <li>Salesforce, Pipedrive and Google Workspace are available on request and scoped separately</li>
+      </ul>
+      <p>You own the build once it is live. LLM and hosting costs are separate from the build fee and confirmed before launch.</p>
+    </div>
+  </section>
 
-gsap.from('.hero-icon', { opacity: 0, scale: 0.85, duration: 1.1, ease: 'power2.out' });
-gsap.from('.hero-glow', { opacity: 0, duration: 1.6, ease: 'power2.out' });
-gsap.from('.hero-eyebrow, .hero-title, .hero-sub, .hero-row', {
-  opacity: 0, y: 16, duration: 0.6, stagger: 0.08, ease: 'power2.out', delay: 0.1
-});
+  <section class="section section--tint" aria-labelledby="price-h">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="price-h">Fixed scope, priced by depth</h2>
+        <p>Prices apply to HubSpot. Each tier includes everything in the one before it.</p>
+      </div>
+      <div class="tiers">
+        <article class="card tier">
+          <h3>Core</h3>
+          <span class="price-amount">&pound;6,000</span>
+          <p>Scoring and write-back, single pipeline.</p>
+        </article>
+        <article class="card tier card--strong">
+          <h3>Full Build</h3>
+          <span class="price-amount">&pound;8,500</span>
+          <p>Adds gated AI synthesis and multiple pipelines.</p>
+        </article>
+        <article class="card tier">
+          <h3>Extended</h3>
+          <span class="price-amount">&pound;11,000</span>
+          <p>Adds custom signals and a reporting dashboard.</p>
+        </article>
+      </div>
+    </div>
+  </section>
 
-document.querySelectorAll('[data-count]').forEach((el) => {
-  const target = parseFloat(el.getAttribute('data-count'));
-  const suffix = el.getAttribute('data-suffix') || '';
-  const counter = { val: 0 };
-  ScrollTrigger.create({
-    trigger: el,
-    start: 'top 88%',
-    once: true,
-    onEnter: () => {
-      gsap.to(counter, {
-        val: target,
-        duration: 1.4,
-        ease: 'power1.out',
-        onUpdate: () => {
-          const v = target % 1 === 0 ? Math.round(counter.val) : counter.val.toFixed(1);
-          el.textContent = (target >= 1000 ? Math.round(counter.val).toLocaleString() : v) + suffix;
-        }
-      });
-    }
-  });
-});
+  <section class="section" aria-labelledby="cta-h">
+    <div class="wrap wrap--narrow">
+      <h2 id="cta-h">One call to see if your data is ready</h2>
+      <p class="lead">We look at your CRM history together and tell you whether Goldmine fits.</p>
+      <div class="btn-row">
+        <a class="btn btn--primary" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Check if my CRM is ready<span class="sr-only"> (opens in a new tab)</span></a>
+        <a class="cta-link" href="database.html">Not ready? See database cleanup or creation</a>
+      </div>
+      <p class="small">Or email <a class="text-link" href="mailto:lorenzo@panoramica.solutions">lorenzo@panoramica.solutions</a></p>
+    </div>
+  </section>
 
-document.querySelectorAll('.price-card').forEach((card) => {
-  card.addEventListener('mouseenter', () => gsap.to(card, { y: -4, borderColor: 'var(--accent-border)', duration: 0.2, ease: 'power2.out' }));
-  card.addEventListener('mouseleave', () => gsap.to(card, { y: 0, duration: 0.2, ease: 'power2.out' }));
-});
-}
-</script>
-
+</main>
+<!-- shell:footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <a class="brand" href="index.html" aria-label="Panoramica, home"><svg viewBox="0 0 380.23 39.18" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" focusable="false"><path d="M4.89,25.4v13.04H0V.86h15.42c1.82,0,3.5.31,5.03.93,1.53.62,2.85,1.47,3.95,2.56s1.97,2.39,2.58,3.9c.62,1.51.93,3.15.93,4.92s-.31,3.43-.93,4.92c-.62,1.49-1.47,2.78-2.57,3.87-1.1,1.09-2.4,1.93-3.91,2.54-1.51.61-3.17.91-4.97.91H4.89ZM15.31,21.11c1.11,0,2.13-.2,3.07-.61.94-.41,1.75-.96,2.45-1.67s1.23-1.55,1.62-2.51c.39-.97.58-2.02.58-3.16s-.2-2.17-.59-3.15c-.4-.98-.94-1.82-1.63-2.54s-1.51-1.28-2.46-1.7-1.98-.62-3.08-.62H4.89v15.97h10.42Z"/><path d="M103.21,38.44h-4.15l-23.13-28.99v28.99h-4.89V.86h4.12l23.16,29.04V.86h4.89v37.58Z"/><path d="M112.11,19.62c0-1.82.24-3.57.72-5.25.48-1.68,1.16-3.24,2.03-4.7.88-1.46,1.93-2.78,3.15-3.97,1.23-1.19,2.58-2.21,4.06-3.05,1.48-.85,3.08-1.5,4.79-1.96,1.71-.46,3.5-.69,5.36-.69s3.65.23,5.36.69c1.71.46,3.32,1.11,4.81,1.96,1.49.85,2.86,1.87,4.09,3.05,1.23,1.19,2.29,2.51,3.16,3.97.88,1.46,1.55,3.02,2.03,4.7.48,1.68.72,3.43.72,5.25s-.24,3.55-.72,5.22c-.48,1.68-1.16,3.24-2.03,4.68-.88,1.45-1.93,2.76-3.16,3.95-1.23,1.19-2.6,2.21-4.09,3.05s-3.09,1.5-4.81,1.96c-1.71.46-3.5.69-5.36.69s-3.65-.23-5.36-.69c-1.71-.46-3.31-1.11-4.79-1.96-1.48-.85-2.84-1.87-4.06-3.05-1.23-1.19-2.28-2.51-3.15-3.95s-1.55-3.01-2.03-4.68c-.48-1.68-.72-3.42-.72-5.22ZM117,19.62c0,1.44.18,2.81.54,4.12.36,1.31.87,2.53,1.53,3.66.66,1.13,1.46,2.16,2.39,3.08.93.92,1.96,1.71,3.08,2.36,1.12.65,2.34,1.16,3.63,1.52s2.65.54,4.05.54,2.78-.18,4.08-.54,2.51-.87,3.65-1.52c1.13-.65,2.16-1.44,3.09-2.36.93-.92,1.73-1.95,2.39-3.08.66-1.13,1.17-2.35,1.53-3.66.36-1.31.54-2.68.54-4.12,0-2.16-.4-4.17-1.2-6.04-.8-1.87-1.89-3.5-3.27-4.88s-3-2.46-4.85-3.25c-1.85-.78-3.84-1.17-5.96-1.17s-4.08.39-5.93,1.17c-1.85.78-3.46,1.87-4.84,3.25-1.37,1.38-2.46,3.01-3.26,4.88-.8,1.87-1.2,3.88-1.2,6.04Z"/><path d="M176.6,24.48h-10.42v13.96h-4.89V.86h15.97c1.82,0,3.5.28,5.02.84,1.52.56,2.83,1.36,3.94,2.4,1.11,1.04,1.97,2.29,2.58,3.74.62,1.46.93,3.07.93,4.84,0,1.4-.19,2.7-.58,3.91s-.93,2.28-1.63,3.23c-.7.95-1.55,1.77-2.54,2.46s-2.1,1.22-3.32,1.59l8.9,14.56h-5.66l-8.29-13.96ZM177.16,20.2c1.11,0,2.12-.18,3.05-.54.93-.36,1.74-.87,2.43-1.52.69-.65,1.23-1.44,1.62-2.36s.58-1.94.58-3.07-.2-2.15-.59-3.08-.94-1.73-1.63-2.39c-.69-.66-1.51-1.18-2.46-1.55s-1.98-.55-3.08-.55h-10.89v15.06h10.97Z"/><path d="M221.37,30.01h-19.01l-3.56,8.43h-5.2L209.51.86h4.7l15.92,37.58h-5.2l-3.56-8.43ZM204.15,25.75h15.42l-7.54-17.85-.17-.69-.17.69-7.54,17.85Z"/><path d="M254.5,26.14l-12.88-17.22v29.51h-4.89V.86h4.23l14.29,18.87,14.29-18.87h4.28v37.58h-4.89V8.95l-12.99,17.19h-1.44Z"/><path d="M284.59.86h4.89v37.58h-4.89V.86Z"/><path d="M332.07,12.74c-.61-1.31-1.38-2.48-2.32-3.52s-2-1.93-3.18-2.67c-1.18-.74-2.45-1.3-3.83-1.69s-2.79-.58-4.24-.58c-2.1,0-4.08.39-5.93,1.17-1.85.78-3.46,1.87-4.84,3.25-1.37,1.38-2.46,3.01-3.26,4.88-.8,1.87-1.2,3.88-1.2,6.04,0,1.44.18,2.81.54,4.12s.87,2.53,1.53,3.66,1.46,2.16,2.39,3.08c.93.92,1.96,1.71,3.08,2.36,1.12.65,2.34,1.16,3.63,1.52s2.65.54,4.05.54,2.87-.19,4.24-.58c1.37-.39,2.64-.94,3.81-1.66,1.17-.72,2.22-1.6,3.16-2.64s1.71-2.22,2.32-3.52h5.08c-.68,2.01-1.66,3.8-2.94,5.37-1.28,1.58-2.75,2.9-4.42,3.98-1.67,1.08-3.47,1.9-5.4,2.47-1.93.57-3.89.86-5.86.86-1.86,0-3.65-.23-5.36-.69-1.71-.46-3.31-1.11-4.79-1.96-1.48-.85-2.84-1.87-4.06-3.05-1.23-1.19-2.28-2.51-3.15-3.95s-1.55-3.01-2.03-4.68-.72-3.42-.72-5.22.24-3.57.72-5.25,1.16-3.24,2.03-4.7c.88-1.46,1.93-2.78,3.15-3.97,1.23-1.19,2.58-2.21,4.06-3.05,1.48-.85,3.08-1.5,4.79-1.96,1.71-.46,3.5-.69,5.36-.69,1.95,0,3.9.28,5.83.84,1.93.56,3.74,1.38,5.4,2.46,1.67,1.08,3.15,2.41,4.44,3.99,1.29,1.58,2.28,3.4,2.96,5.44h-5.06Z"/><path d="M351.27,38.44h-4.84l.06-37.58h5.17l28.57,37.58h-5.78l-6.25-8.15h-16.94v8.15ZM351.96,9.15l-.64-1.41h-.06v18.9h14.12l-13.43-17.49Z"/><path d="M56.87,30.29h-16.94s-6.25,8.15-6.25,8.15h-5.78S56.48.86,56.48.86h5.17s.06,37.58.06,37.58h-4.84v-8.15ZM42.75,26.64h14.12s0-18.9,0-18.9h-.06l-.64,1.41-13.43,17.49Z"/></svg></a>
+      <p class="footer-tag">RevOps implementation for early-stage teams.</p>
+    </div>
+    <nav aria-label="What we fix">
+      <h2 class="footer-h">What we fix</h2>
+      <ul class="footer-list">
+          <li><a href="email-outreach.html">Email outreach infrastructure</a></li>
+          <li><a href="goldmine.html">Goldmine</a></li>
+          <li><a href="database.html">Database cleanup or creation</a></li>
+          <li><a href="the-brief.html">The Brief</a></li>
+          <li><a href="revenue-architect.html">Revenue Architect</a></li>
+          <li><a href="the-studio.html">The Studio</a></li>
+      </ul>
+    </nav>
+    <nav aria-label="Company">
+      <h2 class="footer-h">Company</h2>
+      <ul class="footer-list">
+          <li><a href="diagnostic.html">Free diagnostic</a></li>
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="insights.html">Insights</a></li>
+          <li><a href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a call<span class="sr-only"> (opens in a new tab)</span></a></li>
+          <li><a href="https://www.linkedin.com/in/lorenzo-liviero/" target="_blank" rel="noopener">Lorenzo on LinkedIn<span class="sr-only"> (opens in a new tab)</span></a></li>
+          <li><a href="mailto:lorenzo@panoramica.solutions">Email us</a></li>
+      </ul>
+    </nav>
+    <nav aria-label="Legal">
+      <h2 class="footer-h">Legal</h2>
+      <ul class="footer-list">
+          <li><a href="privacy.html">Privacy policy</a></li>
+          <li><a href="terms.html">Terms and Conditions</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="wrap footer-base"><p>&copy; 2026 Panoramica Solutions. All rights reserved.</p></div>
+</footer>
+<!-- /shell:footer -->
+<script src="assets/site.js" defer></script>
 </body>
 </html>

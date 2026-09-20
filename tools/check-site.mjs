@@ -22,7 +22,7 @@ const read = (f) => fs.readFileSync(path.join(root, f), 'utf8');
 const pages = Object.fromEntries(htmlFiles.map((f) => [f, read(f)]));
 
 const stripBlocks = (h) => h.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<!--[\s\S]*?-->/g, '');
-const visibleText = (h) => stripBlocks(h).replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+const visibleText = (h) => stripBlocks(h).replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&pound;/g, '£').replace(/&rarr;/g, '→').replace(/&larr;/g, '←').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
 const idsOf = (h) => new Set([...h.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
 
 // Redirect stubs are exempt from page rules.
@@ -113,6 +113,24 @@ if (strict) {
     if (/\bMarketplace\b/.test(text) && !['insights.html', 'article.html', 'privacy.html', 'terms.html'].includes(f)) {
       err(`${f}: customer-facing "Marketplace" wording`);
     }
+  }
+}
+
+// ---------- F. price consistency (strict) ----------
+if (strict) {
+  const text = (f) => visibleText(pages[f] ?? '').toLowerCase();
+  for (const [key, offer] of Object.entries(routes.offers)) {
+    const file = routes.pages[offer.page];
+    const price = offer.price.toLowerCase();
+    for (const f of [file, 'what-we-fix.html']) {
+      if (!text(f).includes(price)) err(`price: "${offer.price}" (${key}) missing from ${f}`);
+    }
+  }
+  for (const f of ['email-outreach.html', 'database.html']) {
+    if (text(f).includes('£')) err(`price: ${f} is custom scope but shows a figure`);
+  }
+  for (const f of ['email-outreach.html', 'database.html']) {
+    if (!text(f).includes('custom scope')) err(`price: ${f} does not say Custom scope`);
   }
 }
 
