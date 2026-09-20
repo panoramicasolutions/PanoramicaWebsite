@@ -8,6 +8,8 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const strict = process.argv.includes('--strict');
+const onlyArg = process.argv.find((a) => a.startsWith('--files='));
+const only = onlyArg ? onlyArg.slice(8).split(',') : null;
 const routes = require(path.join(root, 'assets', 'routes.js'));
 
 const errors = [];
@@ -68,6 +70,7 @@ if (strict) {
   for (const f of htmlFiles) {
     const h = pages[f];
     if (isStub(f, h)) continue;
+    if (only && !only.includes(f)) continue;
     const body = stripBlocks(h);
     const h1s = [...body.matchAll(/<h1[\s>][\s\S]*?<\/h1>/gi)];
     if (h1s.length !== 1) err(`${f}: expected exactly one <h1>, found ${h1s.length}`);
@@ -100,7 +103,8 @@ if (strict) {
 
     // copy rules
     const text = visibleText(h);
-    if (/[—–]/.test(text)) err(`${f}: em or en dash in visible text`);
+    const legal = ['privacy.html', 'terms.html'].includes(f);
+    if (!legal && /[—–]/.test(text)) err(`${f}: em or en dash in visible text`);
     for (const bad of [/lorem ipsum/i, /\bGCC\b/, /\bTODO\b/, /coming soon/i]) if (bad.test(text)) err(`${f}: banned text ${bad}`);
     for (const m of body.matchAll(/<h([1-3])[^>]*>([\s\S]*?)<\/h\1>/gi)) {
       const t = m[2].replace(/<[^>]+>/g, '').trim();

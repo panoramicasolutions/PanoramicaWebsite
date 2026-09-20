@@ -30,5 +30,15 @@
     email: 'mailto:lorenzo@panoramica.solutions'
   };
 
-  return { site: site, pages: pages, external: external };
+  // Offer names, price labels and CTA labels. Pages and the diagnostic read from here.
+  var offers = {
+    outreach: { name: 'Email outreach infrastructure', page: 'outreach', price: 'Custom scope', cta: 'Scope my outreach infrastructure' },
+    database: { name: 'Database cleanup or creation', page: 'database', price: 'Custom scope', cta: 'Scope my database' },
+    goldmine: { name: 'Goldmine', page: 'goldmine', price: '£6,000 / £8,500 / £11,000', cta: 'See Goldmine' },
+    brief: { name: 'The Brief', page: 'brief', price: '£1,000 fixed setup', cta: 'See The Brief' },
+    architect: { name: 'Revenue Architect', page: 'architect', price: '£149 self-serve', cta: 'Run the diagnostic' },
+    studio: { name: 'The Studio', page: 'studio', price: '£7,500 fixed build', cta: 'See The Studio' }
+  };
+
+  return { site: site, pages: pages, external: external, offers: offers };
 });
