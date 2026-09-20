@@ -116,6 +116,16 @@ if (strict) {
   }
 }
 
+// ---------- G. samples must be labelled (strict) ----------
+if (strict) {
+  for (const f of htmlFiles) {
+    const h = pages[f];
+    const samples = (h.match(/class="example"/g) || []).length;
+    const labels = (h.match(/<p class="example__label">Example - not client data\.<\/p>/g) || []).length;
+    if (samples !== labels) err(`${f}: ${samples} sample block(s) but ${labels} correct label(s)`);
+  }
+}
+
 // ---------- F. price consistency (strict) ----------
 if (strict) {
   const text = (f) => visibleText(pages[f] ?? '').toLowerCase();

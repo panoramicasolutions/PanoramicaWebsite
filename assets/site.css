@@ -374,6 +374,14 @@ li { margin-bottom: var(--sp-2); }
 .link-list li { margin: 0; }
 .link-list a { display: inline-flex; align-items: center; min-height: 44px; }
 
+.testimonials { display: grid; gap: var(--sp-5); margin-top: var(--sp-6); }
+@media (min-width: 800px) { .testimonials { grid-template-columns: repeat(2, 1fr); } }
+.testimonial { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-5); }
+.testimonial blockquote { margin: 0 0 var(--sp-4); }
+.testimonial blockquote p { font-size: 1.25rem; line-height: 1.5; font-weight: 600; }
+.testimonial figcaption { display: flex; align-items: center; gap: var(--sp-3); color: var(--ink-2); font-size: var(--fs-small); }
+.testimonial img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+
 /* ---------- motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {
