@@ -20,29 +20,26 @@ const ratio = (a, b) => {
 
 // [foreground, background, minimum ratio, use]
 const pairs = [
-  ['ink', 'bg', 4.5, 'body text on page'],
-  ['ink', 'surface', 4.5, 'body text on cards'],
-  ['ink', 'tint', 4.5, 'body text on tinted sections'],
+  ['ink', 'bg', 4.5, 'headings and body on page'],
+  ['ink', 'surface', 4.5, 'text on cards and tinted sections'],
+  ['ink', 'surface-2', 4.5, 'text on raised cards and options'],
   ['ink-2', 'bg', 4.5, 'secondary text on page'],
   ['ink-2', 'surface', 4.5, 'secondary text on cards'],
-  ['ink-2', 'tint', 4.5, 'secondary text on tint'],
+  ['ink-2', 'surface-2', 4.5, 'secondary text on raised cards'],
   ['ink-3', 'bg', 4.5, 'muted text on page'],
   ['ink-3', 'surface', 4.5, 'muted text on cards'],
-  ['ink-3', 'tint', 4.5, 'muted text on tint'],
-  ['ink', 'lime', 4.5, 'button label on lime'],
-  ['ink', 'lime-hover', 4.5, 'button label on lime hover'],
-  ['bg', 'ink', 4.5, 'skip link and example label'],
-  ['on-dark', 'dark', 4.5, 'body text on dark section'],
-  ['on-dark-2', 'dark', 4.5, 'secondary text on dark section'],
-  ['on-dark', 'dark-2', 4.5, 'text on dark cards'],
-  ['on-dark-2', 'dark-2', 4.5, 'secondary text on dark cards'],
-  ['lime', 'dark', 4.5, 'lime text on dark section'],
-  ['lime', 'dark-2', 4.5, 'lime text on dark cards'],
+  ['ink-3', 'surface-2', 4.5, 'muted text on raised cards'],
+  ['lime', 'bg', 4.5, 'lime text on page'],
+  ['lime', 'surface', 4.5, 'lime text on cards'],
+  ['lime', 'surface-2', 4.5, 'lime text on raised cards'],
+  ['lime', 'lime-wash', 4.5, 'lime text on selected options and chips'],
+  ['bg', 'lime', 4.5, 'button label on lime'],
+  ['bg', 'lime-hover', 4.5, 'button label on lime hover'],
+  ['wordmark', 'bg', 4.5, 'wordmark on page'],
   ['focus', 'bg', 3, 'focus ring on page'],
-  ['focus', 'tint', 3, 'focus ring on tint'],
-  ['lime', 'dark', 3, 'focus ring on dark section'],
-  ['ink-3', 'bg', 3, 'form control borders on page'],
-  ['ink', 'bg', 3, 'button border on page']
+  ['focus', 'surface', 3, 'focus ring on cards'],
+  ['line-strong', 'bg', 3, 'control and button borders on page'],
+  ['line-strong', 'surface-2', 3, 'option borders on raised cards']
 ];
 
 let failed = 0;

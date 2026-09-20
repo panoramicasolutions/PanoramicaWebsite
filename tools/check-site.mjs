@@ -56,7 +56,7 @@ try {
   for (const r of v.rewrites ?? []) {
     if (!fs.existsSync(path.join(root, r.destination.replace(/^\//, '')))) warn(`vercel.json: rewrite target missing ${r.destination}`);
   }
-  if (!(v.redirects ?? []).some((r) => r.source === '/marketplace.html')) err('vercel.json: /marketplace.html redirect missing');
+  if (!(v.redirects ?? []).some((r) => r.source === '/what-we-fix.html')) err('vercel.json: /what-we-fix.html redirect missing');
 } catch (e) { err('vercel.json invalid: ' + e.message); }
 
 // ---------- C. registry ----------
@@ -110,9 +110,6 @@ if (strict) {
       const t = m[2].replace(/<[^>]+>/g, '').trim();
       if (t.endsWith('.') && !t.endsWith('...')) err(`${f}: heading ends with a full stop: "${t}"`);
     }
-    if (/\bMarketplace\b/.test(text) && !['insights.html', 'article.html', 'privacy.html', 'terms.html'].includes(f)) {
-      err(`${f}: customer-facing "Marketplace" wording`);
-    }
   }
 }
 
@@ -132,7 +129,7 @@ if (strict) {
   for (const [key, offer] of Object.entries(routes.offers)) {
     const file = routes.pages[offer.page];
     const price = offer.price.toLowerCase();
-    for (const f of [file, 'what-we-fix.html']) {
+    for (const f of [file, 'marketplace.html']) {
       if (!text(f).includes(price)) err(`price: "${offer.price}" (${key}) missing from ${f}`);
     }
   }

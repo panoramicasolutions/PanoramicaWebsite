@@ -166,7 +166,7 @@
       cta.setAttribute('target', '_blank'); cta.setAttribute('rel', 'noopener');
       cta.appendChild(el('span', { class: 'sr-only', text: ' (opens in a new tab)' }));
     }
-    var all = el('a', { class: 'cta-link', href: R.pages.whatWeFix, text: 'See all offers' });
+    var all = el('a', { class: 'cta-link', href: R.pages.marketplace, text: 'See all offers' });
 
     var change = el('button', { type: 'button', class: 'dx-link', text: 'Change my answers' });
     var startOver = el('button', { type: 'button', class: 'dx-link', text: 'Start over' });

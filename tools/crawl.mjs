@@ -15,11 +15,22 @@ const routes = [...pages, ...posts.map((p) => `article.html?id=${p.id}`)];
 const strip = (h) => h.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<!--[\s\S]*?-->/g, '');
 const text = (h) => h.replace(/<[^>]+>/g, ' ').replace(/&pound;/g, '£').replace(/&rarr;|&larr;/g, '').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
 
+// Redirects declared in vercel.json are expected on the live site: source -> destination with a 301.
+const vercel = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
+const redirects = new Map((vercel.redirects ?? []).map((r) => [r.source.replace(/^\//, ''), r.destination.replace(/^\//, '')]));
+
 let failures = 0;
 const linkSet = new Set();
 console.log('route'.padEnd(46), 'status', 'h1'.padEnd(3), 'title / primary CTA');
 for (const r of routes) {
   const res = await fetch(`${base}/${r}`, { redirect: 'manual' });
+  if (redirects.has(r) && res.status === 301) {
+    const to = (res.headers.get('location') || '').replace(/^https?:\/\/[^/]+\//, '').replace(/^\//, '');
+    const good = to === redirects.get(r);
+    if (!good) failures++;
+    console.log(r.padEnd(46), String(res.status).padEnd(6), '-   ', (good ? 'redirects to ' : 'FAIL redirects to ') + to);
+    continue;
+  }
   const html = await res.text();
   const body = strip(html);
   const h1s = [...body.matchAll(/<h1[\s>][\s\S]*?<\/h1>/gi)].length;
@@ -41,7 +52,8 @@ for (const r of routes) {
 console.log(`\nInternal links: ${linkSet.size} unique`);
 for (const l of [...linkSet].sort()) {
   const res = await fetch(`${base}/${l}`, { redirect: 'manual' });
+  if (res.status === 301 && redirects.has(l)) continue;
   if (res.status !== 200) { failures++; console.log('  FAIL', res.status, l); }
 }
-console.log(failures ? `\nCRAWL FAILED (${failures})` : '\nCRAWL PASSED: every route and internal link returns 200');
+console.log(failures ? `\nCRAWL FAILED (${failures})` : '\nCRAWL PASSED: every route and internal link returns 200 or its declared redirect');
 process.exit(failures ? 1 : 0);

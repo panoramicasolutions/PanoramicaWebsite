@@ -8,7 +8,7 @@
 
   var pages = {
     home: 'index.html',
-    whatWeFix: 'what-we-fix.html',
+    marketplace: 'marketplace.html',
     outreach: 'email-outreach.html',
     goldmine: 'goldmine.html',
     database: 'database.html',
