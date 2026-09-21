@@ -1,0 +1,26 @@
+# Panoramica Solutions
+
+> RevOps implementation for early-stage teams. AI-enabled systems built inside your stack, each with a defined scope and a clear price.
+
+Panoramica Solutions is run by Lorenzo Liviero, a RevOps operator. Client names stay private.
+
+## Services
+
+- [Email outreach infrastructure](https://www.panoramica.solutions/email-outreach.html): A model writes each email from what your database knows about the contact, and sends it from domains and accounts you own. Custom scope.
+- [Data foundation](https://www.panoramica.solutions/database.html): We define who you sell to, then source, enrich, verify, deduplicate and score the companies and contacts, and load them into your CRM. Custom scope.
+- [Goldmine](https://www.panoramica.solutions/goldmine.html): Goldmine cross-references your CRM history, calls, emails and notes on every lead, adds outside research, and delivers a ranked queue every day. £6,000 / £8,500 / £11,000.
+- [The Brief](https://www.panoramica.solutions/the-brief.html): A brief lands in Gmail before every external meeting: the facts, a behavioral profile of the person, and advice for the call. £1,000 fixed setup.
+- [Revenue Architect](https://www.panoramica.solutions/revenue-architect.html): A guided diagnostic that argues with your first answer, then hands you an action plan. £149 self-serve.
+- [Marketing Studio](https://www.panoramica.solutions/the-studio.html): Social images, carousels, PDFs, one-pagers, landing pages and emails, planned as a campaign and held for your approval. £7,500 fixed build.
+
+## Company
+
+- [Home](https://www.panoramica.solutions/): What Panoramica does and who it is for.
+- [Free diagnostic](https://www.panoramica.solutions/diagnostic.html): Seven questions and a practical first recommendation. No email required.
+- [Insights](https://www.panoramica.solutions/insights.html): Articles on RevOps, CRM intelligence and pipeline.
+- [Privacy](https://www.panoramica.solutions/privacy.html)
+- [Terms](https://www.panoramica.solutions/terms.html)
+
+## Contact
+
+- [Book a call](https://meetings-eu1.hubspot.com/panoramica-solutions)

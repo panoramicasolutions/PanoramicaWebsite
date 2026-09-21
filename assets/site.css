@@ -539,6 +539,16 @@ strong { color: var(--ink); font-weight: 600; }
 .tile h3 { margin: 0 0 var(--sp-1); font-size: 1.0625rem; letter-spacing: -0.01em; }
 .tile p { margin: 0; font-size: var(--fs-small); color: var(--ink-3); }
 
+/* Proof from the builds: four facts, each linking to its service. */
+.built-facts { display: grid; gap: var(--sp-4); margin: 0 0 var(--sp-6); padding: 0; list-style: none; max-width: none; }
+@media (min-width: 560px) { .built-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1000px) { .built-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.bfact { display: flex; flex-direction: column; gap: var(--sp-2); margin: 0; }
+.bfact__num { font-size: clamp(3rem, 2.2rem + 3vw, 4.25rem); font-weight: 600; letter-spacing: -0.05em; line-height: 1; color: var(--lime); }
+.bfact__label { color: var(--ink); font-weight: 500; }
+.bfact__src { margin-top: auto; padding-top: var(--sp-2); font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); }
+.bfact:hover .bfact__src { color: var(--lime); }
+
 /* One clear door to the Services page. */
 .panel {
   position: relative; isolation: isolate; overflow: hidden; display: grid; gap: var(--sp-5); align-items: center;

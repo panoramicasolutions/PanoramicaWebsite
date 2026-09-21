@@ -4,6 +4,7 @@
 //   2. how it works (a direct visual explanation that is specific to the offer)
 //   3. what we build (a build map: inputs, engine, outputs, controls; then what we need and what is excluded)
 //   4. does it fit (a short tick-list check with a verdict, plus price and how it starts)
+//   then a short FAQ and Service and FAQPage structured data
 // Pages carry marker comments and tools/sync-shell.mjs stamps the generated HTML between them.
 //   <!-- offer-page:brief -->...<!-- /offer-page:brief -->   the whole body of an offer page
 //   <!-- cards:start -->...<!-- cards:end -->                the compact grid on the services page
@@ -492,6 +493,54 @@ export const VISUALS = {
   }
 };
 
+// Questions asked before booking. Every answer restates what the offer page already says.
+const FAQ = {
+  outreach: [
+    ['Where do the emails send from?', 'From domains and accounts you own. Your outreach does not run through a shared tool.'],
+    ['Does a person check the emails?', 'Yes. Rules check each draft for length, banned phrases and required details. A person approves before the first send.'],
+    ['Do you guarantee replies or meetings?', 'No. Guaranteed replies, meetings or revenue are not included.'],
+    ['What if my contact data is thin?', 'Personalization comes from the database, so thin data means thin emails. When a field is unknown, the email leaves it out instead of guessing. If the data is thin, start with the data foundation.']
+  ],
+  database: [
+    ['Do you build a list from scratch or clean mine?', 'Either. You can start from nothing or from the data you already hold. We define the ideal customer with you, then source, enrich, verify, deduplicate and score.'],
+    ['What happens to data you cannot confirm?', 'A value is recorded only when sources agree. Otherwise it stays blank, and anything that needs a person goes on an exception report.'],
+    ['How is it priced?', 'Custom scope. Record volume, source quality and enrichment depth set the price, and you get it before any build.'],
+    ['Do you cover the whole market?', 'No. Exhaustive market coverage is not promised, and legal or compliance advice is not included.']
+  ],
+  goldmine: [
+    ['Which CRM does it work with?', 'Pricing applies to HubSpot. Other CRMs are scoped separately.'],
+    ['What do the three depths change?', 'Core is scoring and write-back on a single pipeline, at £6,000. Full Build adds AI synthesis behind record checks and multiple pipelines, at £8,500. Extended adds custom signals and a reporting dashboard, at £11,000.'],
+    ['How do I know why a lead ranks where it does?', 'Every rank shows the signals behind it, and the scoring rules are written so your team can read and check them.'],
+    ['How many records do I need?', 'Roughly 10,000 or more contact and deal records, in a CRM your team uses daily. A new or nearly empty CRM is not a fit yet.']
+  ],
+  brief: [
+    ['Which tools does it need?', 'Google Workspace (Calendar and Gmail) is required. HubSpot and Aircall are proven. Other CRMs are scoped on request.'],
+    ['Who receives the brief?', 'Your rep only. Nothing is sent to the contact.'],
+    ['What if there is little data on a contact?', 'The brief is shorter. No profile is invented.'],
+    ['Are there running costs?', 'LLM running costs are not part of the setup fee. We confirm them before launch.']
+  ],
+  architect: [
+    ['Is it available yet?', 'Not yet. Revenue Architect is live soon.'],
+    ['How long does it take?', 'About 20 minutes for the conversation, across six phases. The report arrives by email.'],
+    ['What do I need to bring?', 'Real numbers to hand: revenue, team size and pipeline.'],
+    ['Is this a bespoke build?', 'No. It is a self-serve diagnostic that ends in a benchmarked report. A bespoke build and a generic playbook are not included.']
+  ],
+  studio: [
+    ['Can it send the campaigns?', 'No. Sending stays in your email tool. The studio produces, checks and schedules the assets.'],
+    ['Does anything publish without approval?', 'No. Your rules run first, and a person approves before anything is published.'],
+    ['Can it use my own designs?', 'Yes. Upload an image of a design you like and the studio turns it into a reusable template.'],
+    ['Does it work for regulated firms?', 'Yes. The rules layer has been proven on FCA COBS 4, and your own brand or compliance rules are set up during the build.']
+  ]
+};
+
+// Numeric prices for structured data. An offer with no entry is Custom scope and states no price.
+const LD_PRICE = {
+  goldmine: { low: 6000, high: 11000 },
+  brief: { fixed: 1000 },
+  architect: { fixed: 149 },
+  studio: { fixed: 7500 }
+};
+
 // The primary action on an offer page: a demo call. An offer that is not live yet shows "Live soon" instead.
 const isSoon = (id) => routes.offers[id].live === false;
 const actionLink = (id, cls) => (isSoon(id)
@@ -667,6 +716,48 @@ function renderFit(id) {
   </section>`;
 }
 
+function renderFaq(id) {
+  return `<section class="section section--tint" id="faq" aria-labelledby="faq-h">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Questions</p>
+        <h2 id="faq-h">Common questions</h2>
+      </div>
+      <div class="faq">
+        ${FAQ[id].map(([q, a]) => `<details>
+          <summary>${esc(q)}</summary>
+          <p>${esc(a)}</p>
+        </details>`).join('\n        ')}
+      </div>
+    </div>
+  </section>`;
+}
+
+const SITE = 'https://www.panoramica.solutions';
+const ldSafe = (o) => JSON.stringify(o, null, 2).replace(/</g, '\\u003c');
+
+// Service and FAQ structured data for the offer, so search and AI answers can read the page.
+function renderLd(id) {
+  const v = VISUALS[id];
+  const offer = routes.offers[id];
+  const url = `${SITE}/${routes.pages[offer.page]}`;
+  const service = {
+    '@type': 'Service',
+    name: offer.name,
+    description: v.lead,
+    url,
+    provider: { '@type': 'Organization', name: 'Panoramica Solutions', url: `${SITE}/` }
+  };
+  const p = LD_PRICE[id];
+  if (p && p.fixed) service.offers = { '@type': 'Offer', price: String(p.fixed), priceCurrency: 'GBP', url };
+  if (p && p.low) service.offers = { '@type': 'AggregateOffer', lowPrice: String(p.low), highPrice: String(p.high), priceCurrency: 'GBP', url };
+  const faq = {
+    '@type': 'FAQPage',
+    mainEntity: FAQ[id].map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } }))
+  };
+  return `<script type="application/ld+json">\n${ldSafe({ '@context': 'https://schema.org', '@graph': [service, faq] })}\n  </script>`;
+}
+
 function renderBar(id) {
   const offer = routes.offers[id];
   return `<div class="offer-bar" data-offer-bar>
@@ -677,7 +768,7 @@ function renderBar(id) {
   </div>`;
 }
 
-export const renderOfferPage = (id) => [renderHero(id), renderHow(id), renderBuild(id), renderFit(id), renderBar(id)].join('\n\n  ');
+export const renderOfferPage = (id) => [renderHero(id), renderHow(id), renderBuild(id), renderFit(id), renderFaq(id), renderLd(id), renderBar(id)].join('\n\n  ');
 
 // ---------- service cards ----------
 
