@@ -39,7 +39,9 @@ const pairs = [
   ['focus', 'bg', 3, 'focus ring on page'],
   ['focus', 'surface', 3, 'focus ring on cards'],
   ['line-strong', 'bg', 3, 'control and button borders on page'],
-  ['line-strong', 'surface-2', 3, 'option borders on raised cards']
+  ['line-strong', 'surface-2', 3, 'option borders on raised cards'],
+  ['alert', 'alert-wash', 4.5, 'blocker text on its wash'],
+  ['alert', 'surface', 4.5, 'blocker text on cards']
 ];
 
 let failed = 0;
