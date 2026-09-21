@@ -21,11 +21,11 @@ const NAV = [
 
 const OFFERS = [
   ['outreach', 'Email outreach infrastructure'],
-  ['database', 'Database cleanup or creation'],
+  ['database', 'Data foundation'],
   ['goldmine', 'Goldmine'],
   ['brief', 'The Brief'],
   ['architect', 'Revenue Architect'],
-  ['studio', 'The Studio']
+  ['studio', 'Marketing Studio']
 ];
 
 const NEW_TAB = '<span class="sr-only"> (opens in a new tab)</span>';

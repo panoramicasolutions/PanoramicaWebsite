@@ -1,7 +1,10 @@
 /* Diagnostic UI. Builds on the tokens in site.css. */
 
-.dx { background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r-lg); padding: var(--sp-5); }
-@media (min-width: 720px) { .dx { padding: var(--sp-6); } }
+/* The form sits directly on the page: no hero band, tinted section or card around it. */
+.section--dx { padding-block: var(--sp-6) var(--sp-7); border-top: 0; }
+@media (min-width: 768px) { .section--dx { padding-block: var(--sp-7) var(--sp-8); } }
+.section--dx h1 { max-width: 16em; font-size: clamp(2rem, 1.3rem + 2.6vw, 3.25rem); }
+.section--dx .lead { margin-bottom: var(--sp-6); font-size: clamp(1rem, 0.95rem + 0.3vw, 1.125rem); color: var(--ink-3); }
 
 .dx-count { margin: 0 0 var(--sp-2); font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--lime); }
 .dx-progress { height: 2px; background: var(--line-2); overflow: hidden; margin-bottom: var(--sp-5); }

@@ -106,7 +106,7 @@
     database: {
       title: 'Start with the data foundation',
       action: 'Define the records, required fields, sources and validation standard the team needs to operate.',
-      cta: { label: 'Scope my database', target: 'external:book' }
+      cta: { label: 'Scope my data foundation', target: 'external:book' }
     },
     brief: {
       title: 'Start with The Brief',
@@ -116,12 +116,12 @@
     studio: {
       title: 'Start with the campaign approval workflow',
       action: 'Write down the rules that must block publication and the decisions that still need a person.',
-      cta: { label: 'See campaign QA builds', target: 'page:studio' }
+      cta: { label: 'See Marketing Studio', target: 'page:studio' }
     },
     architect: {
       title: 'Start with Revenue Architect',
       action: 'Use the diagnostic to separate the visible symptom from the operating constraint.',
-      cta: { label: 'Run Revenue Architect - £149', target: 'page:architect' }
+      cta: { label: 'See Revenue Architect - live soon', target: 'page:architect' }
     }
   };
 

@@ -160,10 +160,10 @@ test('result CTAs use the specified labels and resolve to live destinations', ()
   const labels = {
     outreach: 'Scope my outreach infrastructure',
     goldmine: 'Check if my CRM is ready',
-    database: 'Scope my database',
+    database: 'Scope my data foundation',
     brief: 'See The Brief - £1,000 fixed setup',
-    studio: 'See campaign QA builds',
-    architect: 'Run Revenue Architect - £149'
+    studio: 'See Marketing Studio',
+    architect: 'See Revenue Architect - live soon'
   };
   for (const r of D.ROUTES) {
     const cta = D.RESULTS[r].cta;

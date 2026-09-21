@@ -1,8 +1,9 @@
 // Offer pages and marketplace cards, generated from one data entry per offer.
-// Every offer page has the same three blocks, written from the client's side:
+// Every offer page has the same four blocks, written from the client's side:
 //   1. the result (hero: outcome, what it is built to move, three selling points)
-//   2. how it works (a signature visual of the offer's main selling point)
-//   3. is it right for you (fit, scope, price)
+//   2. how it works (a direct visual explanation that is specific to the offer)
+//   3. what we build (a build map: inputs, engine, outputs, controls; then what we need and what is excluded)
+//   4. does it fit (a short tick-list check with a verdict, plus price and how it starts)
 // Pages carry marker comments and tools/sync-shell.mjs stamps the generated HTML between them.
 //   <!-- offer-page:brief -->...<!-- /offer-page:brief -->   the whole body of an offer page
 //   <!-- cards:start -->...<!-- cards:end -->                the compact grid on the marketplace
@@ -10,163 +11,218 @@ import { routes } from './shell.mjs';
 import { icon } from './icons.mjs';
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const escAttr = (s) => esc(s).replace(/"/g, '&quot;');
 const NEW_TAB = '<span class="sr-only"> (opens in a new tab)</span>';
 const LABEL = '<p class="example__label">Example - not client data.</p>';
 const BAR = (title, meta) => `<div class="mock__bar"><span class="mock__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mock__title">${title}</span><span class="mock__meta">${meta}</span></div>`;
+const N = (n) => `<span class="cite cite--n" aria-label="from field ${n}">${n}</span>`;
 
 // Order here is the order on the marketplace.
 export const OFFER_ORDER = ['outreach', 'database', 'goldmine', 'brief', 'architect', 'studio'];
 
-// ---------- signature visuals: the main selling point of each offer, shown as the product ----------
+// ---------- direct visual explanations: one per offer, each drawn differently ----------
 
 const SIG = {
-  brief: `<div class="example">
-        ${LABEL}
-        <div class="mock">
-          ${BAR('Inbox', '13:30, 30 minutes before the call')}
-          <div class="mock__body">
-            <p class="mail__subject">Brief: intro call with Jordan Example (14:00)</p>
-            <p class="mail__from">From The Brief, to Sam Rep (example)</p>
-            <p class="built"><span class="built__label">Built from</span><span class="tag">CRM</span><span class="tag">Past calls</span><span class="tag">Meeting transcripts</span><span class="tag">Calendar</span></p>
-            <div class="sig__cols">
-              <div class="pane">
-                <p class="pane__title">The facts</p>
-                <dl class="kv">
-                  <dt>Who</dt><dd>Jordan Example, head of operations at Example Ltd (fictional)</dd>
-                  <dt>CRM</dt><dd>Stage: discovery. Last activity: an email from the rep, no reply logged.</dd>
-                  <dt>Last call</dt><dd>Asked how the tool connects to their existing CRM.</dd>
-                  <dt>Open items</dt><dd>Confirm the decision timeline. Send the pricing summary discussed last time.</dd>
-                </dl>
-              </div>
-              <div class="pane pane--accent">
-                <p class="pane__title">Behavioral profile</p>
-                <dl class="kv">
-                  <dt>Decides</dt><dd>Analytical. Wants proof before committing.</dd>
-                  <dt>Communicates</dt><dd>Short and direct. Prefers written follow-up.</dd>
-                  <dt>Cares about</dt><dd>Integration risk and timeline.</dd>
-                  <dt>Watch for</dt><dd>A second stakeholder who has not been on a call.</dd>
-                </dl>
-                <p class="pane__basis">Based on 2 calls and 6 emails.</p>
-              </div>
-            </div>
-            <div class="pane pane--advice">
-              <p class="pane__title">Advice for the call</p>
-              <ol class="advice">
-                <li>Open with how the tool connects to their CRM. They asked last time.</li>
-                <li>Send the written timeline before the pricing summary.</li>
-                <li>Skip the feature tour. Ask who else signs off.</li>
-              </ol>
-            </div>
-            <p class="verified"><span class="tag tag--ok">Verified</span>Each fact matched to a record before the brief was sent.</p>
-          </div>
-        </div>
-      </div>`,
-
+  // Many datapoints in, one ranked list out.
   goldmine: `<div class="example">
         ${LABEL}
         <div class="mock">
-          ${BAR('Working queue', 'New business pipeline, synced to your CRM')}
+          ${BAR('Goldmine, daily run', 'Your CRM plus outside research')}
           <div class="mock__body">
-            <ol class="queue">
-              <li class="queue__row queue__row--open">
-                <div class="queue__main">
-                  <span class="queue__rank">1</span>
-                  <div class="queue__who"><p class="queue__name">Example Ltd</p><p class="queue__note">Next contact: Thursday, taken from the call transcript</p></div>
-                  <div class="score"><span class="score__num">92</span><span class="meter"><i style="--v:92%"></i></span></div>
-                </div>
-                <ul class="why">
-                  <li><span class="why__sign" aria-hidden="true">&uarr;</span>Replied two days ago <span class="tag">14-day hot decay</span></li>
-                  <li><span class="why__sign" aria-hidden="true">&uarr;</span>Budget confirmed on the last call</li>
-                  <li><span class="why__sign" aria-hidden="true">&uarr;</span>Next contact date set in the transcript</li>
-                  <li class="why__neg"><span class="why__sign" aria-hidden="true">&darr;</span>Only 1 of 3 channels has answered</li>
+            <div class="xflow">
+              <div class="xcol">
+                <p class="pane__title">1. Datapoints crossed</p>
+                <ul class="sigs">
+                  <li>${icon('records')}<span><strong>CRM history</strong>Status, deals, activity</span></li>
+                  <li>${icon('phone')}<span><strong>Calls and emails</strong>Connects, replies, ignored sends</span></li>
+                  <li>${icon('transcript')}<span><strong>Notes and transcripts</strong>Sentiment, next-contact dates</span></li>
+                  <li>${icon('search')}<span><strong>Outside research</strong>Web and news on the person</span></li>
                 </ul>
-              </li>
-              <li class="queue__row">
-                <div class="queue__main">
-                  <span class="queue__rank">2</span>
-                  <div class="queue__who"><p class="queue__name">Demo Inc</p><p class="queue__note">Call note says budget confirmed. Next contact Monday.</p></div>
-                  <div class="score"><span class="score__num">88</span><span class="meter"><i style="--v:88%"></i></span></div>
-                </div>
-              </li>
-              <li class="queue__row">
-                <div class="queue__main">
-                  <span class="queue__rank">3</span>
-                  <div class="queue__who"><p class="queue__name">Sample Co <span class="tag tag--warn">3-channel ghosting</span></p><p class="queue__note">No reply on three channels, so the score is capped.</p></div>
-                  <div class="score"><span class="score__num">61</span><span class="meter"><i style="--v:61%"></i></span></div>
-                </div>
-              </li>
-            </ol>
-            <p class="verified"><span class="tag tag--ok">Checked</span>Scores are checked against the CRM record before anyone sees them.</p>
+              </div>
+              <div class="xarrow" aria-hidden="true"></div>
+              <div class="xcol xcol--engine">
+                <p class="pane__title">2. Scored</p>
+                <p class="bignum"><span>20+</span> signals per lead</p>
+                <ul class="rules">
+                  <li><span class="why__sign" aria-hidden="true">&uarr;</span>Recent activity counts more than old</li>
+                  <li class="why__neg"><span class="why__sign" aria-hidden="true">&darr;</span>Silence on every channel caps the score</li>
+                  <li><span class="why__sign" aria-hidden="true">&uarr;</span>A live pursuit holds a floor</li>
+                </ul>
+                <p class="pane__basis">Then one read per lead: why now, two openers, the main objection.</p>
+              </div>
+              <div class="xarrow" aria-hidden="true"></div>
+              <div class="xcol">
+                <p class="pane__title">3. Delivered daily</p>
+                <ol class="queue">
+                  <li class="queue__row queue__row--open">
+                    <div class="queue__main">
+                      <span class="queue__rank">1</span>
+                      <div class="queue__who"><p class="queue__name">Example Ltd</p></div>
+                      <div class="score"><span class="score__num">92</span><span class="meter"><i style="--v:92%"></i></span></div>
+                    </div>
+                    <p class="queue__why"><strong>Why now</strong>Replied two days ago. Budget confirmed on the last call.</p>
+                    <p class="queue__why"><strong>Open with</strong>The integration question they asked.</p>
+                  </li>
+                  <li class="queue__row">
+                    <div class="queue__main">
+                      <span class="queue__rank">2</span>
+                      <div class="queue__who"><p class="queue__name">Demo Inc</p></div>
+                      <div class="score"><span class="score__num">88</span><span class="meter"><i style="--v:88%"></i></span></div>
+                    </div>
+                  </li>
+                  <li class="queue__row">
+                    <div class="queue__main">
+                      <span class="queue__rank">3</span>
+                      <div class="queue__who"><p class="queue__name">Sample Co</p></div>
+                      <div class="score"><span class="score__num">61</span><span class="meter"><i style="--v:61%"></i></span></div>
+                    </div>
+                    <p class="queue__why"><span class="tag tag--warn">Three channels silent</span></p>
+                  </li>
+                </ol>
+              </div>
+            </div>
+            <p class="verified"><span class="tag tag--ok">Checked</span>Every score is checked against the CRM record before anyone sees it.</p>
           </div>
         </div>
       </div>`,
 
+  // One database row becomes one email; each sentence is tied to a field.
   outreach: `<div class="example">
         ${LABEL}
         <div class="mock">
-          ${BAR('Draft for Alex Example', 'Awaiting approval')}
+          ${BAR('Draft for Alex Example', 'Written from one database row')}
           <div class="mock__body">
             <div class="sig__cols">
               <div class="pane">
-                <p class="pane__title">The draft</p>
-                <p class="draft">Hi Alex,</p>
-                <p class="draft">I read your note on evergreen fund structures<sup class="cite">1</sup> and saw that Example Capital opened a new vehicle in March<sup class="cite">2</sup>. [One sentence on why we are writing.]</p>
-                <p class="pane__basis">Alex Example, partner at Example Capital (fictional)</p>
+                <p class="pane__title">The database row</p>
+                <ol class="fields">
+                  <li>${N(1)}<span class="fields__k">Role</span><span>Head of partnerships</span></li>
+                  <li>${N(2)}<span class="fields__k">Specialty</span><span>Payments infrastructure</span></li>
+                  <li>${N(3)}<span class="fields__k">Size tier</span><span>Small (11 to 50)</span></li>
+                  <li>${N(4)}<span class="fields__k">Peer proof</span><span>Example Peer Ltd, confirmed</span></li>
+                  <li>${N(5)}<span class="fields__k">Buying role</span><span>Decision-maker</span></li>
+                </ol>
+                <p class="pane__basis">When a field is unknown, the email leaves it out instead of guessing.</p>
               </div>
               <div class="pane pane--accent">
-                <p class="pane__title">Evidence, stored with the draft</p>
-                <ol class="sources">
-                  <li><span class="cite cite--n">1</span><p>Public note on evergreen fund structures</p><span class="tag tag--ok">Matched</span></li>
-                  <li><span class="cite cite--n">2</span><p>Example Capital press release, 4 March</p><span class="tag tag--ok">Matched</span></li>
-                </ol>
-                <p class="pane__basis">Rule: only use a fact the contact has published.</p>
+                <p class="pane__title">The email it becomes</p>
+                <p class="draft">Hi Alex,</p>
+                <p class="draft">Most <span class="hitn"><mark class="hit hit--field">heads of partnerships</mark>${N(1)}</span> in <span class="hitn"><mark class="hit hit--field">payments infrastructure</mark>${N(2)}</span> still handle this by hand. <span class="hitn"><mark class="hit hit--field">Example Peer Ltd</mark>${N(4)}</span> has already moved.</p>
+                <p class="draft">For <span class="hitn"><mark class="hit hit--field">a team your size</mark>${N(3)}</span>, it is worth doing once, properly. <span class="hitn"><mark class="hit hit--field">Worth a quick call this week</mark>${N(5)}</span> to see if it is relevant for Example Ltd?</p>
               </div>
             </div>
-            <ul class="status">
-              <li><span class="tag tag--ok">Evidence matched</span></li>
-              <li><span class="tag tag--warn">Awaiting approval</span></li>
-              <li><span class="tag">Not sent</span></li>
-              <li><span class="tag">CRM handoff ready</span></li>
-            </ul>
+            <ol class="rail">
+              <li>${icon('pen')}<strong>Written</strong><span>One model call per contact</span></li>
+              <li>${icon('shield')}<strong>Checked</strong><span>Length, banned phrases, required details</span></li>
+              <li>${icon('approve')}<strong>Reviewed</strong><span>A person approves before it sends</span></li>
+              <li>${icon('send')}<strong>Sent</strong><span>From domains you own, paced by warm-up</span></li>
+              <li>${icon('pulse')}<strong>Followed</strong><span>A reply stops the sequence</span></li>
+            </ol>
           </div>
         </div>
       </div>`,
 
+  // A name becomes a record ready to convert, built up in four steps.
   database: `<div class="example">
         ${LABEL}
         <div class="mock">
-          ${BAR('Database audit', 'Company: Acme Ltd')}
+          ${BAR('Data foundation', 'One record, built up')}
           <div class="mock__body">
-            <div class="sig__cols">
+            <ol class="recs">
+              <li class="rec">
+                <p class="rec__step"><span>1</span>Sourced</p>
+                <dl class="rec__rows">
+                  <dt>Company</dt><dd class="rec__new">Example Ltd</dd>
+                  <dt>Industry</dt><dd class="rec__empty">empty</dd>
+                  <dt>HQ</dt><dd class="rec__empty">empty</dd>
+                  <dt>Size</dt><dd class="rec__empty">empty</dd>
+                  <dt>Role</dt><dd class="rec__empty">empty</dd>
+                  <dt>Tier</dt><dd class="rec__empty">empty</dd>
+                </dl>
+                <p class="rec__note">Found because it matches your ideal customer.</p>
+              </li>
+              <li class="rec">
+                <p class="rec__step"><span>2</span>Enriched</p>
+                <dl class="rec__rows">
+                  <dt>Company</dt><dd>Example Ltd</dd>
+                  <dt>Industry</dt><dd class="rec__new">Payments</dd>
+                  <dt>HQ</dt><dd class="rec__new">Ireland</dd>
+                  <dt>Size</dt><dd class="rec__new">11 to 50</dd>
+                  <dt>Role</dt><dd class="rec__empty">empty</dd>
+                  <dt>Tier</dt><dd class="rec__empty">empty</dd>
+                </dl>
+                <p class="rec__note">Fields set by your strategy.</p>
+              </li>
+              <li class="rec">
+                <p class="rec__step"><span>3</span>Verified</p>
+                <dl class="rec__rows">
+                  <dt>Company</dt><dd>Example Ltd</dd>
+                  <dt>Industry</dt><dd>Payments</dd>
+                  <dt>HQ</dt><dd>Ireland</dd>
+                  <dt>Size</dt><dd>11 to 50 <span class="tag tag--ok">2 sources agree</span></dd>
+                  <dt>Role</dt><dd class="rec__empty">empty</dd>
+                  <dt>Tier</dt><dd class="rec__empty">empty</dd>
+                </dl>
+                <p class="rec__note">Where sources disagree, the field stays blank.</p>
+              </li>
+              <li class="rec rec--done">
+                <p class="rec__step"><span>4</span>Ready to convert</p>
+                <dl class="rec__rows">
+                  <dt>Company</dt><dd>Example Ltd</dd>
+                  <dt>Industry</dt><dd>Payments</dd>
+                  <dt>HQ</dt><dd>Ireland</dd>
+                  <dt>Size</dt><dd>11 to 50</dd>
+                  <dt>Role</dt><dd class="rec__new">Decision-maker</dd>
+                  <dt>Tier</dt><dd class="rec__new">High</dd>
+                </dl>
+                <p class="rec__note"><span class="tag tag--ok">Deduplicated</span> <span class="tag tag--ok">Loaded to CRM</span></p>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>`,
+
+  // What the rep gets, and when.
+  brief: `<div class="example">
+        ${LABEL}
+        <div class="mock">
+          ${BAR('Inbox', 'Two emails a day, per rep')}
+          <div class="mock__body">
+            <ol class="timeline">
+              <li><span class="timeline__time">08:00</span><span>Overview of every meeting today</span></li>
+              <li><span class="timeline__time">13:30</span><span>Full brief for the 14:00 call</span></li>
+              <li><span class="timeline__time">14:00</span><span>The call, with the profile in hand</span></li>
+            </ol>
+            <p class="mail__subject">Brief: intro call with Jordan Example (14:00)</p>
+            <p class="built"><span class="built__label">Built from</span><span class="tag">CRM</span><span class="tag">Past calls</span><span class="tag">Transcripts</span><span class="tag">Calendar</span><span class="tag">Company news</span></p>
+            <div class="bgrid">
               <div class="pane">
-                <p class="pane__title">Before: 3 records</p>
-                <table class="dtable">
-                  <thead><tr><th scope="col">Company</th><th scope="col">Country</th><th scope="col">Email</th></tr></thead>
-                  <tbody>
-                    <tr><td>Acme Ltd</td><td class="blank">missing</td><td>jdoe@acme.example</td></tr>
-                    <tr><td>ACME limited</td><td>UK</td><td>jdoe@acme.example</td></tr>
-                    <tr><td>Acme Ltd.</td><td>United Kingdom</td><td class="blank">missing</td></tr>
-                  </tbody>
-                </table>
+                <p class="pane__title">Who</p>
+                <p class="pane__text">Jordan Example, head of operations at Example Ltd (fictional). In discovery. Last call: asked how it connects to their CRM.</p>
               </div>
               <div class="pane pane--accent">
-                <p class="pane__title">After: 1 record</p>
-                <table class="dtable">
-                  <thead><tr><th scope="col">Company</th><th scope="col">Country</th><th scope="col">Email</th></tr></thead>
-                  <tbody><tr><td>Acme Ltd</td><td>United Kingdom</td><td>jdoe@acme.example</td></tr></tbody>
-                </table>
-                <ul class="status">
-                  <li><span class="tag tag--ok">Merged 3 to 1</span></li>
-                  <li><span class="tag tag--ok">Country filled</span></li>
-                  <li><span class="tag tag--ok">Email validated</span></li>
-                </ul>
-                <p class="pane__basis">Source and validation status stored on the record.</p>
+                <p class="pane__title">Profile</p>
+                <p class="pane__text">Analytical. Wants proof before committing. Short and direct, prefers written follow-up.</p>
+                <p class="pane__basis">Based on 2 calls and 6 emails.</p>
+              </div>
+              <div class="pane pane--accent">
+                <p class="pane__title">The play</p>
+                <p class="pane__text">Open with the CRM connection. Send the written timeline before pricing.</p>
+              </div>
+              <div class="pane pane--accent">
+                <p class="pane__title">The words</p>
+                <p class="pane__text">Say: "Here is exactly how it connects." Skip the feature tour.</p>
+              </div>
+              <div class="pane">
+                <p class="pane__title">Objections</p>
+                <p class="pane__text">Integration risk: show the steps. A second signer has not been on a call: ask who else decides.</p>
+              </div>
+              <div class="pane">
+                <p class="pane__title">One goal</p>
+                <p class="pane__text">Agree the decision timeline.</p>
               </div>
             </div>
-            <div class="pane pane--advice">
-              <p class="pane__title">Exception report</p>
-              <p class="pane__text"><span class="tag tag--warn">1 flagged</span>One record needs a person to decide: two possible parent companies.</p>
-            </div>
+            <p class="verified"><span class="tag tag--ok">Verified</span>Each fact is matched to a record. Thin data gets a short brief instead of a guess.</p>
           </div>
         </div>
       </div>`,
@@ -199,23 +255,37 @@ const SIG = {
         </div>
       </div>`,
 
+  // One brief becomes a campaign kit, checked and held for approval.
   studio: `<div class="example">
         ${LABEL}
         <div class="mock">
-          ${BAR('QA gate', 'Landing page draft, Brand A')}
+          ${BAR('Marketing Studio', 'One brief, one campaign kit')}
           <div class="mock__body">
-            <div class="sig__cols">
+            <div class="studio">
               <div class="pane">
-                <p class="pane__title">The draft</p>
-                <p class="draft draft--h">The <mark class="hit hit--block">guaranteed returns</mark> every investor wants</p>
-                <p class="draft">Our platform is <mark class="hit hit--warn">the fastest way to grow your money</mark>. Start today.</p>
+                <p class="pane__title">The brief</p>
+                <dl class="kv kv--tight">
+                  <dt>Channel</dt><dd>LinkedIn</dd>
+                  <dt>Audience</dt><dd>Enterprise leads</dd>
+                  <dt>Goal</dt><dd>Download the guide</dd>
+                  <dt>Length</dt><dd>4 weeks, 2 posts a week</dd>
+                  <dt>Brand</dt><dd>Brand A voice and colours</dd>
+                </dl>
               </div>
-              <ol class="gate">
-                <li class="gate__step gate__step--block"><p class="gate__name">1. Rules run first <span class="tag tag--block">1 blocker</span></p><p>A banned term is in the headline. Publication is held.</p></li>
-                <li class="gate__step"><p class="gate__name">2. AI pass <span class="tag tag--warn">1 warning</span></p><p>The claim in paragraph two is unclear.</p></li>
-                <li class="gate__step"><p class="gate__name">3. Human approval <span class="tag">Waiting</span></p><p>A person decides. Nothing has been published.</p></li>
-              </ol>
+              <ul class="kit">
+                <li><span class="thumb thumb--card" aria-hidden="true"><i class="t-line t-line--s"></i><i class="t-line t-line--h"></i><i class="t-line t-line--h t-line--m"></i><b class="t-block"></b></span><span class="kit__name">Social images</span></li>
+                <li><span class="thumb thumb--stack" aria-hidden="true"><b></b><b></b><b></b></span><span class="kit__name">Carousels</span></li>
+                <li><span class="thumb thumb--page" aria-hidden="true"><i class="t-line t-line--h"></i><i class="t-line"></i><i class="t-line"></i><b class="t-chart"><i></i><i></i><i></i><i></i></b></span><span class="kit__name">PDFs and one-pagers</span></li>
+                <li><span class="thumb thumb--web" aria-hidden="true"><em><i></i><i></i><i></i></em><i class="t-line t-line--h"></i><i class="t-line t-line--m"></i><b class="t-btn"></b></span><span class="kit__name">Landing pages</span></li>
+                <li><span class="thumb thumb--mail" aria-hidden="true"><i class="t-line t-line--s"></i><i class="t-line"></i><i class="t-line"></i><i class="t-line t-line--m"></i><b class="t-btn"></b></span><span class="kit__name">Emails</span></li>
+                <li><span class="thumb thumb--cal" aria-hidden="true"><i></i><i></i><i class="on"></i><i></i><i></i><i class="on"></i><i></i><i></i><i></i><i class="on"></i><i></i><i></i><i class="on"></i><i></i><i></i><i></i><i class="on"></i><i></i><i></i><i class="on"></i><i></i><i></i><i></i><i class="on"></i><i></i><i></i><i class="on"></i><i></i></span><span class="kit__name">Campaign calendar</span></li>
+              </ul>
             </div>
+            <ol class="gate gate--row">
+              <li class="gate__step gate__step--block"><p class="gate__name">1. Rules run first <span class="tag tag--block">1 held</span></p><p>A banned term is held before any AI judgment.</p></li>
+              <li class="gate__step"><p class="gate__name">2. AI pass <span class="tag tag--warn">1 flag</span></p><p>Claims that read as unclear are flagged.</p></li>
+              <li class="gate__step"><p class="gate__name">3. A person approves <span class="tag">Waiting</span></p><p>Nothing publishes until someone signs off.</p></li>
+            </ol>
           </div>
         </div>
       </div>`
@@ -223,79 +293,103 @@ const SIG = {
 
 // ---------- per-offer data ----------
 
+const VERDICT = ['Tick the ones that apply to see a verdict.', 'Possible. Book a call and we will check the rest.', 'Likely a fit. A demo call will confirm it.', 'A strong fit. Book a demo call.'];
+const VERDICT_SOON = ['Tick the ones that apply to see a verdict.', 'Possible. It opens soon.', 'Likely a fit. It opens soon.', 'A strong fit. It opens soon.'];
+
 export const VISUALS = {
   outreach: {
     category: 'Pipeline',
-    tagline: 'Outreach where every line has a source.',
+    tagline: 'Every email written from your own data.',
     cardMetrics: [{ dir: 'up', name: 'Qualified conversations' }, { dir: 'down', name: 'Drafting time' }],
-    h1: 'Outreach built around a real reason to write',
-    lead: 'Every message is drafted from research the contact has published, and reviewed by a person before it sends.',
+    h1: 'Outreach that reads like it was written for one person',
+    lead: 'A model writes each email from what your database knows about the contact, and sends it from domains and accounts you own.',
     moves: [{ dir: 'down', name: 'Research and drafting time' }, { dir: 'up', name: 'Follow-up consistency' }, { dir: 'up', name: 'Qualified conversations' }],
     points: [
-      ['link', 'Every line has a source', 'Only facts the contact has published, stored next to the draft.'],
-      ['approve', 'A person approves', 'Nothing sends without agreed controls.'],
-      ['mail', 'Fits your workflow', 'Drafts in Gmail on Google Workspace, with a clear CRM handoff.']
+      ['records', 'Personalized from your data', 'Every sentence ties back to a field in the database.'],
+      ['cloud', 'Owned infrastructure', 'It runs on your domains, accounts and cloud, not a shared outreach tool.'],
+      ['shield', 'Checked before it sends', 'Rules catch banned phrases and wrong lengths. A person reviews.']
     ],
-    howTitle: 'Every claim traced to its source',
-    howLead: 'Built for LP and capital outreach, founder-led outreach and targeted lead generation.',
+    howTitle: 'Every sentence comes from a field in your data',
+    howLead: 'The database sets what we know about each person. A model writes the email from it, and your own domains send it.',
     chipsLabel: 'Works with',
     chips: ['Gmail on Google Workspace', 'Your CRM'],
-    fit: {
-      yes: ['You have a defined market and an important list', 'You are a founder, fundraising team or small revenue team', 'Research, drafting and follow-up take too much of your week'],
-      no: ['Your contact data is missing: start with database work', 'You need list procurement or mailbox setup: scoped separately']
+    buildLead: 'Built on the data foundation, run on infrastructure you own.',
+    build: {
+      inputs: [['records', 'Your database', 'Fields from the data foundation'], ['pen', 'Your offer and voice', 'What you say, and how'], ['shield', 'Your exclusions', 'Suppression and do-not-contact lists']],
+      engine: [['pen', 'One model call per contact', 'Written from that contact\'s fields'], ['shield', 'Quality rules', 'Length, banned phrases, required details, retries'], ['clock', 'Sequence logic', 'Follow-ups on a schedule you set']],
+      outputs: [['approve', 'Drafts to approve', 'Reviewed before anything sends'], ['send', 'Paced sending', 'Weekday windows, warm-up per domain'], ['pulse', 'Replies and intent', 'Replies stop the sequence, opens reach your CRM']],
+      controls: [['cloud', 'Your infrastructure', 'Your domains, accounts and cloud'], ['approve', 'A person approves', 'Before the first send'], ['lock', 'Stop rules', 'Repliers never get another email']]
     },
-    includes: ['Audience and signal definition', 'Account and contact research', 'Personalization and evidence rules', 'Approval rules and Gmail setup', 'CRM handoff and documentation'],
-    excludes: ['Guaranteed replies, meetings or revenue', 'Ongoing campaign operation, unless scoped', 'Deliverability fixes, unless scoped'],
+    needs: ['A database, or the data foundation first', 'Sending domains and DNS access', 'A Google Workspace mailbox for replies', 'Your offer, proof points and examples of your tone'],
+    excludes: ['Guaranteed replies, meetings or revenue', 'Buying lists on your behalf', 'Ongoing operation, unless scoped', 'Deliverability fixes, unless scoped'],
+    fit: {
+      statements: ['You have a defined market and a list worth writing to', 'You are a founder, fundraising team or small revenue team', 'Research, drafting and follow-up take too much of your week'],
+      notYet: 'Not yet if your contact data is thin. Start with the data foundation.'
+    },
     steps: ['Book a demo call', 'We check the fit against your audience and setup', 'You get a scope and price before any build'],
     price: { label: 'Pricing', amount: 'Custom scope', scope: 'Priced after a short qualification.', plain: true }
   },
   database: {
     category: 'Data foundation',
-    tagline: 'Data your team can route and report on.',
+    tagline: 'A client pool, built and ready to convert.',
     cardMetrics: [{ dir: 'down', name: 'Duplicate records' }, { dir: 'up', name: 'Field completeness' }],
-    h1: 'A database your team can trust',
-    lead: 'One clean record per company and contact, with the source and validation status behind each field.',
+    h1: 'A client pool, built and ready to convert',
+    lead: 'We define who you sell to, then source, enrich, verify, deduplicate and score the companies and contacts, and load them into your CRM.',
     moves: [{ dir: 'down', name: 'Duplicate records' }, { dir: 'up', name: 'Required-field completeness' }, { dir: 'down', name: 'Time to route and segment' }],
     points: [
-      ['merge', 'One record per entity', 'Duplicates merged and fields normalized.'],
-      ['link', 'Every field traceable', 'Source and validation status sit on the record.'],
-      ['file', 'Ready to import', 'A CRM-ready file, plus an exception report for what needs a person.']
+      ['dig', 'Built, not just cleaned', 'New companies and contacts, sourced against your ideal customer.'],
+      ['layers', 'Enriched to your strategy', 'The fields we add depend on how you sell.'],
+      ['shield', 'Verified, not guessed', 'A value is recorded only when sources agree. Otherwise it stays blank.']
     ],
-    howTitle: 'One clean record, with its source attached',
-    howLead: 'Clean the records you have, or build a target-account database for a defined market.',
+    howTitle: 'From a name to a record ready to convert',
+    howLead: 'We define who you sell to, find them, and build each record up until it is safe to route and write to.',
     chipsLabel: '',
     chips: [],
-    fit: {
-      yes: ['Your records are duplicated, incomplete or spread across tools', 'You need a target-account database for a defined market', 'You cannot route, segment or report reliably today'],
-      no: ['You have no lawful, approved basis for the data', 'You need CRM redesign or ongoing enrichment: scoped separately']
+    buildLead: 'Start from nothing, or from the data you already have.',
+    build: {
+      inputs: [['target', 'Your ideal customer', 'Who you sell to, and who buys'], ['records', 'Your current data', 'CRM exports, lists, spreadsheets'], ['globe', 'Public sources', 'Web research and data providers']],
+      engine: [['dig', 'Sourcing', 'New companies and contacts that match'], ['layers', 'Enrichment', 'Fields set by your strategy'], ['merge', 'Verify and deduplicate', 'Values kept only when sources agree']],
+      outputs: [['funnel', 'A scored pool', 'Tiers, buying roles, segments'], ['file', 'A CRM-ready import', 'Loaded into your CRM'], ['report', 'An exception report', 'What needs a person to decide']],
+      controls: [['link', 'Source on every field', 'Provenance kept on the record'], ['shield', 'Your exclusions', 'Do-not-contact lists applied'], ['clock', 'Refresh guidance', 'How to keep the pool current']]
     },
-    includes: ['Source audit and schema', 'Deduplication and validation', 'Enrichment rules and provenance', 'CRM-ready import file and exception report', 'Refresh guidance'],
-    excludes: ['Exhaustive coverage', 'Legal or compliance advice', 'Outreach execution'],
+    needs: ['Your ideal customer profile, or a session to define it', 'Your current data and exports', 'Do-not-contact and customer lists', 'CRM access for the load'],
+    excludes: ['Exhaustive market coverage', 'Legal or compliance advice', 'Outreach execution', 'Ongoing enrichment, unless scoped'],
+    fit: {
+      statements: ['Your records are duplicated, incomplete or spread across tools', 'You need a target-account list for a defined market', 'You cannot route, segment or report reliably today'],
+      notYet: 'Not yet if you have no lawful basis for the data you want to hold.'
+    },
     steps: ['Book a demo call', 'We agree the scoping inputs: geography, volume, fields, sources', 'You get a scope and price before any build'],
     price: { label: 'Pricing', amount: 'Custom scope', scope: 'Record volume, source quality and enrichment depth set the scope.', plain: true }
   },
   goldmine: {
     category: 'CRM intelligence',
-    tagline: 'Know who to call next, and why.',
+    tagline: 'A ranked call list, every day.',
     cardMetrics: [{ dir: 'up', name: 'Connectivity rate' }, { dir: 'down', name: 'Deal cycle time' }],
-    h1: 'Know who to contact next',
-    lead: 'A ranked working queue built from your CRM history, with the reasons behind every rank.',
+    h1: 'Know who to call next, and why',
+    lead: 'Goldmine cross-references your CRM history, calls, emails and notes on every lead, adds outside research, and delivers a ranked queue every day.',
     moves: [{ dir: 'up', name: 'Connectivity rate' }, { dir: 'down', name: 'Deal cycle time' }, { dir: 'up', name: 'Opportunities created' }],
     points: [
-      ['queue', 'A queue reps act on', 'Every lead ranked across your pipeline.'],
-      ['eye', 'Reasons you can read', 'Scoring rules written so your team can check them.'],
-      ['records', 'Stays in your CRM', 'Scores write back after checks against the record.']
+      ['layers', 'Datapoints no team can hold', '20+ signals per lead, crossed automatically.'],
+      ['search', 'Research done for you', 'Outside research runs in the background and feeds the score.'],
+      ['clock', 'Delivered daily', 'A fresh ranked queue, with the reasons and an opener.']
     ],
-    howTitle: 'Every lead ranked, with the reasons shown',
-    howLead: 'Built from your CRM data, web research, and call and note context.',
+    howTitle: 'More signals than a person can hold, crossed for you',
+    howLead: 'Every lead is scored across your CRM, calls, emails, notes and outside research. The ranked list arrives every day.',
     chipsLabel: 'Example rules in the current build',
     chips: ['14-day hot decay', '30-day cold decay', '3-channel ghosting', 'Score floor and cap'],
-    fit: {
-      yes: ['Your sales or BD team has five or more reps', 'Your CRM is used daily but not fully trusted', 'You have roughly 10,000 to 20,000+ contact and deal records'],
-      no: ['Your CRM is new or nearly empty: start with database work', 'You have fewer than five reps']
+    buildLead: 'It reads your CRM, scores on rules your team can read, and writes the result back.',
+    build: {
+      inputs: [['records', 'Your CRM', 'Deals, contacts, stages, notes'], ['phone', 'Calls and emails', 'Outcomes, replies, ignored sends'], ['transcript', 'Notes and transcripts', 'Sentiment, next-contact dates'], ['search', 'Outside research', 'Web and news. Full Build and up']],
+      engine: [['layers', 'Signal scoring', '0 to 100, with decay, floors and caps'], ['clock', 'Ghosting rules', 'Silence on every channel caps the score'], ['bulb', 'One AI read per lead', 'Why now, openers, objection. Full Build and up']],
+      outputs: [['queue', 'A ranked daily queue', 'Every lead, in order'], ['chat', 'Why now, what to say', 'The angle and the openers'], ['records', 'Scores in your CRM', 'Written back after record checks']],
+      controls: [['eye', 'Rules you can read', 'Written so your team can check them'], ['shield', 'Record checks', 'Each score verified before anyone sees it'], ['sliders', 'Depth you choose', 'Core, Full Build or Extended']]
     },
-    includes: ['A prioritized working queue', 'Readable scoring rules', 'Record checks before anyone sees output', 'Write-back to your CRM'],
+    needs: ['Read and write access to your CRM (HubSpot)', 'A sales lead who owns the pipeline and agrees the scoring rules', 'Call and email history logged in the CRM'],
     excludes: ['A net-new database build', 'Outcome promises', 'Other CRMs, unless scoped'],
+    fit: {
+      statements: ['Your sales team has five or more reps', 'You use your CRM daily but do not fully trust it', 'You hold roughly 10,000 or more contact and deal records'],
+      notYet: 'Not yet if your CRM is new or nearly empty, or you have fewer than five reps.'
+    },
     steps: ['Book a demo call', 'We look at your CRM history and tell you whether it fits', 'You choose a depth and get a fixed scope'],
     price: { tiers: true }
   },
@@ -307,20 +401,27 @@ export const VISUALS = {
     lead: 'A brief lands in Gmail before every external meeting: the facts, a behavioral profile of the person, and advice for the call.',
     moves: [{ dir: 'down', name: 'Pre-call prep time' }, { dir: 'down', name: 'New-rep ramp time' }],
     points: [
-      ['user', 'A behavioral profile', 'How each contact decides and communicates, built from your data.'],
-      ['bulb', 'Advice for the call', 'How to open, what to lead with and what to avoid.'],
+      ['user', 'A behavioral profile', 'How each contact decides, communicates and objects.'],
+      ['bulb', 'The play and the words', 'How to open, what to say and what to avoid.'],
       ['shield', 'Every fact checked', 'Matched to the record before a rep sees it.']
     ],
     howTitle: 'Walk in knowing the person behind the account',
     howLead: 'An overview at 08:00 and a full brief 30 minutes before each meeting, built from your calendar, CRM, calls and transcripts.',
     chipsLabel: 'Works with',
     chips: ['Google Calendar (required)', 'Gmail (required)', 'HubSpot (proven)', 'Aircall (proven)'],
-    fit: {
-      yes: ['Your reps take five or more calls a week', 'You work on Google Workspace (Calendar and Gmail)', 'You have a CRM and call history to draw from'],
-      no: ['You are not on Google Calendar or Gmail', 'You have no real pipeline in motion yet']
+    buildLead: 'Built from your calendar, CRM and calls, delivered to your reps in Gmail.',
+    build: {
+      inputs: [['calendar', 'Google Calendar', 'Which external meetings are coming'], ['records', 'Your CRM', 'HubSpot records and deal stage'], ['phone', 'Calls and transcripts', 'Aircall history, Meet transcripts, notes'], ['globe', 'Company research', 'Their site and recent news']],
+      engine: [['user', 'Behavioral profile', 'How they decide, communicate and object'], ['layers', 'Source weighting', 'Transcripts count above notes, notes above emails'], ['bulb', 'The play and the words', 'What to lead with, say and avoid']],
+      outputs: [['mail', '08:00 overview', 'Every meeting that day, one email'], ['clock', 'Brief 30 minutes before', 'Six sections, in Gmail'], ['target', 'One goal per call', 'A single outcome to aim for']],
+      controls: [['shield', 'Facts checked', 'Matched to the record before sending'], ['eye', 'Thin data, short brief', 'No profile is invented'], ['lock', 'For your rep only', 'Never sent to the contact']]
     },
-    includes: ['Setup and your first live brief', 'A morning overview at 08:00', 'A detailed brief 30 minutes before each meeting', 'Record checks on every fact'],
+    needs: ['Google Workspace: Calendar and Gmail', 'CRM and call access (HubSpot and Aircall proven)', 'A rep to review the first live brief'],
     excludes: ['Other CRMs, unless requested', 'LLM running costs, confirmed before launch'],
+    fit: {
+      statements: ['Your reps take five or more calls a week', 'You work on Google Workspace: Calendar and Gmail', 'You have a CRM and call history to draw from'],
+      notYet: 'Not yet if you are not on Google Workspace, or have no pipeline in motion.'
+    },
     steps: ['Book a demo call', 'We check your calendar, CRM and call history', 'You get a fixed setup and a first live brief'],
     price: { label: 'Fixed price', amount: '&pound;1,000 <small>fixed setup</small>', scope: 'Setup and first live brief, single team' }
   },
@@ -340,57 +441,68 @@ export const VISUALS = {
     howLead: 'Six phases and at least 14 exchanges before a report, checked against 16 founder and operating archetypes.',
     chipsLabel: 'Runs on',
     chips: ['Gemini', 'Tavily', 'Stripe', 'Resend'],
-    fit: {
-      yes: ['You suspect the real problem is not what you think', 'You have real numbers to bring: revenue, team size, pipeline', 'You have 20 minutes for a real conversation'],
-      no: ['You are pre-revenue, with nothing to benchmark', 'You are already certain of the root cause']
+    buildLead: 'A self-serve conversation that ends in a report you can act on.',
+    build: {
+      inputs: [['chat', 'Your answers', 'A guided conversation'], ['table', 'Your numbers', 'Revenue, team size, pipeline'], ['search', 'Live research', 'Checked against the web']],
+      engine: [['question', 'Six phases', 'At least 14 exchanges'], ['pulse', 'A challenge layer', 'Flags where your answers disagree'], ['compass', 'Benchmarks', 'Four growth stages, 16 archetypes']],
+      outputs: [['report', 'A diagnosis report', 'The constraint, named'], ['layers', 'An operating model', 'How the fix fits together'], ['link', 'Traced recommendations', 'Each linked to its finding']],
+      controls: [['link', 'Traced to findings', 'Every recommendation shows its evidence'], ['approved', 'Contradictions shown', 'Flagged, not smoothed over'], ['mail', 'Sent by email', 'The report goes to your inbox']]
     },
-    includes: ['One diagnostic conversation', 'A benchmarked report', 'An operating model', 'Recommendations traced to findings'],
+    needs: ['About 20 minutes of your time', 'Real numbers to hand: revenue, team size, pipeline'],
     excludes: ['A bespoke build', 'A generic playbook'],
-    steps: ['Run the diagnostic and check out', 'Have the conversation, about 20 minutes', 'Get your report by email'],
+    fit: {
+      statements: ['You suspect the real problem is not what you think', 'You have real numbers to bring: revenue, team size, pipeline', 'You have 20 minutes for a real conversation'],
+      notYet: 'Not yet if you are pre-revenue, or already certain of the root cause.'
+    },
+    steps: ['Start the diagnostic and check out', 'Have the conversation, about 20 minutes', 'Get your report by email'],
     price: { label: 'Fixed price', amount: '&pound;149 <small>self-serve</small>', scope: 'One diagnostic conversation and report' },
-    note: 'Opens the Revenue Architect app on a separate site. Checkout is handled by Stripe.'
+    note: 'Live soon. It will open on a separate site, with checkout handled by Stripe.'
   },
   studio: {
-    category: 'Marketing QA',
-    tagline: 'Campaigns that pass QA before they publish.',
-    cardMetrics: [{ dir: 'down', name: 'Review cycles' }, { dir: 'down', name: 'Time to publish' }],
-    h1: 'AI campaigns that pass QA before they publish',
-    lead: 'Every line is checked against your compliance or brand rules, and nothing goes live without a person approving it.',
-    moves: [{ dir: 'down', name: 'Time from brief to a QA\'d campaign' }, { dir: 'down', name: 'Review cycles before sign-off' }],
+    category: 'Marketing studio',
+    tagline: 'Campaign assets, in your brand.',
+    cardMetrics: [{ dir: 'down', name: 'Time to publish' }, { dir: 'down', name: 'Review cycles' }],
+    h1: 'A campaign kit in your brand, ready to approve',
+    lead: 'Social images, carousels, PDFs, one-pagers, landing pages and emails, planned as a campaign and held for your approval.',
+    moves: [{ dir: 'down', name: 'Time from brief to a finished campaign' }, { dir: 'down', name: 'Review cycles before sign-off' }],
     points: [
-      ['shield', 'Rules run first', 'Banned terms block before any AI judgment.'],
-      ['approved', 'A person signs off', 'Nothing publishes without human approval.'],
-      ['layers', 'Brands stay separate', 'Voice, colours and QA rules live on the brand.']
+      ['image', 'Every format from one brief', 'Images, PDFs, one-pagers, pages and emails in your brand.'],
+      ['calendar', 'Planned as a campaign', 'A plan across weeks, scheduled on a calendar.'],
+      ['shield', 'Checked, then approved', 'Your rules run first. A person signs off.']
     ],
-    howTitle: 'Nothing goes live unchecked',
-    howLead: 'Four agents draft the campaign and its landing pages. One QA gate decides what reaches a person. Proven on FCA COBS 4.',
+    howTitle: 'One brief, a whole campaign kit',
+    howLead: 'Images, PDFs, one-pagers, landing pages and emails, planned across weeks and checked before anyone sees them.',
     chipsLabel: 'Runs on',
     chips: ['Anthropic', 'Next.js', 'PostgreSQL', 'Vercel'],
-    fit: {
-      yes: ['Your outbound copy needs sign-off before it ships', 'A reviewer reviews the copy today', 'You run multiple brands, or a regulated one'],
-      no: ['Nobody signs off outbound copy yet', 'You only run one-off campaigns']
+    buildLead: 'Your brand and your rules go in. Approved, scheduled campaign assets come out.',
+    build: {
+      inputs: [['pen', 'Your brand', 'Voice, colours, fonts, logo'], ['question', 'The brief', 'Channel, audience, purpose, cadence'], ['report', 'Your evidence', 'Reports, metrics, case studies'], ['image', 'Your designs', 'Upload a design, get a template']],
+      engine: [['compass', 'Strategy', 'Plans the campaign across weeks'], ['pen', 'Copy per touchpoint', 'Written in your brand voice'], ['layers', 'Design', 'Fills your templates to size']],
+      outputs: [['image', 'Images and carousels', 'Social cards in every ratio'], ['file', 'PDFs, one-pagers, emails', 'Ready to share'], ['browser', 'Landing pages', 'Hosted apart from your site'], ['calendar', 'A campaign calendar', 'Every touchpoint scheduled']],
+      controls: [['shield', 'Rules run first', 'Banned terms block before AI review'], ['approved', 'A person approves', 'Nothing publishes on its own'], ['layers', 'Brands stay separate', 'Rules and voice live on the brand']]
     },
-    includes: ['Setup and your first QA\'d campaign, live', 'Brand rules and two severity tiers', 'A campaign calendar', 'Landing pages, email and one-pagers from templates'],
+    needs: ['Your brand assets and tone', 'The rules that must block publication', 'Who approves, and how', 'Designs you like, as images'],
     excludes: ['Sending: it stays in your email tool', 'Legal or compliance sign-off', 'Publishing without approval'],
+    fit: {
+      statements: ['Your marketing copy needs sign-off before it ships', 'You produce images, PDFs or pages for campaigns regularly', 'You run more than one brand, or a regulated one'],
+      notYet: 'Not yet if nobody signs off marketing copy, or you only run one-off campaigns.'
+    },
     steps: ['Book a demo call', 'We review your rules and how copy gets signed off', 'You get a fixed build and a first live campaign'],
-    price: { label: 'Fixed price', amount: '&pound;7,500 <small>fixed build</small>', scope: 'Setup and first QA\'d campaign' }
+    price: { label: 'Fixed price', amount: '&pound;7,500 <small>fixed build</small>', scope: 'Setup and first campaign, checked and approved' }
   }
 };
 
-// The primary action on an offer page: a demo call, or the diagnostic for Revenue Architect.
-const action = (id) => (id === 'architect'
-  ? { label: 'Run the diagnostic', href: routes.external.architectApp }
-  : { label: 'Book a demo call', href: routes.external.book });
-const actionLink = (id, cls) => {
-  const a = action(id);
-  return `<a class="${cls}" href="${a.href}" target="_blank" rel="noopener">${a.label}${NEW_TAB}</a>`;
-};
+// The primary action on an offer page: a demo call. An offer that is not live yet shows "Live soon" instead.
+const isSoon = (id) => routes.offers[id].live === false;
+const actionLink = (id, cls) => (isSoon(id)
+  ? `<span class="${cls} btn--soon">Live soon</span>`
+  : `<a class="${cls}" href="${routes.external.book}" target="_blank" rel="noopener">Book a demo call${NEW_TAB}</a>`);
 
-const li = (items) => items.map((t) => `<li>${esc(t)}</li>`).join('\n            ');
+const li = (items) => items.map((t) => `<li>${esc(t)}</li>`).join('\n              ');
 const dirWord = (dir) => (dir === 'down' ? 'lower' : 'higher');
 const moveItem = (m) => `<li><span class="moves__dir" aria-hidden="true">${icon(m.dir)}</span>${esc(m.name)}<span class="sr-only"> (target: ${dirWord(m.dir)})</span></li>`;
 
-// ---------- the three blocks of an offer page ----------
+// ---------- the four blocks of an offer page ----------
 
 function renderHero(id) {
   const v = VISUALS[id];
@@ -444,6 +556,54 @@ function renderHow(id) {
   </section>`;
 }
 
+const tile = ([ic, label, sub]) => `<li class="btile"><span class="btile__icon">${icon(ic)}</span><span class="btile__text"><strong>${esc(label)}</strong><span>${esc(sub)}</span></span></li>`;
+const lane = (cls, title, items) => `<div class="lane ${cls}">
+          <h3 class="lane__title">${title}</h3>
+          <ul class="btiles">
+            ${items.map(tile).join('\n            ')}
+          </ul>
+        </div>`;
+
+function renderBuild(id) {
+  const v = VISUALS[id];
+  const b = v.build;
+  return `<section class="section section--tint" id="build" aria-labelledby="build-h">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">What we build</p>
+        <h2 id="build-h">The build, at a glance</h2>
+        <p class="lead">${esc(v.buildLead)}</p>
+      </div>
+      <div class="bmap">
+        <div class="bmap__flow">
+        ${lane('lane--in', 'Inputs', b.inputs)}
+        ${lane('lane--engine', 'Engine', b.engine)}
+        ${lane('lane--out', 'Outputs', b.outputs)}
+        </div>
+        ${lane('lane--controls', 'Controls', b.controls)}
+      </div>
+      <div class="tabs" data-tabs>
+        <div class="tabs__list" role="tablist" aria-label="More about the build">
+          <button type="button" class="tabs__tab" role="tab" id="tab-needs-${id}" aria-controls="panel-needs-${id}" aria-selected="true">What we need from you</button>
+          <button type="button" class="tabs__tab" role="tab" id="tab-not-${id}" aria-controls="panel-not-${id}" aria-selected="false" tabindex="-1">Not included</button>
+        </div>
+        <div class="tabs__panel" role="tabpanel" id="panel-needs-${id}" aria-labelledby="tab-needs-${id}">
+          <h3 class="tabs__h">What we need from you</h3>
+          <ul class="checks">
+            ${li(v.needs)}
+          </ul>
+        </div>
+        <div class="tabs__panel" role="tabpanel" id="panel-not-${id}" aria-labelledby="tab-not-${id}">
+          <h3 class="tabs__h">Not included</h3>
+          <ul class="crosses">
+            ${li(v.excludes)}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>`;
+}
+
 const TIERS = `<div class="mk-price" data-tiers>
             <p class="mk-price__label">Fixed scope, priced by depth</p>
             <p class="mk-price__amount" data-amount aria-live="polite">&pound;6,000</p>
@@ -470,43 +630,30 @@ function priceBlock(v) {
 
 function renderFit(id) {
   const v = VISUALS[id];
-  return `<section class="section section--tint" id="fit" aria-labelledby="fit-h">
+  const verdicts = isSoon(id) ? VERDICT_SOON : VERDICT;
+  const attrs = verdicts.map((t, i) => `data-v${i}="${escAttr(t)}"`).join(' ');
+  return `<section class="section" id="fit" aria-labelledby="fit-h">
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">Before you book</p>
-        <h2 id="fit-h">Is it right for you?</h2>
+        <h2 id="fit-h">Does it fit?</h2>
       </div>
       <div class="fit-layout">
-        <div class="fit-grid">
-          <article class="fbox fbox--yes">
-            <h3>Right for you if</h3>
-            <ul class="checks">
-            ${li(v.fit.yes)}
-            </ul>
-          </article>
-          <article class="fbox fbox--no">
-            <h3>Not yet if</h3>
-            <ul class="crosses">
-            ${li(v.fit.no)}
-            </ul>
-          </article>
-          <article class="fbox">
-            <h3>Included</h3>
-            <ul class="checks">
-            ${li(v.includes)}
-            </ul>
-          </article>
-          <article class="fbox">
-            <h3>Not included</h3>
-            <ul class="crosses">
-            ${li(v.excludes)}
-            </ul>
-          </article>
+        <div class="fitcheck" data-fit data-count="0" ${attrs}>
+          <fieldset class="fitcheck__set">
+            <legend class="fitcheck__legend">Which of these are true for you?</legend>
+            ${v.fit.statements.map((t) => `<label class="tick"><input type="checkbox"><span class="tick__text">${esc(t)}</span></label>`).join('\n            ')}
+          </fieldset>
+          <div class="fitcheck__result">
+            <div class="fitmeter" aria-hidden="true"><i></i><i></i><i></i></div>
+            <p class="fitcheck__verdict" data-verdict aria-live="polite">${esc(verdicts[0])}</p>
+            <p class="fitcheck__hint">${esc(v.fit.notYet)}</p>
+            ${actionLink(id, 'btn btn--primary')}
+          </div>
         </div>
         <article class="fitcard fitcard--price">
           <h3>Price</h3>
           ${priceBlock(v)}
-          ${actionLink(id, 'btn btn--primary')}
           <div class="start">
             <p class="start__label">How it starts</p>
             <ol class="start__list">
@@ -530,7 +677,7 @@ function renderBar(id) {
   </div>`;
 }
 
-export const renderOfferPage = (id) => [renderHero(id), renderHow(id), renderFit(id), renderBar(id)].join('\n\n  ');
+export const renderOfferPage = (id) => [renderHero(id), renderHow(id), renderBuild(id), renderFit(id), renderBar(id)].join('\n\n  ');
 
 // ---------- marketplace cards ----------
 
@@ -538,6 +685,7 @@ function renderCard(id) {
   const v = VISUALS[id];
   const offer = routes.offers[id];
   const href = routes.pages[offer.page];
+  const soon = isSoon(id) ? '<span class="tag tag--soon">Live soon</span>' : '';
   return `      <article class="card card--link mkt-card">
         <div class="mkt-card__top">
           <span class="emblem emblem--sm"><img src="assets/mark.svg" alt="" width="62" height="21"></span>
@@ -548,7 +696,7 @@ function renderCard(id) {
         <ul class="mkt-card__moves">
           ${v.cardMetrics.map(moveItem).join('\n          ')}
         </ul>
-        <p class="mkt-card__price"><span>${esc(offer.price)}</span><span class="mkt-card__go" aria-hidden="true">&rarr;</span></p>
+        <p class="mkt-card__price"><span>${esc(offer.price)}</span><span class="mkt-card__end">${soon}<span class="mkt-card__go" aria-hidden="true">&rarr;</span></span></p>
       </article>`;
 }
 
