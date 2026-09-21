@@ -28,8 +28,8 @@
     <nav class="nav" aria-label="Primary">
       <a href="index.html">Home</a>
       <a href="marketplace.html" aria-current="page">Marketplace</a>
-      <a href="diagnostic.html">Free diagnostic</a>
       <a href="insights.html">Insights</a>
+      <a href="diagnostic.html">Free diagnostic</a>
     </nav>
     <div class="site-header__actions">
       <a class="btn btn--primary btn--sm header-cta" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book Audit<span class="sr-only"> (opens in a new tab)</span></a>
@@ -43,8 +43,8 @@
     <div class="wrap">
       <a href="index.html">Home</a>
       <a href="marketplace.html" aria-current="page">Marketplace</a>
-      <a href="diagnostic.html">Free diagnostic</a>
       <a href="insights.html">Insights</a>
+      <a href="diagnostic.html">Free diagnostic</a>
       <a class="btn btn--primary" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book Audit<span class="sr-only"> (opens in a new tab)</span></a>
     </div>
   </nav>
@@ -52,7 +52,7 @@
 <!-- /shell:header -->
 <main id="main">
 
-  <section class="hero" aria-labelledby="hero-h">
+  <section class="hero hero--offer" aria-labelledby="hero-h">
     <div class="wrap">
       <p class="eyebrow">Marketplace</p>
       <h1 id="hero-h">Revenue infrastructure, without the retainer</h1>
@@ -62,6 +62,9 @@
         <a class="btn" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book Audit<span class="sr-only"> (opens in a new tab)</span></a>
       </div>
     </div>
+    <div class="hero-art hero-art--side" aria-hidden="true">
+      <img class="hero-mark" src="assets/mark.svg" alt="" width="229" height="77">
+    </div>
   </section>
 
   <section class="section" aria-labelledby="offers-h">
@@ -69,94 +72,400 @@
       <div class="section-head">
         <h2 id="offers-h">Pick the problem, see the price</h2>
       </div>
-      <div class="mk-grid">
-
-        <article class="card card--link mk-card">
-          <p class="mk-card__cat">Pipeline</p>
-          <h3><a class="card__link" href="email-outreach.html">Email outreach infrastructure</a></h3>
-          <p class="mk-card__sum">Hyper-personalized outreach for LPs, founders and target accounts.</p>
-          <div class="mk-price">
-            <p class="mk-price__label">Pricing</p>
-            <p class="mk-price__amount">Custom scope</p>
-            <p class="mk-price__scope mk-price__scope--plain">Priced after a short qualification.</p>
+      <div class="showcases">
+      <!-- showcases:start -->
+      <article class="showcase" id="outreach">
+        <header class="showcase__head">
+          <span class="emblem emblem--lg"><img src="assets/mark.svg" alt="" width="62" height="21"></span>
+          <div class="showcase__id">
+            <p class="showcase__cat">Pipeline</p>
+            <h3 class="showcase__name"><a href="email-outreach.html">Email outreach infrastructure</a></h3>
+            <p class="showcase__does">Hyper-personalized outreach for LPs, founders and target accounts, built on research and reviewed before it sends.</p>
           </div>
-          <p class="mk-note">Nothing sends without agreed controls.</p>
-          <div class="offer__foot"><span class="cta-link" aria-hidden="true">View the offer</span></div>
-        </article>
-
-        <article class="card card--link mk-card">
-          <p class="mk-card__cat">Data foundation</p>
-          <h3><a class="card__link" href="database.html">Database cleanup or creation</a></h3>
-          <p class="mk-card__sum">Clean and document the records you have, or build a target-account database.</p>
-          <div class="mk-price">
-            <p class="mk-price__label">Pricing</p>
-            <p class="mk-price__amount">Custom scope</p>
-            <p class="mk-price__scope mk-price__scope--plain">Record volume, source quality and enrichment depth set the scope.</p>
+          <div class="showcase__price">
+        <div class="mk-price">
+          <p class="mk-price__label">Pricing</p>
+          <p class="mk-price__amount">Custom scope</p>
+          <p class="mk-price__scope mk-price__scope--plain">Priced after a short qualification.</p>
+        </div>
           </div>
-          <p class="mk-note">No promise of exhaustive coverage.</p>
-          <div class="offer__foot"><span class="cta-link" aria-hidden="true">View the offer</span></div>
-        </article>
-
-        <article class="card card--link mk-card" id="goldmine-card">
-          <p class="mk-card__cat">CRM intelligence</p>
-          <h3><a class="card__link" href="goldmine.html">Goldmine</a></h3>
-          <p class="mk-card__sum">Turns CRM history into a prioritized working queue.</p>
-          <div class="mk-price" data-tiers>
-            <p class="mk-price__label">Fixed scope, priced by depth</p>
-            <p class="mk-price__amount" data-amount aria-live="polite">&pound;6,000</p>
-            <p class="mk-price__scope" data-scope>Scoring and write-back, single pipeline</p>
-            <div class="tier-select">
-              <div class="tier-select__meter" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
-              <div class="tier-select__buttons" role="group" aria-label="Choose a build depth">
-                <button type="button" class="tier-btn" aria-pressed="true" data-price="6000" data-scope="Scoring and write-back, single pipeline"><span>Core</span><small>&pound;6,000</small></button>
-                <button type="button" class="tier-btn" aria-pressed="false" data-price="8500" data-scope="Adds AI synthesis behind record checks, and multiple pipelines"><span>Full Build</span><small>&pound;8,500</small></button>
-                <button type="button" class="tier-btn" aria-pressed="false" data-price="11000" data-scope="Adds custom signals and a reporting dashboard"><span>Extended</span><small>&pound;11,000</small></button>
-              </div>
+        </header>
+        <div class="viz" role="group" aria-label="How email outreach infrastructure works, in five steps">
+    <ol class="chain" style="--n:5">
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg></span>
+        <span class="chain__num">01</span>
+        <h3 class="chain__title">Define the audience</h3>
+        <p class="chain__text">Persona and signals</p>
+      </li>
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></span>
+        <span class="chain__num">02</span>
+        <h3 class="chain__title">Research</h3>
+        <p class="chain__text">Accounts and contacts</p>
+      </li>
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg></span>
+        <span class="chain__num">03</span>
+        <h3 class="chain__title">Draft</h3>
+        <p class="chain__text">Personalization with evidence rules</p>
+      </li>
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 11.5l2 2 3.5-3.7"/></svg></span>
+        <span class="chain__num">04</span>
+        <h3 class="chain__title">Review</h3>
+        <p class="chain__text">Exceptions and approval</p>
+        <span class="chain__tag">Nothing sends without agreed controls</span>
+      </li>
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 3L10.5 13.5M21 3l-6.5 18-4-7.5L3 9.5z"/></svg></span>
+        <span class="chain__num">05</span>
+        <h3 class="chain__title">Send and hand off</h3>
+        <p class="chain__text">Gmail on Google Workspace, then your CRM</p>
+      </li>
+    </ol>
+  </div>
+        <div class="showcase__foot">
+          <div class="metrics">
+    <p class="metrics__title">Metrics it targets</p>
+    <ul class="metrics__list">
+      <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span class="metrics__name">Research and drafting time</span><span class="sr-only"> (target: lower)</span></li>
+      <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span><span class="metrics__name">Follow-up consistency</span><span class="sr-only"> (target: higher)</span></li>
+      <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span><span class="metrics__name">Qualified conversations</span><span class="sr-only"> (target: higher)</span></li>
+    </ul>
+    <p class="metrics__note">Targets only. Results depend on your data.</p>
+  </div>
+          <a class="btn btn--primary" href="email-outreach.html">View the offer<span class="sr-only">: Email outreach infrastructure</span></a>
+        </div>
+      </article>
+      <article class="showcase" id="database">
+        <header class="showcase__head">
+          <span class="emblem emblem--lg"><img src="assets/mark.svg" alt="" width="62" height="21"></span>
+          <div class="showcase__id">
+            <p class="showcase__cat">Data foundation</p>
+            <h3 class="showcase__name"><a href="database.html">Database cleanup or creation</a></h3>
+            <p class="showcase__does">Clean and document the records you have, or build a target-account database for a defined market.</p>
+          </div>
+          <div class="showcase__price">
+        <div class="mk-price">
+          <p class="mk-price__label">Pricing</p>
+          <p class="mk-price__amount">Custom scope</p>
+          <p class="mk-price__scope mk-price__scope--plain">Record volume, source quality and enrichment depth set the scope.</p>
+        </div>
+          </div>
+        </header>
+        <div class="viz" role="group" aria-label="How database cleanup or creation works: what goes in, what comes out">
+    <div class="diagram">
+      <div class="diagram__side">
+        <p class="diagram__label">Starts from</p>
+        <ul class="diagram__list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M3.5 14.5h17M9.5 4.5v15"/></svg><span>Spreadsheets</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6M4.5 12v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-6"/></svg><span>CRM records</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/></svg><span>A defined target market</span></li>
+        </ul>
+      </div>
+      <span class="diagram__link" aria-hidden="true"></span>
+      <div class="diagram__core">
+        <span class="emblem"><img src="assets/mark.svg" alt="" width="62" height="21"></span>
+        <strong>The database work</strong>
+        <span>Audit, schema, deduplication, validation</span>
+      </div>
+      <span class="diagram__link" aria-hidden="true"></span>
+      <div class="diagram__side">
+        <p class="diagram__label">Delivers</p>
+        <ul class="diagram__list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6M4.5 12v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-6"/></svg><span>A documented database</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 3.5h7l4 4V20.5H7z"/><path d="M14 3.5v4h4M9.5 12h5M9.5 15.5h3"/></svg><span>CRM-ready import file</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/><path d="M8.7 12.2l2.3 2.3 4.3-4.6"/></svg><span>Exception report and source notes</span></li>
+        </ul>
+      </div>
+    </div>
+    <ul class="viz__chips">
+      <li>No promise of exhaustive coverage</li>
+    </ul>
+  </div>
+        <div class="showcase__foot">
+          <div class="metrics">
+    <p class="metrics__title">Metrics it targets</p>
+    <ul class="metrics__list">
+      <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span class="metrics__name">Duplicate records</span><span class="sr-only"> (target: lower)</span></li>
+      <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span><span class="metrics__name">Required-field completeness</span><span class="sr-only"> (target: higher)</span></li>
+      <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span class="metrics__name">Time to route and segment</span><span class="sr-only"> (target: lower)</span></li>
+    </ul>
+    <p class="metrics__note">Targets only. Results depend on your data.</p>
+  </div>
+          <a class="btn btn--primary" href="database.html">View the offer<span class="sr-only">: Database cleanup or creation</span></a>
+        </div>
+      </article>
+      <article class="showcase" id="goldmine">
+        <header class="showcase__head">
+          <span class="emblem emblem--lg"><img src="assets/mark.svg" alt="" width="62" height="21"></span>
+          <div class="showcase__id">
+            <p class="showcase__cat">CRM intelligence</p>
+            <h3 class="showcase__name"><a href="goldmine.html">Goldmine</a></h3>
+            <p class="showcase__does">Turns CRM history into a prioritized working queue, with rules your team can read and check.</p>
+          </div>
+          <div class="showcase__price">
+        <div class="mk-price" data-tiers>
+          <p class="mk-price__label">Fixed scope, priced by depth</p>
+          <p class="mk-price__amount" data-amount aria-live="polite">&pound;6,000</p>
+          <p class="mk-price__scope" data-scope>Scoring and write-back, single pipeline</p>
+          <div class="tier-select">
+            <div class="tier-select__meter" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
+            <div class="tier-select__buttons" role="group" aria-label="Choose a build depth">
+              <button type="button" class="tier-btn" aria-pressed="true" data-price="6000" data-scope="Scoring and write-back, single pipeline"><span>Core</span><small>&pound;6,000</small></button>
+              <button type="button" class="tier-btn" aria-pressed="false" data-price="8500" data-scope="Adds AI synthesis behind record checks, and multiple pipelines"><span>Full Build</span><small>&pound;8,500</small></button>
+              <button type="button" class="tier-btn" aria-pressed="false" data-price="11000" data-scope="Adds custom signals and a reporting dashboard"><span>Extended</span><small>&pound;11,000</small></button>
             </div>
           </div>
-          <p class="mk-note">&pound;6,000 / &pound;8,500 / &pound;11,000 by depth. Prices apply to HubSpot.</p>
-          <div class="offer__foot"><span class="cta-link" aria-hidden="true">View the offer</span></div>
-        </article>
-
-        <article class="card card--link mk-card">
-          <p class="mk-card__cat">Meeting intelligence</p>
-          <h3><a class="card__link" href="the-brief.html">The Brief</a></h3>
-          <p class="mk-card__sum">An account brief in Gmail before every external meeting.</p>
-          <div class="mk-price">
-            <p class="mk-price__label">Fixed price</p>
-            <p class="mk-price__amount">&pound;1,000 <small>fixed setup</small></p>
-            <p class="mk-price__scope">Setup and first live brief, single team</p>
+        </div>
+        <p class="mk-note">&pound;6,000 / &pound;8,500 / &pound;11,000 by depth. Prices apply to HubSpot.</p>
           </div>
-          <p class="mk-note">Needs Google Workspace.</p>
-          <div class="offer__foot"><span class="cta-link" aria-hidden="true">View the offer</span></div>
-        </article>
-
-        <article class="card card--link mk-card">
-          <p class="mk-card__cat">Revenue diagnostic</p>
-          <h3><a class="card__link" href="revenue-architect.html">Revenue Architect</a></h3>
-          <p class="mk-card__sum">A guided diagnostic that finds the real constraint on your growth.</p>
-          <div class="mk-price">
-            <p class="mk-price__label">Fixed price</p>
-            <p class="mk-price__amount">&pound;149 <small>self-serve</small></p>
-            <p class="mk-price__scope">One diagnostic conversation and report</p>
+        </header>
+        <div class="viz" role="group" aria-label="How Goldmine works: what goes in, what comes out">
+    <div class="diagram">
+      <div class="diagram__side">
+        <p class="diagram__label">Reads</p>
+        <ul class="diagram__list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6M4.5 12v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-6"/></svg><span>CRM data</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/></svg><span>Web research</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h3.5l1.5 4-2 1.5a11 11 0 0 0 6.5 6.5l1.5-2 4 1.5V19a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg><span>Calls and notes</span></li>
+        </ul>
+      </div>
+      <span class="diagram__link" aria-hidden="true"></span>
+      <div class="diagram__core">
+        <span class="emblem"><img src="assets/mark.svg" alt="" width="62" height="21"></span>
+        <strong>Goldmine</strong>
+        <span>Scoring rules and record checks</span>
+      </div>
+      <span class="diagram__link" aria-hidden="true"></span>
+      <div class="diagram__side">
+        <p class="diagram__label">Delivers</p>
+        <ul class="diagram__list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg><span>Your prioritized working queue</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 3L10.5 13.5M21 3l-6.5 18-4-7.5L3 9.5z"/></svg><span>Write-back to your CRM</span></li>
+        </ul>
+      </div>
+    </div>
+    <ul class="viz__chips">
+      <li>14-day hot decay</li>
+      <li>30-day cold decay</li>
+      <li>3-channel ghosting</li>
+      <li>Score floor and cap</li>
+      <li>Checked against the CRM record first</li>
+    </ul>
+  </div>
+        <div class="showcase__foot">
+          <div class="metrics">
+    <p class="metrics__title">Metrics it targets</p>
+    <ul class="metrics__list">
+      <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span><span class="metrics__name">Connectivity rate</span><span class="sr-only"> (target: higher)</span></li>
+      <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span class="metrics__name">Deal cycle time</span><span class="sr-only"> (target: lower)</span></li>
+      <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span><span class="metrics__name">Opportunities created</span><span class="sr-only"> (target: higher)</span></li>
+    </ul>
+    <p class="metrics__note">Targets only. Results depend on your data.</p>
+  </div>
+          <a class="btn btn--primary" href="goldmine.html">View the offer<span class="sr-only">: Goldmine</span></a>
+        </div>
+      </article>
+      <article class="showcase" id="brief">
+        <header class="showcase__head">
+          <span class="emblem emblem--lg"><img src="assets/mark.svg" alt="" width="62" height="21"></span>
+          <div class="showcase__id">
+            <p class="showcase__cat">Meeting intelligence</p>
+            <h3 class="showcase__name"><a href="the-brief.html">The Brief</a></h3>
+            <p class="showcase__does">An account brief in Gmail before every external meeting, built from your calendar, CRM and call history.</p>
           </div>
-          <p class="mk-note">A self-serve report on a separate site.</p>
-          <div class="offer__foot"><span class="cta-link" aria-hidden="true">View the offer</span></div>
-        </article>
-
-        <article class="card card--link mk-card">
-          <p class="mk-card__cat">Marketing QA</p>
-          <h3><a class="card__link" href="the-studio.html">The Studio</a></h3>
-          <p class="mk-card__sum">Campaigns created and checked against your rules before sign-off.</p>
-          <div class="mk-price">
-            <p class="mk-price__label">Fixed price</p>
-            <p class="mk-price__amount">&pound;7,500 <small>fixed build</small></p>
-            <p class="mk-price__scope">Setup and first QA'd campaign</p>
+          <div class="showcase__price">
+        <div class="mk-price">
+          <p class="mk-price__label">Fixed price</p>
+          <p class="mk-price__amount">&pound;1,000 <small>fixed setup</small></p>
+          <p class="mk-price__scope">Setup and first live brief, single team</p>
+        </div>
           </div>
-          <p class="mk-note">It does not send anything.</p>
-          <div class="offer__foot"><span class="cta-link" aria-hidden="true">View the offer</span></div>
-        </article>
-
+        </header>
+        <div class="viz" role="group" aria-label="How The Brief works: what goes in, what comes out">
+    <div class="diagram">
+      <div class="diagram__side">
+        <p class="diagram__label">Reads</p>
+        <ul class="diagram__list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Your calendar</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6M4.5 12v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-6"/></svg><span>CRM data</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h3.5l1.5 4-2 1.5a11 11 0 0 0 6.5 6.5l1.5-2 4 1.5V19a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg><span>Call history</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 3.5h7l4 4V20.5H7z"/><path d="M14 3.5v4h4M9.5 12h5M9.5 15.5h5"/></svg><span>Meeting transcripts</span></li>
+        </ul>
+      </div>
+      <span class="diagram__link" aria-hidden="true"></span>
+      <div class="diagram__core">
+        <span class="emblem"><img src="assets/mark.svg" alt="" width="62" height="21"></span>
+        <strong>The Brief</strong>
+        <span>Triggered by each external meeting</span>
+      </div>
+      <span class="diagram__link" aria-hidden="true"></span>
+      <div class="diagram__side">
+        <p class="diagram__label">Delivers</p>
+        <ul class="diagram__list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.5 7.5l8.5 6 8.5-6"/></svg><span>Morning overview at 08:00</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Detailed brief 30 minutes before each meeting</span></li>
+        </ul>
+      </div>
+    </div>
+    <ul class="viz__chips">
+      <li>Checked against the record before a rep sees it</li>
+      <li>Needs Google Workspace</li>
+    </ul>
+  </div>
+        <div class="showcase__foot">
+          <div class="metrics">
+    <p class="metrics__title">Metrics it targets</p>
+    <ul class="metrics__list">
+      <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span class="metrics__name">Pre-call prep time</span><span class="sr-only"> (target: lower)</span></li>
+      <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span class="metrics__name">New-rep ramp time</span><span class="sr-only"> (target: lower)</span></li>
+    </ul>
+    <p class="metrics__note">Targets only. Results depend on your data.</p>
+  </div>
+          <a class="btn btn--primary" href="the-brief.html">View the offer<span class="sr-only">: The Brief</span></a>
+        </div>
+      </article>
+      <article class="showcase" id="architect">
+        <header class="showcase__head">
+          <span class="emblem emblem--lg"><img src="assets/mark.svg" alt="" width="62" height="21"></span>
+          <div class="showcase__id">
+            <p class="showcase__cat">Revenue diagnostic</p>
+            <h3 class="showcase__name"><a href="revenue-architect.html">Revenue Architect</a></h3>
+            <p class="showcase__does">A guided diagnostic that finds the real constraint on your growth and hands you a report built around it.</p>
+          </div>
+          <div class="showcase__price">
+        <div class="mk-price">
+          <p class="mk-price__label">Fixed price</p>
+          <p class="mk-price__amount">&pound;149 <small>self-serve</small></p>
+          <p class="mk-price__scope">One diagnostic conversation and report</p>
+        </div>
+          </div>
+        </header>
+        <div class="viz" role="group" aria-label="The six phases of the Revenue Architect conversation">
+    <ol class="chain" style="--n:6">
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5.5h16v10H12l-4.5 3.5v-3.5H4z"/></svg></span>
+        <span class="chain__num">01</span>
+        <h3 class="chain__title">Open</h3>
+      </li>
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.6 2.6 0 0 1 5 .8c0 1.7-2.5 2-2.5 3.7M12 17v.01"/></svg></span>
+        <span class="chain__num">02</span>
+        <h3 class="chain__title">Challenge</h3>
+      </li>
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21M8 10.5h5M10.5 8v5"/></svg></span>
+        <span class="chain__num">03</span>
+        <h3 class="chain__title">Excavation</h3>
+      </li>
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12h4l2.5-6 4 12 2.5-6H21"/></svg></span>
+        <span class="chain__num">04</span>
+        <h3 class="chain__title">Diagnosis</h3>
+      </li>
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 4h11l3 5-8.5 11L3.5 9z"/><path d="M3.5 9h17M9.5 4l-2 5L12 20M14.5 4l2 5L12 20"/></svg></span>
+        <span class="chain__num">05</span>
+        <h3 class="chain__title">Crystallisation</h3>
+      </li>
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 3.5h7l4 4V20.5H7z"/><path d="M14 3.5v4h4M9.5 15l1.7 1.7 3.3-3.7"/></svg></span>
+        <span class="chain__num">06</span>
+        <h3 class="chain__title">Your report</h3>
+      </li>
+    </ol>
+    <ul class="viz__chips">
+      <li>Benchmarked across four growth stages</li>
+      <li>Checked against 16 archetypes</li>
+      <li>At least 14 exchanges before a report</li>
+      <li>Self-serve, on a separate site</li>
+    </ul>
+  </div>
+        <div class="showcase__foot">
+          <div class="metrics">
+    <p class="metrics__title">Metrics it targets</p>
+    <ul class="metrics__list">
+      <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span class="metrics__name">Time to a confident growth-priority decision</span><span class="sr-only"> (target: lower)</span></li>
+      <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span class="metrics__name">Guesswork before committing budget</span><span class="sr-only"> (target: lower)</span></li>
+    </ul>
+    <p class="metrics__note">Targets only. Results depend on your data.</p>
+  </div>
+          <a class="btn btn--primary" href="revenue-architect.html">View the offer<span class="sr-only">: Revenue Architect</span></a>
+        </div>
+      </article>
+      <article class="showcase" id="studio">
+        <header class="showcase__head">
+          <span class="emblem emblem--lg"><img src="assets/mark.svg" alt="" width="62" height="21"></span>
+          <div class="showcase__id">
+            <p class="showcase__cat">Marketing QA</p>
+            <h3 class="showcase__name"><a href="the-studio.html">The Studio</a></h3>
+            <p class="showcase__does">Campaigns created and checked against your rules before sign-off.</p>
+          </div>
+          <div class="showcase__price">
+        <div class="mk-price">
+          <p class="mk-price__label">Fixed price</p>
+          <p class="mk-price__amount">&pound;7,500 <small>fixed build</small></p>
+          <p class="mk-price__scope">Setup and first QA'd campaign</p>
+        </div>
+          </div>
+        </header>
+        <div class="viz" role="group" aria-label="How The Studio takes a campaign from research to a live page">
+    <ol class="chain" style="--n:6">
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></span>
+        <span class="chain__num">01</span>
+        <h3 class="chain__title">Research</h3>
+      </li>
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg></span>
+        <span class="chain__num">02</span>
+        <h3 class="chain__title">Strategy</h3>
+      </li>
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg></span>
+        <span class="chain__num">03</span>
+        <h3 class="chain__title">Copywriter</h3>
+      </li>
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/><path d="M8.7 12.2l2.3 2.3 4.3-4.6"/></svg></span>
+        <span class="chain__num">04</span>
+        <h3 class="chain__title">QA check</h3>
+        <p class="chain__text">Banned terms block first. AI judges accuracy, clarity and brand.</p>
+      </li>
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.7 2.7L16.3 9.4"/></svg></span>
+        <span class="chain__num">05</span>
+        <h3 class="chain__title">Human approval</h3>
+        <span class="chain__tag">Nothing publishes without it</span>
+      </li>
+      <li class="chain__step">
+        <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M3 9h18M6.5 6.8h.01M9 6.8h.01"/></svg></span>
+        <span class="chain__num">06</span>
+        <h3 class="chain__title">Live page</h3>
+        <p class="chain__text">On an isolated deploy</p>
+      </li>
+    </ol>
+    <ul class="viz__chips">
+      <li>Proven on FCA COBS 4</li>
+      <li>Rule set swappable for your own</li>
+      <li>It does not send anything</li>
+    </ul>
+  </div>
+        <div class="showcase__foot">
+          <div class="metrics">
+    <p class="metrics__title">Metrics it targets</p>
+    <ul class="metrics__list">
+      <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span class="metrics__name">Time from brief to a QA'd, ready-to-publish campaign</span><span class="sr-only"> (target: lower)</span></li>
+      <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span class="metrics__name">Review cycles before sign-off</span><span class="sr-only"> (target: lower)</span></li>
+    </ul>
+    <p class="metrics__note">Targets only. Results depend on your data.</p>
+  </div>
+          <a class="btn btn--primary" href="the-studio.html">View the offer<span class="sr-only">: The Studio</span></a>
+        </div>
+      </article>
+      <!-- showcases:end -->
       </div>
     </div>
   </section>

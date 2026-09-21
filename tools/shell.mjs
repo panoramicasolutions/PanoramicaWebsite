@@ -15,8 +15,8 @@ const word = (cls) => LOGO.replace('<svg ', `<svg class="${cls}" `);
 const NAV = [
   ['home', 'Home'],
   ['marketplace', 'Marketplace'],
-  ['diagnostic', 'Free diagnostic'],
-  ['insights', 'Insights']
+  ['insights', 'Insights'],
+  ['diagnostic', 'Free diagnostic']
 ];
 
 const OFFERS = [
