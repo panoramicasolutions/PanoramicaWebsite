@@ -365,13 +365,14 @@ strong { color: var(--ink); font-weight: 600; }
 }
 .hero-grid { display: grid; gap: var(--sp-5); align-items: center; }
 .hero--home h1 { font-size: clamp(2.5rem, 1.3rem + 5.2vw, 5.5rem); letter-spacing: -0.045em; line-height: 1; max-width: 11em; }
-.hero-art { position: relative; display: none; justify-content: center; }
+/* On small screens the mark sits small above the copy, so it never runs behind the text. */
+.hero-art { position: relative; display: flex; justify-content: flex-start; order: -1; margin-bottom: var(--sp-1); }
 .hero-art::before {
-  content: ""; position: absolute; inset: -20% -10%; z-index: -1;
+  content: ""; position: absolute; inset: -60% auto -60% -30%; width: 220px; z-index: -1;
   background: radial-gradient(closest-side, rgba(220, 238, 106, 0.2), transparent 72%);
 }
 .hero-mark {
-  display: block; width: min(70%, 320px); height: auto;
+  display: block; width: 96px; height: auto;
   transform: rotate(-8deg);
   filter: drop-shadow(0 0 36px rgba(220, 238, 106, 0.45));
   animation: drift 9s ease-in-out infinite alternate;
@@ -381,7 +382,8 @@ strong { color: var(--ink); font-weight: 600; }
   .hero--home { padding-block: var(--sp-8); min-height: min(84vh, 780px); display: flex; align-items: center; }
   .hero--home .wrap { width: min(100% - 2.5rem, 74rem); }
   .hero-grid { grid-template-columns: 1fr 1.05fr; gap: var(--sp-6); width: 100%; }
-  .hero-grid .hero-art { display: flex; align-items: center; min-height: 460px; }
+  .hero-grid .hero-art { order: 0; justify-content: center; align-items: center; min-height: 460px; margin-bottom: 0; }
+  .hero-art::before { inset: -20% -10%; width: auto; }
   .hero-grid .hero-mark { width: min(128%, 760px); margin-left: -16%; margin-top: -8rem; }
   /* Offer heroes are shorter than the home hero, so the same mark sits a little lower. */
   .hero--offer .hero-art { min-height: 420px; }
