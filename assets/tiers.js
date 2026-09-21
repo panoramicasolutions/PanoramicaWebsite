@@ -1,4 +1,4 @@
-/* Goldmine depth selector on the marketplace. The page reads correctly without it. */
+/* Goldmine depth selector on the services page. The page reads correctly without it. */
 (function () {
   var box = document.querySelector('[data-tiers]');
   if (!box) return;

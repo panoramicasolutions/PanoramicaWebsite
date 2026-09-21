@@ -14,7 +14,7 @@ const word = (cls) => LOGO.replace('<svg ', `<svg class="${cls}" `);
 
 const NAV = [
   ['home', 'Home'],
-  ['marketplace', 'Marketplace'],
+  ['services', 'Services'],
   ['insights', 'Insights'],
   ['diagnostic', 'Free diagnostic']
 ];
@@ -79,7 +79,7 @@ export function renderHeader(active, exists = makeExists()) {
 
 export function renderFooter(exists = makeExists()) {
   const li = ([key, label]) => (exists(key) ? `<li><a href="${href(key)}">${label}</a></li>` : '');
-  const offers = [['marketplace', 'All offers'], ...OFFERS].map(li).filter(Boolean).join('\n          ');
+  const offers = [['services', 'All services'], ...OFFERS].map(li).filter(Boolean).join('\n          ');
   const company = [['diagnostic', 'Free diagnostic'], ['about', 'About'], ['insights', 'Insights']].map(li).filter(Boolean);
   company.push(`<li><a href="${routes.external.book}" target="_blank" rel="noopener">Book Audit${NEW_TAB}</a></li>`);
   company.push(`<li><a href="${routes.external.linkedin}" target="_blank" rel="noopener">Lorenzo on LinkedIn${NEW_TAB}</a></li>`);
@@ -96,8 +96,8 @@ export function renderFooter(exists = makeExists()) {
     <div>
       <p class="footer-tag">RevOps implementation for early-stage teams.</p>
     </div>
-    <nav aria-label="Marketplace">
-      <h2 class="footer-h">Marketplace</h2>
+    <nav aria-label="Services">
+      <h2 class="footer-h">Services</h2>
       <ul class="footer-list">
           ${offers}
       </ul>

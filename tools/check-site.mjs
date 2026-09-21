@@ -129,7 +129,7 @@ if (strict) {
   for (const [key, offer] of Object.entries(routes.offers)) {
     const file = routes.pages[offer.page];
     const price = offer.price.toLowerCase();
-    for (const f of [file, 'marketplace.html']) {
+    for (const f of [file, 'services.html']) {
       if (!text(f).includes(price)) err(`price: "${offer.price}" (${key}) missing from ${f}`);
     }
   }

@@ -539,7 +539,7 @@ strong { color: var(--ink); font-weight: 600; }
 .tile h3 { margin: 0 0 var(--sp-1); font-size: 1.0625rem; letter-spacing: -0.01em; }
 .tile p { margin: 0; font-size: var(--fs-small); color: var(--ink-3); }
 
-/* One clear door to the Marketplace. */
+/* One clear door to the Services page. */
 .panel {
   position: relative; isolation: isolate; overflow: hidden; display: grid; gap: var(--sp-5); align-items: center;
   padding: var(--sp-6) var(--sp-5); border: 1px solid rgba(220, 238, 106, 0.4); border-radius: var(--r-lg); background: var(--surface);
@@ -576,7 +576,7 @@ strong { color: var(--ink); font-weight: 600; }
 .emblem img { display: block; width: 74%; height: auto; transform: rotate(-8deg); }
 .emblem--lg { width: 84px; height: 84px; }
 
-/* ---------- compact marketplace ---------- */
+/* ---------- compact services page ---------- */
 
 .hero--compact { padding-block: var(--sp-6) var(--sp-4); }
 .hero-compact { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--sp-4) var(--sp-6); }

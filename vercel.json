@@ -1,10 +1,12 @@
 {
   "redirects": [
-    { "source": "/what-we-fix.html", "destination": "/marketplace.html", "statusCode": 301 },
-    { "source": "/what-we-fix", "destination": "/marketplace.html", "statusCode": 301 }
+    { "source": "/marketplace.html", "destination": "/services.html", "statusCode": 301 },
+    { "source": "/marketplace", "destination": "/services.html", "statusCode": 301 },
+    { "source": "/what-we-fix.html", "destination": "/services.html", "statusCode": 301 },
+    { "source": "/what-we-fix", "destination": "/services.html", "statusCode": 301 }
   ],
   "rewrites": [
-    { "source": "/marketplace", "destination": "/marketplace.html" },
+    { "source": "/services", "destination": "/services.html" },
     { "source": "/email-outreach", "destination": "/email-outreach.html" },
     { "source": "/goldmine", "destination": "/goldmine.html" },
     { "source": "/database", "destination": "/database.html" },

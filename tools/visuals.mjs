@@ -1,4 +1,4 @@
-// Offer pages and marketplace cards, generated from one data entry per offer.
+// Offer pages and service cards, generated from one data entry per offer.
 // Every offer page has the same four blocks, written from the client's side:
 //   1. the result (hero: outcome, what it is built to move, three selling points)
 //   2. how it works (a direct visual explanation that is specific to the offer)
@@ -6,7 +6,7 @@
 //   4. does it fit (a short tick-list check with a verdict, plus price and how it starts)
 // Pages carry marker comments and tools/sync-shell.mjs stamps the generated HTML between them.
 //   <!-- offer-page:brief -->...<!-- /offer-page:brief -->   the whole body of an offer page
-//   <!-- cards:start -->...<!-- cards:end -->                the compact grid on the marketplace
+//   <!-- cards:start -->...<!-- cards:end -->                the compact grid on the services page
 import { routes } from './shell.mjs';
 import { icon } from './icons.mjs';
 
@@ -17,7 +17,7 @@ const LABEL = '<p class="example__label">Example - not client data.</p>';
 const BAR = (title, meta) => `<div class="mock__bar"><span class="mock__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mock__title">${title}</span><span class="mock__meta">${meta}</span></div>`;
 const N = (n) => `<span class="cite cite--n" aria-label="from field ${n}">${n}</span>`;
 
-// Order here is the order on the marketplace.
+// Order here is the order on the services page.
 export const OFFER_ORDER = ['outreach', 'database', 'goldmine', 'brief', 'architect', 'studio'];
 
 // ---------- direct visual explanations: one per offer, each drawn differently ----------
@@ -509,7 +509,7 @@ function renderHero(id) {
   const offer = routes.offers[id];
   return `<section class="hero hero--offer" aria-labelledby="hero-h">
     <div class="wrap">
-      <p class="crumb"><a class="text-link" href="${routes.pages.marketplace}">&larr; Marketplace</a></p>
+      <p class="crumb"><a class="text-link" href="${routes.pages.services}">&larr; Services</a></p>
       <div class="hero-grid">
         <div class="hero-copy">
           <p class="eyebrow">${esc(offer.name)}</p>
@@ -679,7 +679,7 @@ function renderBar(id) {
 
 export const renderOfferPage = (id) => [renderHero(id), renderHow(id), renderBuild(id), renderFit(id), renderBar(id)].join('\n\n  ');
 
-// ---------- marketplace cards ----------
+// ---------- service cards ----------
 
 function renderCard(id) {
   const v = VISUALS[id];
