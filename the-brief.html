@@ -52,28 +52,33 @@
 <!-- /shell:header -->
 <main id="main">
 
-  <section class="hero hero--offer">
+  <!-- offer-page:brief -->
+  <section class="hero hero--offer" aria-labelledby="hero-h">
     <div class="wrap">
       <p class="crumb"><a class="text-link" href="marketplace.html">&larr; Marketplace</a></p>
       <p class="eyebrow">The Brief</p>
-      <h1>A brief in your inbox, before every call</h1>
-      <p class="lead">An account brief lands in Gmail before every external meeting, built from your calendar, CRM and call history.</p>
+      <h1 id="hero-h">A brief in your inbox, before every call</h1>
+      <p class="lead">An account brief lands in Gmail before every external meeting.</p>
       <div class="price-line">
-        <span class="chip chip--lime">&pound;1,000 fixed setup</span>
-        <a class="btn btn--primary" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book Audit<span class="sr-only"> (opens in a new tab)</span></a>
+        <span class="chip chip--lime">£1,000 fixed setup</span>
+        <a class="btn btn--primary" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a demo call<span class="sr-only"> (opens in a new tab)</span></a>
       </div>
+      <ul class="stats">
+        <li><span class="stats__label">Per rep, per day</span><span class="stats__value">2 emails</span></li>
+        <li><span class="stats__label">Before each meeting</span><span class="stats__value">30 minutes</span></li>
+        <li><span class="stats__label">Live sources</span><span class="stats__value">3, cross-checked</span></li>
+      </ul>
     </div>
     <div class="hero-art hero-art--side" aria-hidden="true">
       <img class="hero-mark" src="assets/mark.svg" alt="" width="229" height="77">
     </div>
   </section>
 
-  <!-- offer-section:brief -->
-  <section class="section" id="how" aria-labelledby="mech-h">
+  <section class="section" id="how" aria-labelledby="how-h">
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">How it works</p>
-        <h2 id="mech-h">Fires from your calendar, lands in Gmail</h2>
+        <h2 id="how-h">Fires from your calendar, lands in Gmail</h2>
       </div>
       <div class="viz" role="group" aria-label="How The Brief works: what goes in, what comes out">
     <div class="diagram">
@@ -98,141 +103,117 @@
         <ul class="diagram__list">
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.5 7.5l8.5 6 8.5-6"/></svg><span>Morning overview at 08:00</span></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Detailed brief 30 minutes before each meeting</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/><path d="M8.7 12.2l2.3 2.3 4.3-4.6"/></svg><span>Every fact checked against the record</span></li>
         </ul>
       </div>
     </div>
-    <ul class="viz__chips">
-      <li>Checked against the record before a rep sees it</li>
-      <li>Needs Google Workspace</li>
-    </ul>
+    <div class="viz__foot">
+      <p class="viz__label">Works with</p>
+      <ul class="viz__chips">
+        <li>Google Calendar (required)</li>
+          <li>Gmail (required)</li>
+          <li>HubSpot (proven)</li>
+          <li>Aircall (proven)</li>
+      </ul>
+    </div>
   </div>
-      <div class="metrics">
+      <div class="how-row">
+        <div class="sample">
+        <div class="example">
+          <p class="example__label">Example - not client data.</p>
+          <h3>Brief: intro call with Jordan Example (14:00)</h3>
+          <dl>
+            <div class="sample__row">
+              <dt>Who</dt>
+              <dd>Jordan Example, head of operations at Example Ltd (fictional)</dd>
+            </div>
+            <div class="sample__row">
+              <dt>From the CRM</dt>
+              <dd>Stage: discovery. Last activity: an email from the rep, no reply logged.</dd>
+            </div>
+            <div class="sample__row">
+              <dt>From past calls</dt>
+              <dd>Asked how the tool connects to their existing CRM.</dd>
+            </div>
+            <div class="sample__row">
+              <dt>Open items</dt>
+              <dd>Confirm the decision timeline. Send the pricing summary discussed last time.</dd>
+            </div>
+            <div class="sample__row">
+              <dt>Checked</dt>
+              <dd><span class="badge badge--strong">Verified</span>Each fact matched to a record before the brief was sent.</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+        <div class="metrics">
     <p class="metrics__title">Metrics it targets</p>
     <ul class="metrics__list">
       <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span class="metrics__name">Pre-call prep time</span><span class="sr-only"> (target: lower)</span></li>
       <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span class="metrics__name">New-rep ramp time</span><span class="sr-only"> (target: lower)</span></li>
     </ul>
-    <p class="metrics__note">Targets only. Results depend on your data.</p>
   </div>
-    </div>
-  </section>
-  <!-- /offer-section:brief -->
-
-  <section class="section section--tint" aria-labelledby="problem-h">
-    <div class="wrap">
-      <div class="section-head"><h2 id="problem-h">The problem</h2></div>
-      <p>Reps walk into calls underprepared. The context they need sits across the calendar, the CRM and past calls, and pulling it together before each meeting takes time.</p>
-    </div>
-  </section>
-
-  <section class="section" id="example" aria-labelledby="example-h">
-    <div class="wrap">
-      <div class="section-head"><h2 id="example-h">What lands in the inbox</h2></div>
-      <div class="example">
-        <p class="example__label">Example - not client data.</p>
-        <h3>Brief: intro call with Jordan Example (14:00)</h3>
-        <dl>
-          <dt>Who</dt>
-          <dd>Jordan Example, head of operations at Example Ltd (fictional)</dd>
-          <dt>From the CRM</dt>
-          <dd>Stage: discovery. Last activity: an email from the rep, no reply logged.</dd>
-          <dt>From past calls</dt>
-          <dd>Asked how the tool connects to their existing CRM.</dd>
-          <dt>Open items</dt>
-          <dd>Confirm the decision timeline. Send the pricing summary discussed last time.</dd>
-          <dt>Checked</dt>
-          <dd>Each fact above matched to a record before the brief was sent.</dd>
-        </dl>
       </div>
     </div>
   </section>
 
-
-  <section class="section" aria-labelledby="included-h">
+  <section class="section section--tint" id="fit" aria-labelledby="fit-h">
     <div class="wrap">
-      <div class="section-head"><h2 id="included-h">What is included</h2></div>
-      <ul class="checks">
-        <li>Setup and your first live brief, for a single team</li>
-        <li>Two emails per rep on working days: one overview, then one brief per meeting</li>
-        <li>Calendar, CRM, call history and meeting transcripts as sources</li>
-        <li>Record checks before a rep sees anything</li>
-      </ul>
-      <p>You own it once it is live.</p>
-    </div>
-  </section>
-
-  <section class="section section--tint" aria-labelledby="safe-h">
-    <div class="wrap">
-      <div class="section-head"><h2 id="safe-h">Safeguards</h2></div>
-      <ul class="checks">
-        <li>Outputs are checked against the CRM record before a rep sees them</li>
-        <li>Three live sources are cross-referenced: CRM, calls and meeting transcripts</li>
-        <li>LLM costs are separate from the build fee and confirmed before launch</li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="int-h">
-    <div class="wrap">
-      <div class="section-head"><h2 id="int-h">Integrations</h2></div>
-      <div class="grid cols-4">
-        <article class="card"><h3>Google Calendar</h3><p><span class="chip">Required</span></p></article>
-        <article class="card"><h3>Gmail</h3><p><span class="chip">Required</span></p></article>
-        <article class="card"><h3>HubSpot</h3><p><span class="chip chip--lime">Proven</span></p></article>
-        <article class="card"><h3>Aircall</h3><p><span class="chip chip--lime">Proven</span></p></article>
+      <div class="section-head">
+        <p class="eyebrow">Before you book</p>
+        <h2 id="fit-h">Fit, scope and price</h2>
       </div>
-      <p class="small">Other CRMs on request.</p>
-    </div>
-  </section>
-
-  <section class="section section--tint" aria-labelledby="price-h">
-    <div class="wrap">
-      <div class="section-head"><h2 id="price-h">Price</h2></div>
-      <div class="price-line">
-        <span class="price-amount">&pound;1,000</span>
-        <span class="chip chip--lime">Fixed setup</span>
-      </div>
-      <p>Setup and the first live brief, for a single team. It is a custom build.</p>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="faq-h">
-    <div class="wrap">
-      <div class="section-head"><h2 id="faq-h">Questions</h2></div>
-      <div class="faq">
-        <details>
-          <summary>Who is it for?</summary>
-          <p>Reps taking five or more calls a week with real prospects, on Google Workspace (Calendar and Gmail), with a CRM and call history to draw from.</p>
-        </details>
-        <details>
-          <summary>Who is it not for yet?</summary>
-          <p>Teams not on Google Calendar or Gmail, teams just starting out with no real pipeline in motion, and teams with no CRM or call history yet.</p>
-        </details>
-        <details>
-          <summary>When does the brief arrive?</summary>
-          <p>Reps get an overview at 08:00 on working days and a detailed brief 30 minutes before each meeting.</p>
-        </details>
-        <details>
-          <summary>Which tools does it work with?</summary>
-          <p>Google Calendar and Gmail are required. HubSpot and Aircall are proven. Other CRMs are available on request.</p>
-        </details>
-        <details>
-          <summary>What does it cost to run?</summary>
-          <p>The build fee covers setup and the first live brief. LLM costs are separate and confirmed before launch.</p>
-        </details>
+      <div class="fit-grid">
+        <article class="fitcard">
+          <h3>Fit</h3>
+          <ul class="checks">
+            <li>Reps taking five or more calls a week</li>
+          <li>On Google Workspace (Calendar and Gmail)</li>
+          <li>A CRM and call history to draw from</li>
+          </ul>
+          <p class="fitcard__label">Not yet</p>
+          <ul class="crosses">
+            <li>Not on Google Calendar or Gmail</li>
+          <li>No real pipeline in motion yet</li>
+          </ul>
+        </article>
+        <article class="fitcard">
+          <h3>Scope</h3>
+          <p class="fitcard__label">Includes</p>
+          <ul class="viz__chips">
+          <li>First live brief</li>
+          <li>Morning overview at 08:00</li>
+          <li>Brief 30 minutes before</li>
+          <li>Record checks</li>
+          <li>Single-team setup</li>
+        </ul>
+          <p class="fitcard__label">Not included</p>
+          <ul class="viz__chips viz__chips--out">
+          <li>Other CRMs unless requested</li>
+          <li>LLM running costs</li>
+        </ul>
+        </article>
+        <article class="fitcard fitcard--price">
+          <h3>Price</h3>
+          <div class="mk-price">
+            <p class="mk-price__label">Fixed price</p>
+            <p class="mk-price__amount">&pound;1,000 <small>fixed setup</small></p>
+            <p class="mk-price__scope">Setup and first live brief, single team</p>
+          </div>
+          <a class="btn btn--primary" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a demo call<span class="sr-only"> (opens in a new tab)</span></a>
+          <p class="small">Or <a class="text-link" href="mailto:lorenzo@panoramica.solutions">email us</a>.</p>
+        </article>
       </div>
     </div>
   </section>
 
-  <section class="section section--tint" aria-labelledby="cta-h">
-    <div class="wrap wrap--narrow">
-      <h2 id="cta-h">One call to see if this fits your team</h2>
-      <div class="btn-row">
-        <a class="btn btn--primary" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book Audit<span class="sr-only"> (opens in a new tab)</span></a>
-      </div>
-      <p class="small">Or email <a class="text-link" href="mailto:lorenzo@panoramica.solutions">lorenzo@panoramica.solutions</a></p>
+  <div class="offer-bar" data-offer-bar>
+    <div class="wrap offer-bar__inner">
+      <p class="offer-bar__id"><strong>The Brief</strong><span>£1,000 fixed setup</span></p>
+      <a class="btn btn--primary btn--sm" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a demo call<span class="sr-only"> (opens in a new tab)</span></a>
     </div>
-  </section>
+  </div>
+  <!-- /offer-page:brief -->
 
 </main>
 <!-- shell:footer -->

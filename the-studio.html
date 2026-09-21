@@ -52,29 +52,33 @@
 <!-- /shell:header -->
 <main id="main">
 
-  <section class="hero hero--offer">
+  <!-- offer-page:studio -->
+  <section class="hero hero--offer" aria-labelledby="hero-h">
     <div class="wrap">
       <p class="crumb"><a class="text-link" href="marketplace.html">&larr; Marketplace</a></p>
       <p class="eyebrow">The Studio</p>
-      <h1>AI campaigns that pass QA before they publish</h1>
-      <p class="lead">The Studio generates multi-touch campaigns and landing pages, and checks every line against your compliance or brand rules before a person has to.</p>
-      <p class="lead">Nothing publishes until someone explicitly approves it.</p>
+      <h1 id="hero-h">AI campaigns that pass QA before they publish</h1>
+      <p class="lead">Campaigns and landing pages checked against your compliance or brand rules, then held for approval.</p>
       <div class="price-line">
-        <span class="chip chip--lime">&pound;7,500 fixed build</span>
-        <a class="btn btn--primary" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book Audit<span class="sr-only"> (opens in a new tab)</span></a>
+        <span class="chip chip--lime">£7,500 fixed build</span>
+        <a class="btn btn--primary" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a demo call<span class="sr-only"> (opens in a new tab)</span></a>
       </div>
+      <ul class="stats">
+        <li><span class="stats__label">Pipeline</span><span class="stats__value">4 agents</span></li>
+        <li><span class="stats__label">QA findings</span><span class="stats__value">2 severity tiers</span></li>
+        <li><span class="stats__label">Before publishing</span><span class="stats__value">1 human approval</span></li>
+      </ul>
     </div>
     <div class="hero-art hero-art--side" aria-hidden="true">
       <img class="hero-mark" src="assets/mark.svg" alt="" width="229" height="77">
     </div>
   </section>
 
-  <!-- offer-section:studio -->
-  <section class="section" id="how" aria-labelledby="mech-h">
+  <section class="section" id="how" aria-labelledby="how-h">
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">How it works</p>
-        <h2 id="mech-h">Four agents, one QA gate</h2>
+        <h2 id="how-h">Four agents, one QA gate</h2>
       </div>
       <div class="viz" role="group" aria-label="How The Studio takes a campaign from research to a live page">
     <ol class="chain" style="--n:6">
@@ -98,6 +102,7 @@
         <span class="chain__num">04</span>
         <h3 class="chain__title">QA check</h3>
         <p class="chain__text">Banned terms block first. AI judges accuracy, clarity and brand.</p>
+        <span class="chain__tag">Proven on FCA COBS 4</span>
       </li>
       <li class="chain__step">
         <span class="chain__node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.7 2.7L16.3 9.4"/></svg></span>
@@ -112,110 +117,106 @@
         <p class="chain__text">On an isolated deploy</p>
       </li>
     </ol>
-    <ul class="viz__chips">
-      <li>Proven on FCA COBS 4</li>
-      <li>Rule set swappable for your own</li>
-      <li>It does not send anything</li>
-    </ul>
+    <div class="viz__foot">
+      <p class="viz__label">Runs on</p>
+      <ul class="viz__chips">
+        <li>Anthropic</li>
+          <li>Next.js</li>
+          <li>PostgreSQL</li>
+          <li>Vercel</li>
+      </ul>
+    </div>
   </div>
-      <div class="metrics">
+      <div class="how-row">
+        <div class="sample">
+        <div class="example">
+          <p class="example__label">Example - not client data.</p>
+          <h3>QA report for one landing page</h3>
+          <dl>
+            <div class="sample__row">
+              <dt>Blocker</dt>
+              <dd><span class="badge badge--strong">Rule</span>A banned term appears in the headline. Publication is held.</dd>
+            </div>
+            <div class="sample__row">
+              <dt>Warning</dt>
+              <dd><span class="badge">AI pass</span>The claim in paragraph two is unclear.</dd>
+            </div>
+            <div class="sample__row">
+              <dt>Status</dt>
+              <dd><span class="badge">Held</span>Waiting for human approval. Not published.</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+        <div class="metrics">
     <p class="metrics__title">Metrics it targets</p>
     <ul class="metrics__list">
       <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span class="metrics__name">Time from brief to a QA'd, ready-to-publish campaign</span><span class="sr-only"> (target: lower)</span></li>
       <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span class="metrics__name">Review cycles before sign-off</span><span class="sr-only"> (target: lower)</span></li>
     </ul>
-    <p class="metrics__note">Targets only. Results depend on your data.</p>
   </div>
-    </div>
-  </section>
-  <!-- /offer-section:studio -->
-
-  <section class="section section--tint" aria-labelledby="problem-h">
-    <div class="wrap">
-      <div class="section-head"><h2 id="problem-h">The problem</h2></div>
-      <p>Campaign creation and review take too long. Every line has to be drafted, checked against the rules and signed off before it ships.</p>
+      </div>
     </div>
   </section>
 
-
-  <section class="section section--tint" aria-labelledby="included-h">
+  <section class="section section--tint" id="fit" aria-labelledby="fit-h">
     <div class="wrap">
-      <div class="section-head"><h2 id="included-h">What the tool does</h2></div>
-      <ul class="checks">
-        <li>Multi-touch campaigns that follow one four-stage arc: hook, value or education, climax or lead magnet, and post-conversion nurture</li>
-        <li>Landing pages, plus social cards, HTML email and PDF one-pagers from templates</li>
-        <li>A campaign calendar, where a scheduling agent suggests send times and a person still places them</li>
-        <li>Voice, colours, fonts and QA rules held on the brand, so brands stay separate</li>
-        <li>Two severity tiers, hard blockers and warnings, both logged for review</li>
-      </ul>
-      <p>The fixed build covers setup and your first QA'd campaign, live.</p>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="bounds-h">
-    <div class="wrap">
-      <div class="section-head"><h2 id="bounds-h">Boundaries</h2></div>
-      <ul class="crosses">
-        <li>It does not send anything. Sending stays with your existing email tool</li>
-        <li>It checks against the rules you give it. It is not legal or compliance sign-off</li>
-        <li>It never publishes without explicit human approval</li>
-      </ul>
-      <p>It was proven on FCA COBS 4, and the rule set can be swapped for your own.</p>
-    </div>
-  </section>
-
-  <section class="section section--tint" aria-labelledby="fit-h">
-    <div class="wrap">
-      <div class="section-head"><h2 id="fit-h">Who it fits</h2></div>
-      <div class="grid cols-2">
-        <div class="card">
-          <h3>A good fit</h3>
+      <div class="section-head">
+        <p class="eyebrow">Before you book</p>
+        <h2 id="fit-h">Fit, scope and price</h2>
+      </div>
+      <div class="fit-grid">
+        <article class="fitcard">
+          <h3>Fit</h3>
           <ul class="checks">
-            <li>Outbound copy needs sign-off before it ships: legal, compliance or brand</li>
-            <li>A reviewer exists today and does review the copy</li>
-            <li>Multiple brands, or a regulated one such as financial services, health or insurance</li>
-            <li>Multi-touch campaigns on a regular cadence</li>
+            <li>Outbound copy needs sign-off before it ships</li>
+          <li>A reviewer who reviews the copy today</li>
+          <li>Multiple brands, or a regulated one</li>
           </ul>
-        </div>
-        <div class="card">
-          <h3>Not yet a fit</h3>
+          <p class="fitcard__label">Not yet</p>
           <ul class="crosses">
-            <li>Nobody currently reviews or signs off outbound copy</li>
-            <li>One-off campaigns, not a recurring need</li>
-            <li>No brand or compliance guide to check against yet</li>
+            <li>Nobody signs off outbound copy yet</li>
+          <li>Only one-off campaigns</li>
           </ul>
-        </div>
+        </article>
+        <article class="fitcard">
+          <h3>Scope</h3>
+          <p class="fitcard__label">Includes</p>
+          <ul class="viz__chips">
+          <li>Setup</li>
+          <li>First QA'd campaign, live</li>
+          <li>Brand rules</li>
+          <li>Campaign calendar</li>
+          <li>Two severity tiers</li>
+        </ul>
+          <p class="fitcard__label">Not included</p>
+          <ul class="viz__chips viz__chips--out">
+          <li>Sending</li>
+          <li>Legal or compliance sign-off</li>
+          <li>Publishing without approval</li>
+        </ul>
+        </article>
+        <article class="fitcard fitcard--price">
+          <h3>Price</h3>
+          <div class="mk-price">
+            <p class="mk-price__label">Fixed price</p>
+            <p class="mk-price__amount">&pound;7,500 <small>fixed build</small></p>
+            <p class="mk-price__scope">Setup and first QA'd campaign</p>
+          </div>
+          <a class="btn btn--primary" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a demo call<span class="sr-only"> (opens in a new tab)</span></a>
+          <p class="small">Or <a class="text-link" href="mailto:lorenzo@panoramica.solutions">email us</a>.</p>
+        </article>
       </div>
     </div>
   </section>
 
-  <section class="section" aria-labelledby="stack-h">
-    <div class="wrap">
-      <div class="section-head"><h2 id="stack-h">What it runs on</h2></div>
-      <p>Anthropic provides the AI engine, Next.js the platform, PostgreSQL the data and Vercel the landing pages.</p>
+  <div class="offer-bar" data-offer-bar>
+    <div class="wrap offer-bar__inner">
+      <p class="offer-bar__id"><strong>The Studio</strong><span>£7,500 fixed build</span></p>
+      <a class="btn btn--primary btn--sm" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book a demo call<span class="sr-only"> (opens in a new tab)</span></a>
     </div>
-  </section>
-
-  <section class="section section--tint" aria-labelledby="price-h">
-    <div class="wrap">
-      <div class="section-head"><h2 id="price-h">Price</h2></div>
-      <div class="price-line">
-        <span class="price-amount">&pound;7,500</span>
-        <span class="chip chip--lime">Fixed build</span>
-      </div>
-      <p>Setup and your first QA'd campaign, live. It is a custom build, and you own it once it is live.</p>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="cta-h">
-    <div class="wrap wrap--narrow">
-      <h2 id="cta-h">One call to see if this fits your team</h2>
-      <div class="btn-row">
-        <a class="btn btn--primary" href="https://meetings-eu1.hubspot.com/panoramica-solutions" target="_blank" rel="noopener">Book Audit<span class="sr-only"> (opens in a new tab)</span></a>
-      </div>
-      <p class="small">Or email <a class="text-link" href="mailto:lorenzo@panoramica.solutions">lorenzo@panoramica.solutions</a></p>
-    </div>
-  </section>
+  </div>
+  <!-- /offer-page:studio -->
 
 </main>
 <!-- shell:footer -->

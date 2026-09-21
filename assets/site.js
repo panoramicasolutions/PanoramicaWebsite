@@ -28,3 +28,21 @@
     if (e.matches) setOpen(false);
   });
 })();
+
+// Sticky demo-call bar on offer pages: visible once the hero has scrolled out of view.
+(function () {
+  var bar = document.querySelector('[data-offer-bar]');
+  var hero = document.querySelector('.hero--offer');
+  if (!bar || !hero) return;
+  var ticking = false;
+  function update() {
+    ticking = false;
+    bar.classList.toggle('is-visible', hero.getBoundingClientRect().bottom < 0);
+  }
+  function onScroll() {
+    if (!ticking) { ticking = true; window.requestAnimationFrame(update); }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  update();
+})();

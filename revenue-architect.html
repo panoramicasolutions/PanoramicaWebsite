@@ -52,29 +52,33 @@
 <!-- /shell:header -->
 <main id="main">
 
-  <section class="hero hero--offer">
+  <!-- offer-page:architect -->
+  <section class="hero hero--offer" aria-labelledby="hero-h">
     <div class="wrap">
       <p class="crumb"><a class="text-link" href="marketplace.html">&larr; Marketplace</a></p>
       <p class="eyebrow">Revenue Architect</p>
-      <h1>Finds the constraint you can't see from inside</h1>
-      <p class="lead">A guided diagnostic that challenges your first answer and turns the real revenue constraint into an action plan.</p>
+      <h1 id="hero-h">Finds the constraint you can't see from inside</h1>
+      <p class="lead">A guided diagnostic that turns the real revenue constraint into an action plan.</p>
       <div class="price-line">
-        <span class="chip chip--lime">&pound;149 self-serve</span>
-        <a class="btn btn--primary" href="https://revenue-architect-one.vercel.app/chat.html" target="_blank" rel="noopener">Run the diagnostic<span class="sr-only"> (opens the Revenue Architect app on a separate site, in a new tab)</span></a>
+        <span class="chip chip--lime">£149 self-serve</span>
+        <a class="btn btn--primary" href="https://revenue-architect-one.vercel.app/chat.html" target="_blank" rel="noopener">Run the diagnostic<span class="sr-only"> (opens in a new tab)</span></a>
       </div>
-      <p class="small">This opens the Revenue Architect app on a separate site. Checkout is handled by Stripe.</p>
+      <ul class="stats">
+        <li><span class="stats__label">Structure</span><span class="stats__value">6 phases</span></li>
+        <li><span class="stats__label">Checked against</span><span class="stats__value">16 archetypes</span></li>
+        <li><span class="stats__label">Before a report</span><span class="stats__value">14+ exchanges</span></li>
+      </ul>
     </div>
     <div class="hero-art hero-art--side" aria-hidden="true">
       <img class="hero-mark" src="assets/mark.svg" alt="" width="229" height="77">
     </div>
   </section>
 
-  <!-- offer-section:architect -->
-  <section class="section" id="how" aria-labelledby="mech-h">
+  <section class="section" id="how" aria-labelledby="how-h">
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">How it works</p>
-        <h2 id="mech-h">Six phases, one constraint</h2>
+        <h2 id="how-h">Six phases, one constraint</h2>
       </div>
       <div class="viz" role="group" aria-label="The six phases of the Revenue Architect conversation">
     <ol class="chain" style="--n:6">
@@ -109,109 +113,104 @@
         <h3 class="chain__title">Your report</h3>
       </li>
     </ol>
-    <ul class="viz__chips">
-      <li>Benchmarked across four growth stages</li>
-      <li>Checked against 16 archetypes</li>
-      <li>At least 14 exchanges before a report</li>
-      <li>Self-serve, on a separate site</li>
-    </ul>
+    <div class="viz__foot">
+      <p class="viz__label">Runs on</p>
+      <ul class="viz__chips">
+        <li>Gemini</li>
+          <li>Tavily</li>
+          <li>Stripe</li>
+          <li>Resend</li>
+      </ul>
+    </div>
   </div>
-      <div class="metrics">
+      <div class="how-row">
+        <div class="sample">
+        <div class="example">
+          <p class="example__label">Example - not client data.</p>
+          <h3>One finding in the report</h3>
+          <dl>
+            <div class="sample__row">
+              <dt>Symptom you named</dt>
+              <dd>Not enough leads.</dd>
+            </div>
+            <div class="sample__row">
+              <dt>Constraint found</dt>
+              <dd><span class="badge badge--strong">Constraint</span>Slow follow-up after demos.</dd>
+            </div>
+            <div class="sample__row">
+              <dt>Recommendation</dt>
+              <dd>Fix the follow-up handoff before buying more leads.</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+        <div class="metrics">
     <p class="metrics__title">Metrics it targets</p>
     <ul class="metrics__list">
       <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span class="metrics__name">Time to a confident growth-priority decision</span><span class="sr-only"> (target: lower)</span></li>
       <li><span class="metrics__dir" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span class="metrics__name">Guesswork before committing budget</span><span class="sr-only"> (target: lower)</span></li>
     </ul>
-    <p class="metrics__note">Targets only. Results depend on your data.</p>
   </div>
-    </div>
-  </section>
-  <!-- /offer-section:architect -->
-
-  <section class="section section--tint" aria-labelledby="problem-h">
-    <div class="wrap">
-      <div class="section-head"><h2 id="problem-h">The problem</h2></div>
-      <p>It is hard to see what limits growth from inside the business, and a symptom is easy to mistake for the constraint.</p>
+      </div>
     </div>
   </section>
 
-  <section class="section" aria-labelledby="how-h">
+  <section class="section section--tint" id="fit" aria-labelledby="fit-h">
     <div class="wrap">
-      <div class="section-head"><h2 id="how-h">Inside the conversation</h2></div>
-      <p>A structured conversation that benchmarks your numbers in real time, challenges your own diagnosis and digs for the real constraint before recommending anything.</p>
-      <ul class="checks">
-        <li>Benchmarked against SaaS-stage data, across four growth stages from pre-seed to expansion</li>
-        <li>Live market research rather than static templates</li>
-        <li>Checked against 16 founder and operating archetypes</li>
-        <li>At least 14 exchanges across the six phases before a report is produced</li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="section section--tint" aria-labelledby="get-h">
-    <div class="wrap">
-      <div class="section-head"><h2 id="get-h">What you get</h2></div>
-      <ul class="checks">
-        <li>A report built around the constraint the conversation finds</li>
-        <li>An operating model as well as a diagnosis</li>
-        <li>Every recommendation traced back to a finding</li>
-      </ul>
-      <p>The conversation flags and resolves contradictions in your own answers before it writes the report. The report arrives by email shortly after checkout.</p>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="fit-h">
-    <div class="wrap">
-      <div class="section-head"><h2 id="fit-h">Who it fits</h2></div>
-      <div class="grid cols-2">
-        <div class="card">
-          <h3>A good fit</h3>
+      <div class="section-head">
+        <p class="eyebrow">Before you book</p>
+        <h2 id="fit-h">Fit, scope and price</h2>
+      </div>
+      <div class="fit-grid">
+        <article class="fitcard">
+          <h3>Fit</h3>
           <ul class="checks">
-            <li>You suspect the real problem is not what you think it is</li>
-            <li>You have real numbers to bring: revenue, team size, pipeline</li>
-            <li>You want a benchmarked, external read before committing budget</li>
-            <li>You have 20 minutes for a real conversation</li>
+            <li>You suspect the real problem is not what you think</li>
+          <li>You have real numbers: revenue, team size, pipeline</li>
+          <li>You have 20 minutes for a real conversation</li>
           </ul>
-        </div>
-        <div class="card">
-          <h3>Not yet a fit</h3>
+          <p class="fitcard__label">Not yet</p>
           <ul class="crosses">
-            <li>You want a generic playbook rather than a diagnosis specific to you</li>
-            <li>You are pre-revenue, with nothing yet to benchmark</li>
-            <li>You are already certain of the root cause and ready to fix it</li>
+            <li>Pre-revenue, with nothing to benchmark</li>
+          <li>Already certain of the root cause</li>
           </ul>
-        </div>
+        </article>
+        <article class="fitcard">
+          <h3>Scope</h3>
+          <p class="fitcard__label">Includes</p>
+          <ul class="viz__chips">
+          <li>One diagnostic conversation</li>
+          <li>Benchmarked report</li>
+          <li>Operating model</li>
+          <li>Every recommendation traced to a finding</li>
+        </ul>
+          <p class="fitcard__label">Not included</p>
+          <ul class="viz__chips viz__chips--out">
+          <li>A bespoke build</li>
+          <li>A generic playbook</li>
+        </ul>
+        </article>
+        <article class="fitcard fitcard--price">
+          <h3>Price</h3>
+          <div class="mk-price">
+            <p class="mk-price__label">Fixed price</p>
+            <p class="mk-price__amount">&pound;149 <small>self-serve</small></p>
+            <p class="mk-price__scope">One diagnostic conversation and report</p>
+          </div>
+          <a class="btn btn--primary" href="https://revenue-architect-one.vercel.app/chat.html" target="_blank" rel="noopener">Run the diagnostic<span class="sr-only"> (opens in a new tab)</span></a>
+          <p class="small">Opens the Revenue Architect app on a separate site. Checkout is handled by Stripe.</p>
+        </article>
       </div>
     </div>
   </section>
 
-  <section class="section section--tint" aria-labelledby="built-h">
-    <div class="wrap">
-      <div class="section-head"><h2 id="built-h">What it runs on</h2></div>
-      <p>Gemini is the AI engine, Tavily supplies live research, Stripe handles checkout and Resend delivers the report. It is a self-serve report. The conversation and analysis run the same way for every founder.</p>
+  <div class="offer-bar" data-offer-bar>
+    <div class="wrap offer-bar__inner">
+      <p class="offer-bar__id"><strong>Revenue Architect</strong><span>£149 self-serve</span></p>
+      <a class="btn btn--primary btn--sm" href="https://revenue-architect-one.vercel.app/chat.html" target="_blank" rel="noopener">Run the diagnostic<span class="sr-only"> (opens in a new tab)</span></a>
     </div>
-  </section>
-
-  <section class="section" aria-labelledby="price-h">
-    <div class="wrap">
-      <div class="section-head"><h2 id="price-h">Price</h2></div>
-      <div class="price-line">
-        <span class="price-amount">&pound;149</span>
-        <span class="chip chip--lime">Self-serve</span>
-      </div>
-      <p>One diagnostic conversation and the report that follows it.</p>
-    </div>
-  </section>
-
-  <section class="section section--tint" aria-labelledby="cta-h">
-    <div class="wrap wrap--narrow">
-      <h2 id="cta-h">One conversation, then your report</h2>
-      <div class="btn-row">
-        <a class="btn btn--primary" href="https://revenue-architect-one.vercel.app/chat.html" target="_blank" rel="noopener">Run the diagnostic<span class="sr-only"> (opens the Revenue Architect app on a separate site, in a new tab)</span></a>
-      </div>
-      <p class="small">You leave panoramica.solutions to run it. Questions first? Email <a class="text-link" href="mailto:lorenzo@panoramica.solutions">lorenzo@panoramica.solutions</a></p>
-    </div>
-  </section>
+  </div>
+  <!-- /offer-page:architect -->
 
 </main>
 <!-- shell:footer -->
