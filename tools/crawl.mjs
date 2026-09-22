@@ -8,9 +8,8 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const base = (process.argv[2] || 'http://localhost:8940').replace(/\/$/, '');
 
-const pages = fs.readdirSync(root).filter((f) => f.endsWith('.html')).sort();
-const posts = JSON.parse(fs.readFileSync(path.join(root, 'posts.json'), 'utf8'));
-const routes = [...pages, ...posts.map((p) => `article.html?id=${p.id}`)];
+// Article pages are physical files (tools/articles.mjs), so the glob below already covers them.
+const routes = fs.readdirSync(root).filter((f) => f.endsWith('.html')).sort();
 
 const strip = (h) => h.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<!--[\s\S]*?-->/g, '');
 const text = (h) => h.replace(/<[^>]+>/g, ' ').replace(/&pound;/g, '£').replace(/&rarr;|&larr;/g, '').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();

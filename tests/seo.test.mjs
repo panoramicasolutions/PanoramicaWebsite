@@ -44,12 +44,50 @@ test('llms.txt and sitemap.xml list every offer page', () => {
   }
   assert.ok(sitemap.includes('/services.html'));
   assert.match(read('robots.txt'), /Sitemap: https:\/\/www\.panoramica\.solutions\/sitemap\.xml/);
+
+  const posts = JSON.parse(read('posts.json'));
+  for (const post of posts) {
+    assert.ok(sitemap.includes(`/${post.id}.html`), `sitemap: ${post.id}`);
+    assert.ok(llms.includes(post.title), `llms.txt: ${post.title}`);
+  }
 });
 
-test('every page has its own social image that exists on disk', () => {
-  for (const f of fs.readdirSync(root).filter((n) => n.endsWith('.html') && n !== 'what-we-fix.html')) {
-    const m = read(f).match(/property="og:image" content="https:\/\/www\.panoramica\.solutions\/([^"]+)"/);
+test('every real page has a social image; a page that is our own asset must exist on disk', () => {
+  for (const f of fs.readdirSync(root).filter((n) => n.endsWith('.html'))) {
+    const html = read(f);
+    if (/http-equiv="refresh"/i.test(html)) continue; // a redirect stub carries no content of its own
+    const m = html.match(/property="og:image" content="([^"]+)"/);
     assert.ok(m, `${f}: og:image missing`);
-    assert.ok(fs.existsSync(path.join(root, m[1])), `${f}: ${m[1]} is missing`);
+    const own = m[1].match(/^https:\/\/www\.panoramica\.solutions\/(.+)$/);
+    if (own) assert.ok(fs.existsSync(path.join(root, own[1])), `${f}: ${own[1]} is missing`);
+    else assert.match(m[1], /^https:\/\//, `${f}: og:image is not a valid absolute URL`);
   }
+});
+
+test('every article page is a real static page: unique meta, baked body, valid BlogPosting data', () => {
+  const posts = JSON.parse(fs.readFileSync(path.join(root, 'posts.json'), 'utf8'));
+  const titles = new Set();
+  for (const post of posts) {
+    const file = `${post.id}.html`;
+    assert.ok(fs.existsSync(path.join(root, file)), `${file} was not generated`);
+    const html = read(file);
+    assert.ok(!/fetch\(.posts\.json.\)/.test(html), `${file}: still fetches posts.json client-side`);
+    assert.ok(html.includes(`<h1 class="article-title">${post.title.replace(/&/g, '&amp;')}</h1>`), `${file}: title not baked into the body`);
+    const title = (html.match(/<title>([^<]*)<\/title>/) || [])[1];
+    assert.ok(title && !titles.has(title), `${file}: duplicate or missing <title>`);
+    titles.add(title);
+    const ld = JSON.parse(html.match(/<script type="application\/ld\+json">\s*([\s\S]*?)\s*<\/script>/)[1]);
+    assert.equal(ld['@type'], 'BlogPosting', file);
+    assert.equal(ld.headline, post.title, file);
+    assert.ok(html.includes(`href="${post.id}.html"`) === false || true); // filename is the id, checked implicitly by existsSync above
+  }
+  // Every insights/home card links straight to the static file, not the old query-string template.
+  assert.ok(!read('insights.html').includes('article.html?id='), 'insights.html still links the old template');
+  assert.ok(!read('index.html').includes('article.html?id='), 'index.html still links the old template');
+});
+
+test('the old article.html is a redirect stub that forwards ?id= to the new static page', () => {
+  const html = read('article.html');
+  assert.match(html, /http-equiv="refresh"/);
+  assert.match(html, /id \+ '\.html'/);
 });

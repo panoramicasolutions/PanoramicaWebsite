@@ -7,6 +7,7 @@ import { applyShell, hasShell } from './shell.mjs';
 import { applyPosts, hasPosts } from './posts.mjs';
 import { applyVisuals, hasVisuals } from './visuals.mjs';
 import { SEO_FILES } from './seo.mjs';
+import { articleFiles } from './articles.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const check = process.argv.includes('--check');
@@ -25,8 +26,8 @@ for (const f of fs.readdirSync(root).filter((n) => n.endsWith('.html')).sort()) 
   else { fs.writeFileSync(p, next); console.log('updated', f); }
 }
 
-// Crawler files: sitemap.xml, robots.txt, llms.txt.
-for (const [name, render] of Object.entries(SEO_FILES)) {
+// Article pages: one whole file per posts.json entry, plus the crawler files below.
+for (const [name, render] of Object.entries({ ...articleFiles(), ...SEO_FILES })) {
   const p = path.join(root, name);
   const next = render();
   const prev = fs.existsSync(p) ? fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n') : null;

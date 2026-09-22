@@ -18,6 +18,17 @@ Panoramica Solutions is run by Lorenzo Liviero, a RevOps operator. Client names 
 - [Home](https://www.panoramica.solutions/): What Panoramica does and who it is for.
 - [Free diagnostic](https://www.panoramica.solutions/diagnostic.html): Seven questions and a practical first recommendation. No email required.
 - [Insights](https://www.panoramica.solutions/insights.html): Articles on RevOps, CRM intelligence and pipeline.
+
+## Articles
+
+- [Research agents: the bridge between your CRM and what's happening](https://www.panoramica.solutions/research-agents-bridge.html): Your CRM knows what happened. It has no idea what is happening right now at the account. Research agents close that gap, if you build the bridge correctly.
+- [CRM intelligence: the missing layer between pipeline and closure](https://www.panoramica.solutions/crm-intelligence-pipeline-closure.html): Most CRMs store history, and few tell reps what to do next. This piece covers what CRM intelligence requires and why so many pipeline reviews turn into data archaeology.
+- [Build vs configure: why some revenue problems need custom software](https://www.panoramica.solutions/build-vs-configure-custom-software.html): Every RevOps stack eventually hits a wall that no amount of configuration can fix. This piece covers how to tell when the answer is custom software instead of another integration.
+- [Change doesn't scale: managing RevOps transformation at every stage of growth](https://www.panoramica.solutions/change-management-organisation-size.html): Change management fails differently at startups, scale-ups and enterprises. Tactics that work at 20 people can damage trust at 200. This piece covers how to read the room.
+- [Lifecycle logic: the framework your customer journey is missing](https://www.panoramica.solutions/lifecycle-logic-customer-journey.html): Most customer journey maps are funnels redrawn. Lifecycle logic starts from the customer's perspective, which changes how you run revenue.
+- [The death of the funnel: why flywheels win](https://www.panoramica.solutions/revops-strategy-2026.html): Funnels miss the compounding value of customer retention. This piece covers how to build a revenue flywheel.
+- [HubSpot vs Salesforce: the 2026 verdict](https://www.panoramica.solutions/hubspot-vs-salesforce.html): Choosing a CRM is an expensive decision. We compare the pros and cons for scaling SaaS teams.
+
 - [Privacy](https://www.panoramica.solutions/privacy.html)
 - [Terms](https://www.panoramica.solutions/terms.html)
 
