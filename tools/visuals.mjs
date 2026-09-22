@@ -755,7 +755,15 @@ function renderLd(id) {
     '@type': 'FAQPage',
     mainEntity: FAQ[id].map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } }))
   };
-  return `<script type="application/ld+json">\n${ldSafe({ '@context': 'https://schema.org', '@graph': [service, faq] })}\n  </script>`;
+  const breadcrumb = {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
+      { '@type': 'ListItem', position: 2, name: 'Services', item: `${SITE}/${routes.pages.services}` },
+      { '@type': 'ListItem', position: 3, name: offer.name, item: url }
+    ]
+  };
+  return `<script type="application/ld+json">\n${ldSafe({ '@context': 'https://schema.org', '@graph': [breadcrumb, service, faq] })}\n  </script>`;
 }
 
 function renderBar(id) {

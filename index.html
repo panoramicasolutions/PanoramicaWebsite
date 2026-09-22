@@ -24,18 +24,39 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "Panoramica Solutions",
-  "url": "https://www.panoramica.solutions/",
-  "description": "RevOps implementation for early-stage teams.",
-  "founder": {
-    "@type": "Person",
-    "name": "Lorenzo Liviero",
-    "jobTitle": "RevOps operator",
-    "sameAs": [
-      "https://www.linkedin.com/in/lorenzo-liviero/"
-    ]
-  }
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "Panoramica Solutions",
+      "url": "https://www.panoramica.solutions/",
+      "description": "RevOps implementation for early-stage teams.",
+      "logo": "https://www.panoramica.solutions/LogoJPG-SfondoScuro.jpg",
+      "founder": {
+        "@type": "Person",
+        "name": "Lorenzo Liviero",
+        "jobTitle": "RevOps operator",
+        "sameAs": [
+          "https://www.linkedin.com/in/lorenzo-liviero/"
+        ]
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "lorenzo@panoramica.solutions",
+        "contactType": "sales"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "What is Panoramica Solutions?", "acceptedAnswer": { "@type": "Answer", "text": "Panoramica Solutions is RevOps implementation for early-stage teams: AI-enabled systems, built and shipped inside the tools you already use, run by Lorenzo Liviero." } },
+        { "@type": "Question", "name": "Who does Panoramica work with?", "acceptedAnswer": { "@type": "Answer", "text": "Companies from pre-seed to Series A, mostly in education, technology and financial services." } },
+        { "@type": "Question", "name": "Is this a retainer?", "acceptedAnswer": { "@type": "Answer", "text": "No. Every service has a defined scope and a fixed or custom price, not an ongoing retainer. See Services for the current list." } },
+        { "@type": "Question", "name": "Do you publish client names or case studies?", "acceptedAnswer": { "@type": "Answer", "text": "No. Every engagement is different, and client confidentiality is part of the work. The proof on this site is what the builds themselves do, not client names." } },
+        { "@type": "Question", "name": "How much do the services cost?", "acceptedAnswer": { "@type": "Answer", "text": "From £149 for the self-serve diagnostic to £11,000 for a fixed Goldmine build. Email outreach infrastructure and the data foundation are scoped and priced individually. See Services for the current list." } },
+        { "@type": "Question", "name": "How do I get started?", "acceptedAnswer": { "@type": "Answer", "text": "Run the free diagnostic (seven questions, no email required), or book a demo call from any service page." } }
+      ]
+    }
+  ]
 }
 </script>
 </head>
@@ -233,6 +254,41 @@
       <!-- posts:end -->
       </div>
       <p class="index-foot"><a class="cta-link" href="insights.html">Read all insights</a></p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="faq-h">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Questions</p>
+        <h2 id="faq-h">Before you get in touch</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>What is Panoramica Solutions?</summary>
+          <p>Panoramica Solutions is RevOps implementation for early-stage teams: AI-enabled systems, built and shipped inside the tools you already use, run by Lorenzo Liviero.</p>
+        </details>
+        <details>
+          <summary>Who does Panoramica work with?</summary>
+          <p>Companies from pre-seed to Series A, mostly in education, technology and financial services.</p>
+        </details>
+        <details>
+          <summary>Is this a retainer?</summary>
+          <p>No. Every service has a defined scope and a fixed or custom price, not an ongoing retainer. See <a href="services.html">Services</a> for the current list.</p>
+        </details>
+        <details>
+          <summary>Do you publish client names or case studies?</summary>
+          <p>No. Every engagement is different, and client confidentiality is part of the work. The proof on this site is what the builds themselves do, not client names.</p>
+        </details>
+        <details>
+          <summary>How much do the services cost?</summary>
+          <p>From &pound;149 for the self-serve diagnostic to &pound;11,000 for a fixed Goldmine build. Email outreach infrastructure and the data foundation are scoped and priced individually. See <a href="services.html">Services</a> for the current list.</p>
+        </details>
+        <details>
+          <summary>How do I get started?</summary>
+          <p>Run the <a href="diagnostic.html">free diagnostic</a> (seven questions, no email required), or book a demo call from any service page.</p>
+        </details>
+      </div>
     </div>
   </section>
 

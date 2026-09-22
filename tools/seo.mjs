@@ -17,8 +17,15 @@ export function renderSitemap() {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${rows}\n</urlset>\n`;
 }
 
+// Every named entry below is already covered by the blanket "User-agent: *" allow further up;
+// they are listed anyway so an AI crawler checking its own name specifically sees an explicit
+// yes, and so it is clear on inspection that being read by AI search and assistants is wanted,
+// not an accident of an open-by-default file.
+const AI_AGENTS = ['GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'ClaudeBot', 'Claude-User', 'Claude-SearchBot', 'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'Applebot-Extended', 'meta-externalagent'];
+
 export function renderRobots() {
-  return `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`;
+  const named = AI_AGENTS.map((a) => `User-agent: ${a}\nAllow: /\n`).join('\n');
+  return `User-agent: *\nAllow: /\n\n${named}\nSitemap: ${SITE}/sitemap.xml\n`;
 }
 
 export function renderLlms() {

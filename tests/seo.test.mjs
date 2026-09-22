@@ -16,8 +16,8 @@ test('every offer page carries valid Service and FAQPage structured data', () =>
     assert.ok(m, `${id}: no JSON-LD`);
     const data = JSON.parse(m[1]);
     const types = data['@graph'].map((g) => g['@type']);
-    assert.deepEqual(types, ['Service', 'FAQPage'], id);
-    const faq = data['@graph'][1].mainEntity;
+    assert.deepEqual(types, ['BreadcrumbList', 'Service', 'FAQPage'], id);
+    const faq = data['@graph'][2].mainEntity;
     assert.ok(faq.length >= 3, `${id}: FAQ too short`);
     for (const q of faq) assert.ok(q.name && q.acceptedAnswer.text, `${id}: empty question`);
     // The visible FAQ and the structured data must say the same thing.
@@ -29,7 +29,7 @@ test('an offer states a structured price only when its page states that price', 
   for (const [id, offer] of Object.entries(routes.offers)) {
     const html = read(routes.pages[offer.page]);
     const data = JSON.parse(html.match(/<script type="application\/ld\+json">\s*([\s\S]*?)\s*<\/script>/)[1]);
-    const offers = data['@graph'][0].offers;
+    const offers = data['@graph'].find((g) => g['@type'] === 'Service').offers;
     if (/custom scope/i.test(offer.price)) assert.equal(offers, undefined, `${id}: Custom scope must not state a price`);
     else assert.ok(offers, `${id}: fixed price missing from structured data`);
   }
@@ -43,13 +43,29 @@ test('llms.txt and sitemap.xml list every offer page', () => {
     assert.ok(sitemap.includes(`/${routes.pages[offer.page]}`), `sitemap: ${offer.page}`);
   }
   assert.ok(sitemap.includes('/services.html'));
-  assert.match(read('robots.txt'), /Sitemap: https:\/\/www\.panoramica\.solutions\/sitemap\.xml/);
+  const robots = read('robots.txt');
+  assert.match(robots, /Sitemap: https:\/\/www\.panoramica\.solutions\/sitemap\.xml/);
+  for (const agent of ['GPTBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended']) {
+    assert.match(robots, new RegExp(`User-agent: ${agent}\\nAllow: /`), `robots.txt: ${agent} not explicitly allowed`);
+  }
 
   const posts = JSON.parse(read('posts.json'));
   for (const post of posts) {
     assert.ok(sitemap.includes(`/${post.id}.html`), `sitemap: ${post.id}`);
     assert.ok(llms.includes(post.title), `llms.txt: ${post.title}`);
   }
+});
+
+test('the homepage carries a complete Organization entity and a matching FAQPage', () => {
+  const html = read('index.html');
+  const data = JSON.parse(html.match(/<script type="application\/ld\+json">\s*([\s\S]*?)\s*<\/script>/)[1]);
+  const org = data['@graph'].find((g) => g['@type'] === 'Organization');
+  const faq = data['@graph'].find((g) => g['@type'] === 'FAQPage');
+  assert.ok(org.logo && fs.existsSync(path.join(root, org.logo.replace('https://www.panoramica.solutions/', ''))), 'Organization: logo missing or not on disk');
+  assert.equal(org.contactPoint.email, 'lorenzo@panoramica.solutions');
+  assert.ok(org.founder.sameAs.includes(routes.external.linkedin));
+  assert.ok(faq.mainEntity.length >= 4, 'homepage FAQ too short');
+  for (const q of faq.mainEntity) assert.ok(html.includes(`<summary>${q.name.replace(/&/g, '&amp;')}</summary>`), `homepage: FAQ not on the page: ${q.name}`);
 });
 
 test('every real page has a social image; a page that is our own asset must exist on disk', () => {
@@ -76,10 +92,12 @@ test('every article page is a real static page: unique meta, baked body, valid B
     const title = (html.match(/<title>([^<]*)<\/title>/) || [])[1];
     assert.ok(title && !titles.has(title), `${file}: duplicate or missing <title>`);
     titles.add(title);
-    const ld = JSON.parse(html.match(/<script type="application\/ld\+json">\s*([\s\S]*?)\s*<\/script>/)[1]);
-    assert.equal(ld['@type'], 'BlogPosting', file);
-    assert.equal(ld.headline, post.title, file);
-    assert.ok(html.includes(`href="${post.id}.html"`) === false || true); // filename is the id, checked implicitly by existsSync above
+    const data = JSON.parse(html.match(/<script type="application\/ld\+json">\s*([\s\S]*?)\s*<\/script>/)[1]);
+    const posting = data['@graph'].find((g) => g['@type'] === 'BlogPosting');
+    const breadcrumb = data['@graph'].find((g) => g['@type'] === 'BreadcrumbList');
+    assert.ok(posting, `${file}: no BlogPosting in the graph`);
+    assert.equal(posting.headline, post.title, file);
+    assert.ok(breadcrumb && breadcrumb.itemListElement.length === 3, `${file}: breadcrumb missing or incomplete`);
   }
   // Every insights/home card links straight to the static file, not the old query-string template.
   assert.ok(!read('insights.html').includes('article.html?id='), 'insights.html still links the old template');

@@ -28,8 +28,7 @@ const articleUrl = (post) => `${SITE}/${articleFile(post)}`;
 function renderHead(post) {
   const title = `${post.title} | Panoramica`;
   const iso = new Date(post.date).toISOString();
-  const ld = {
-    '@context': 'https://schema.org',
+  const posting = {
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.excerpt,
@@ -39,6 +38,15 @@ function renderHead(post) {
     publisher: { '@type': 'Organization', name: 'Panoramica Solutions', url: `${SITE}/` },
     mainEntityOfPage: articleUrl(post)
   };
+  const breadcrumb = {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
+      { '@type': 'ListItem', position: 2, name: 'Insights', item: `${SITE}/${routes.pages.insights}` },
+      { '@type': 'ListItem', position: 3, name: post.title, item: articleUrl(post) }
+    ]
+  };
+  const ld = { '@context': 'https://schema.org', '@graph': [breadcrumb, posting] };
   return `<title>${esc(title)}</title>
 <meta name="description" content="${esc(post.excerpt)}">
 <link rel="canonical" href="${articleUrl(post)}">
