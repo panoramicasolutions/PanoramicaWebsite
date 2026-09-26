@@ -4,7 +4,8 @@
 // body is baked straight into the HTML rather than fetched by client-side JavaScript, so a
 // crawler that never runs JS (most AI crawlers, and search engines on a slow render queue)
 // can still read it. Filename is the post's own id, e.g. posts.json's "goldmine-launch"
-// becomes "goldmine-launch.html" at the repo root, alongside every other page.
+// becomes "goldmine-launch.html" at the repo root, alongside every other page, and is served
+// at the extensionless URL /goldmine-launch (vercel.json cleanUrls).
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,7 +24,7 @@ export function loadPosts() {
 }
 
 export const articleFile = (post) => `${post.id}.html`;
-const articleUrl = (post) => `${SITE}/${articleFile(post)}`;
+const articleUrl = (post) => `${SITE}/${post.id}`;
 
 function renderHead(post) {
   const title = `${post.title} | Panoramica`;
@@ -42,7 +43,7 @@ function renderHead(post) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
-      { '@type': 'ListItem', position: 2, name: 'Insights', item: `${SITE}/${routes.pages.insights}` },
+      { '@type': 'ListItem', position: 2, name: 'Insights', item: `${SITE}${routes.href('insights')}` },
       { '@type': 'ListItem', position: 3, name: post.title, item: articleUrl(post) }
     ]
   };
@@ -75,7 +76,7 @@ function renderBody(post) {
   return `<main id="main">
 <article class="section">
     <div class="wrap wrap--narrow">
-      <p class="crumb"><a class="text-link" href="${routes.pages.insights}">&larr; Back to insights</a></p>
+      <p class="crumb"><a class="text-link" href="${routes.href('insights')}">&larr; Back to insights</a></p>
       <div class="meta-row"><span>${esc(post.category)}</span><span>${esc(post.date)}</span></div>
       <h1 class="article-title">${esc(post.title)}</h1>
       <div class="article-figure"><img src="${esc(post.image)}" alt="${esc(post.title)}" width="1000" height="600" loading="lazy" decoding="async"></div>
@@ -84,7 +85,7 @@ function renderBody(post) {
         <h2>Not sure which workflow to fix first?</h2>
         <p class="lead">Answer a few questions and get a practical first recommendation. No email required.</p>
         <div class="btn-row">
-          <a class="btn btn--primary" href="${routes.pages.diagnostic}">Run the free diagnostic</a>
+          <a class="btn btn--primary" href="${routes.href('diagnostic')}">Run the free diagnostic</a>
         </div>
       </div>
     </div>

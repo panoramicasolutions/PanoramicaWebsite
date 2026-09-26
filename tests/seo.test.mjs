@@ -8,6 +8,7 @@ import { createRequire } from 'node:module';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const routes = createRequire(import.meta.url)(path.join(root, 'assets', 'routes.js'));
 const read = (f) => fs.readFileSync(path.join(root, f), 'utf8');
+const SITE = 'https://www.panoramica.solutions';
 
 test('every offer page carries valid Service and FAQPage structured data', () => {
   for (const [id, offer] of Object.entries(routes.offers)) {
@@ -40,9 +41,10 @@ test('llms.txt and sitemap.xml list every offer page', () => {
   const sitemap = read('sitemap.xml');
   for (const offer of Object.values(routes.offers)) {
     assert.ok(llms.includes(offer.name), `llms.txt: ${offer.name}`);
-    assert.ok(sitemap.includes(`/${routes.pages[offer.page]}`), `sitemap: ${offer.page}`);
+    assert.ok(sitemap.includes(`${SITE}${routes.href(offer.page)}</loc>`), `sitemap: ${offer.page}`);
   }
-  assert.ok(sitemap.includes('/services.html'));
+  assert.ok(sitemap.includes(`${SITE}/services</loc>`));
+  assert.ok(!/\.html/.test(sitemap) && !/\.html/.test(llms), 'sitemap.xml and llms.txt must list clean URLs');
   const robots = read('robots.txt');
   assert.match(robots, /Sitemap: https:\/\/www\.panoramica\.solutions\/sitemap\.xml/);
   for (const agent of ['GPTBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended']) {
@@ -51,7 +53,7 @@ test('llms.txt and sitemap.xml list every offer page', () => {
 
   const posts = JSON.parse(read('posts.json'));
   for (const post of posts) {
-    assert.ok(sitemap.includes(`/${post.id}.html`), `sitemap: ${post.id}`);
+    assert.ok(sitemap.includes(`${SITE}/${post.id}</loc>`), `sitemap: ${post.id}`);
     assert.ok(llms.includes(post.title), `llms.txt: ${post.title}`);
   }
 });
@@ -107,5 +109,28 @@ test('every article page is a real static page: unique meta, baked body, valid B
 test('the old article.html is a redirect stub that forwards ?id= to the new static page', () => {
   const html = read('article.html');
   assert.match(html, /http-equiv="refresh"/);
-  assert.match(html, /id \+ '\.html'/);
+  assert.match(html, /'\/' \+ id/);
+});
+
+test('URLs are clean: no .html in links, canonicals, structured data or the sitemap, and Vercel serves without it', () => {
+  const vercel = JSON.parse(read('vercel.json'));
+  assert.equal(vercel.cleanUrls, true);
+  assert.equal(vercel.trailingSlash, false);
+  for (const r of vercel.redirects) assert.ok(!/\.html$/.test(r.destination), `${r.source} lands on ${r.destination}`);
+
+  for (const f of fs.readdirSync(root).filter((n) => n.endsWith('.html'))) {
+    const html = read(f);
+    for (const m of html.matchAll(/\s(?:href|src)="([^"#?]*\.html)(?:[#?][^"]*)?"/g)) {
+      assert.ok(/^https?:/.test(m[1]), `${f}: internal link ${m[1]} keeps .html`);
+    }
+    for (const m of html.matchAll(/(?:rel="canonical" href|property="og:url" content)="([^"]*)"/g)) {
+      assert.ok(!/\.html$/.test(m[1]), `${f}: ${m[1]} keeps .html`);
+    }
+    for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+      assert.ok(!/panoramica\.solutions\/[a-z0-9-]+\.html/.test(m[1]), `${f}: structured data keeps .html`);
+    }
+  }
+  assert.equal(routes.href('home'), '/');
+  assert.equal(routes.href('about'), '/#about');
+  assert.equal(routes.href('goldmine'), '/goldmine');
 });

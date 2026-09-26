@@ -18,7 +18,7 @@ export function renderPostCards(limit = Infinity) {
         <div class="post-card__img"><img src="${esc(cardImage(p.image))}" alt="" width="640" height="384" loading="lazy" decoding="async"></div>
         <div class="post-card__body">
           <div class="post-card__meta"><span>${esc(p.category)}</span><span>${esc(p.date)}</span></div>
-          <${h}><a class="card__link" href="${esc(p.id)}.html">${esc(p.title)}</a></${h}>
+          <${h}><a class="card__link" href="/${esc(p.id)}">${esc(p.title)}</a></${h}>
 ${Number.isFinite(limit) ? '' : `          <p>${esc(p.excerpt)}</p>
 `}        </div>
       </article>`);

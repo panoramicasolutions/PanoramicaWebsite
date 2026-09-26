@@ -40,5 +40,16 @@
     studio: { name: 'Marketing Studio', page: 'studio', price: '£7,500 fixed build', cta: 'See Marketing Studio' }
   };
 
-  return { site: site, pages: pages, external: external, offers: offers };
+  // `pages` holds the file behind each route. `href` is the public, extensionless URL for it:
+  // every link, canonical and sitemap entry goes through here so ".html" never reaches a visitor.
+  function href(key) {
+    var p = pages[key];
+    if (!p) return undefined;
+    var i = p.indexOf('#');
+    var file = i === -1 ? p : p.slice(0, i);
+    var hash = i === -1 ? '' : p.slice(i);
+    return (file === 'index.html' ? '/' : '/' + file.replace(/\.html$/, '')) + hash;
+  }
+
+  return { site: site, pages: pages, external: external, offers: offers, href: href };
 });

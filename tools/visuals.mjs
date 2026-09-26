@@ -558,7 +558,7 @@ function renderHero(id) {
   const offer = routes.offers[id];
   return `<section class="hero hero--offer" aria-labelledby="hero-h">
     <div class="wrap">
-      <p class="crumb"><a class="text-link" href="${routes.pages.services}">&larr; Services</a></p>
+      <p class="crumb"><a class="text-link" href="${routes.href('services')}">&larr; Services</a></p>
       <div class="hero-grid">
         <div class="hero-copy">
           <p class="eyebrow">${esc(offer.name)}</p>
@@ -740,7 +740,7 @@ const ldSafe = (o) => JSON.stringify(o, null, 2).replace(/</g, '\\u003c');
 function renderLd(id) {
   const v = VISUALS[id];
   const offer = routes.offers[id];
-  const url = `${SITE}/${routes.pages[offer.page]}`;
+  const url = `${SITE}${routes.href(offer.page)}`;
   const service = {
     '@type': 'Service',
     name: offer.name,
@@ -759,7 +759,7 @@ function renderLd(id) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
-      { '@type': 'ListItem', position: 2, name: 'Services', item: `${SITE}/${routes.pages.services}` },
+      { '@type': 'ListItem', position: 2, name: 'Services', item: `${SITE}${routes.href('services')}` },
       { '@type': 'ListItem', position: 3, name: offer.name, item: url }
     ]
   };
@@ -783,7 +783,7 @@ export const renderOfferPage = (id) => [renderHero(id), renderHow(id), renderBui
 function renderCard(id) {
   const v = VISUALS[id];
   const offer = routes.offers[id];
-  const href = routes.pages[offer.page];
+  const href = routes.href(offer.page);
   const soon = isSoon(id) ? '<span class="tag tag--soon">Live soon</span>' : '';
   return `      <article class="card card--link mkt-card">
         <div class="mkt-card__top">

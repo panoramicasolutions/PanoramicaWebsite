@@ -2,11 +2,11 @@
 //   sitemap.xml, robots.txt, llms.txt
 import { routes } from './shell.mjs';
 import { VISUALS, OFFER_ORDER } from './visuals.mjs';
-import { loadPosts, articleFile } from './articles.mjs';
+import { loadPosts } from './articles.mjs';
 
 const SITE = 'https://www.panoramica.solutions';
-const url = (key) => (key === 'home' ? `${SITE}/` : `${SITE}/${routes.pages[key]}`);
-const articleUrl = (post) => `${SITE}/${articleFile(post)}`;
+const url = (key) => `${SITE}${routes.href(key)}`;
+const articleUrl = (post) => `${SITE}/${post.id}`;
 
 const PAGES = ['home', 'services', ...OFFER_ORDER.map((id) => routes.offers[id].page), 'diagnostic', 'insights', 'privacy', 'terms'];
 

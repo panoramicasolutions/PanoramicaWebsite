@@ -43,7 +43,7 @@ export function makeExists(dir = root) {
   };
 }
 
-const href = (key) => routes.pages[key];
+const href = (key) => routes.href(key);
 
 export function renderHeader(active, exists = makeExists()) {
   const link = ([key, label]) => exists(key)

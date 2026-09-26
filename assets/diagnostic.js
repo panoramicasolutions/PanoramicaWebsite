@@ -61,7 +61,7 @@
 
   function target(t) {
     var parts = t.split(':');
-    return parts[0] === 'external' ? R.external[parts[1]] : R.pages[parts[1]];
+    return parts[0] === 'external' ? R.external[parts[1]] : R.href(parts[1]);
   }
 
   function reset() {
@@ -151,7 +151,7 @@
     var offer = R.offers[r.route];
     var heading = el('h2', { tabindex: '-1', id: 'dx-result-h', text: r.title });
 
-    var bestFit = el('a', { href: R.pages[offer.page], text: offer.name });
+    var bestFit = el('a', { href: R.href(offer.page), text: offer.name });
     var facts = el('dl', { class: 'dx-facts' }, [
       el('div', {}, [el('dt', { text: 'Start here' }), el('dd', { text: r.action })]),
       el('div', {}, [el('dt', { text: 'Best fit' }), el('dd', {}, [bestFit, document.createTextNode(' (' + offer.price + ')')])])
@@ -166,7 +166,7 @@
       cta.setAttribute('target', '_blank'); cta.setAttribute('rel', 'noopener');
       cta.appendChild(el('span', { class: 'sr-only', text: ' (opens in a new tab)' }));
     }
-    var all = el('a', { class: 'cta-link', href: R.pages.services, text: 'See all services' });
+    var all = el('a', { class: 'cta-link', href: R.href('services'), text: 'See all services' });
 
     var change = el('button', { type: 'button', class: 'dx-link', text: 'Change my answers' });
     var startOver = el('button', { type: 'button', class: 'dx-link', text: 'Start over' });

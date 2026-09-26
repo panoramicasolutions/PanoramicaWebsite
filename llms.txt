@@ -6,31 +6,31 @@ Panoramica Solutions is run by Lorenzo Liviero, a RevOps operator. Client names 
 
 ## Services
 
-- [Email outreach infrastructure](https://www.panoramica.solutions/email-outreach.html): A model writes each email from what your database knows about the contact, and sends it from domains and accounts you own. Custom scope.
-- [Data foundation](https://www.panoramica.solutions/database.html): We define who you sell to, then source, enrich, verify, deduplicate and score the companies and contacts, and load them into your CRM. Custom scope.
-- [Goldmine](https://www.panoramica.solutions/goldmine.html): Goldmine cross-references your CRM history, calls, emails and notes on every lead, adds outside research, and delivers a ranked queue every day. £6,000 / £8,500 / £11,000.
-- [The Brief](https://www.panoramica.solutions/the-brief.html): A brief lands in Gmail before every external meeting: the facts, a behavioral profile of the person, and advice for the call. £1,000 fixed setup.
-- [Revenue Architect](https://www.panoramica.solutions/revenue-architect.html): A guided diagnostic that argues with your first answer, then hands you an action plan. £149 self-serve.
-- [Marketing Studio](https://www.panoramica.solutions/the-studio.html): Social images, carousels, PDFs, one-pagers, landing pages and emails, planned as a campaign and held for your approval. £7,500 fixed build.
+- [Email outreach infrastructure](https://www.panoramica.solutions/email-outreach): A model writes each email from what your database knows about the contact, and sends it from domains and accounts you own. Custom scope.
+- [Data foundation](https://www.panoramica.solutions/database): We define who you sell to, then source, enrich, verify, deduplicate and score the companies and contacts, and load them into your CRM. Custom scope.
+- [Goldmine](https://www.panoramica.solutions/goldmine): Goldmine cross-references your CRM history, calls, emails and notes on every lead, adds outside research, and delivers a ranked queue every day. £6,000 / £8,500 / £11,000.
+- [The Brief](https://www.panoramica.solutions/the-brief): A brief lands in Gmail before every external meeting: the facts, a behavioral profile of the person, and advice for the call. £1,000 fixed setup.
+- [Revenue Architect](https://www.panoramica.solutions/revenue-architect): A guided diagnostic that argues with your first answer, then hands you an action plan. £149 self-serve.
+- [Marketing Studio](https://www.panoramica.solutions/the-studio): Social images, carousels, PDFs, one-pagers, landing pages and emails, planned as a campaign and held for your approval. £7,500 fixed build.
 
 ## Company
 
 - [Home](https://www.panoramica.solutions/): What Panoramica does and who it is for.
-- [Free diagnostic](https://www.panoramica.solutions/diagnostic.html): Seven questions and a practical first recommendation. No email required.
-- [Insights](https://www.panoramica.solutions/insights.html): Articles on RevOps, CRM intelligence and pipeline.
+- [Free diagnostic](https://www.panoramica.solutions/diagnostic): Seven questions and a practical first recommendation. No email required.
+- [Insights](https://www.panoramica.solutions/insights): Articles on RevOps, CRM intelligence and pipeline.
 
 ## Articles
 
-- [Research agents: the bridge between your CRM and what's happening](https://www.panoramica.solutions/research-agents-bridge.html): Your CRM knows what happened. It has no idea what is happening right now at the account. Research agents close that gap, if you build the bridge correctly.
-- [CRM intelligence: the missing layer between pipeline and closure](https://www.panoramica.solutions/crm-intelligence-pipeline-closure.html): Most CRMs store history, and few tell reps what to do next. This piece covers what CRM intelligence requires and why so many pipeline reviews turn into data archaeology.
-- [Build vs configure: why some revenue problems need custom software](https://www.panoramica.solutions/build-vs-configure-custom-software.html): Every RevOps stack eventually hits a wall that no amount of configuration can fix. This piece covers how to tell when the answer is custom software instead of another integration.
-- [Change doesn't scale: managing RevOps transformation at every stage of growth](https://www.panoramica.solutions/change-management-organisation-size.html): Change management fails differently at startups, scale-ups and enterprises. Tactics that work at 20 people can damage trust at 200. This piece covers how to read the room.
-- [Lifecycle logic: the framework your customer journey is missing](https://www.panoramica.solutions/lifecycle-logic-customer-journey.html): Most customer journey maps are funnels redrawn. Lifecycle logic starts from the customer's perspective, which changes how you run revenue.
-- [The death of the funnel: why flywheels win](https://www.panoramica.solutions/revops-strategy-2026.html): Funnels miss the compounding value of customer retention. This piece covers how to build a revenue flywheel.
-- [HubSpot vs Salesforce: the 2026 verdict](https://www.panoramica.solutions/hubspot-vs-salesforce.html): Choosing a CRM is an expensive decision. We compare the pros and cons for scaling SaaS teams.
+- [Research agents: the bridge between your CRM and what's happening](https://www.panoramica.solutions/research-agents-bridge): Your CRM knows what happened. It has no idea what is happening right now at the account. Research agents close that gap, if you build the bridge correctly.
+- [CRM intelligence: the missing layer between pipeline and closure](https://www.panoramica.solutions/crm-intelligence-pipeline-closure): Most CRMs store history, and few tell reps what to do next. This piece covers what CRM intelligence requires and why so many pipeline reviews turn into data archaeology.
+- [Build vs configure: why some revenue problems need custom software](https://www.panoramica.solutions/build-vs-configure-custom-software): Every RevOps stack eventually hits a wall that no amount of configuration can fix. This piece covers how to tell when the answer is custom software instead of another integration.
+- [Change doesn't scale: managing RevOps transformation at every stage of growth](https://www.panoramica.solutions/change-management-organisation-size): Change management fails differently at startups, scale-ups and enterprises. Tactics that work at 20 people can damage trust at 200. This piece covers how to read the room.
+- [Lifecycle logic: the framework your customer journey is missing](https://www.panoramica.solutions/lifecycle-logic-customer-journey): Most customer journey maps are funnels redrawn. Lifecycle logic starts from the customer's perspective, which changes how you run revenue.
+- [The death of the funnel: why flywheels win](https://www.panoramica.solutions/revops-strategy-2026): Funnels miss the compounding value of customer retention. This piece covers how to build a revenue flywheel.
+- [HubSpot vs Salesforce: the 2026 verdict](https://www.panoramica.solutions/hubspot-vs-salesforce): Choosing a CRM is an expensive decision. We compare the pros and cons for scaling SaaS teams.
 
-- [Privacy](https://www.panoramica.solutions/privacy.html)
-- [Terms](https://www.panoramica.solutions/terms.html)
+- [Privacy](https://www.panoramica.solutions/privacy)
+- [Terms](https://www.panoramica.solutions/terms)
 
 ## Contact
 

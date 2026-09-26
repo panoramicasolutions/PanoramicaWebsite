@@ -28,6 +28,13 @@ const idsOf = (h) => new Set([...h.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1])
 // Redirect stubs are exempt from page rules.
 const isStub = (f, h) => /http-equiv="refresh"/i.test(h);
 
+// The file behind a public URL: an asset as-is, or a page at its extensionless URL (vercel.json cleanUrls).
+const fileFor = (target) => {
+  const rel = target.replace(/^\//, '') || 'index.html';
+  if (fs.existsSync(path.join(root, rel)) && fs.statSync(path.join(root, rel)).isFile()) return rel;
+  return fs.existsSync(path.join(root, `${rel}.html`)) ? `${rel}.html` : null;
+};
+
 // ---------- A. links, assets, anchors ----------
 for (const f of htmlFiles) {
   const html = stripBlocks(pages[f]);
@@ -36,26 +43,32 @@ for (const f of htmlFiles) {
     if (!ref || /^(https?:|mailto:|tel:|javascript:|data:)/i.test(ref) || ref.includes("'") || ref.includes('${')) continue;
     let [target, hash] = ref.split('#');
     target = target.split('?')[0];
-    let file = target === '' ? f : target.replace(/^\//, '');
-    if (file === '') file = 'index.html';
-    if (!fs.existsSync(path.join(root, file))) { err(`${f}: broken link -> ${ref}`); continue; }
+    // Clean URLs: a page is linked without ".html" (a redirect stub may still name the page it forwards to).
+    if (/\.html$/.test(target)) err(`${f}: link -> ${ref} names a page with .html; link to the clean URL instead`);
+    const file = target === '' ? f : fileFor(target);
+    if (!file) { err(`${f}: broken link -> ${ref}`); continue; }
     if (hash && file.endsWith('.html')) {
       const dest = pages[file] ?? read(file);
       if (!idsOf(dest).has(hash)) err(`${f}: missing anchor #${hash} in ${file}`);
     }
+  }
+  // Canonical and og:url are the URL a search engine will index, so they must be clean too.
+  for (const m of pages[f].matchAll(/(?:rel="canonical" href|property="og:url" content)="([^"]*)"/g)) {
+    if (/\.html$/.test(m[1])) err(`${f}: ${m[1]} ends in .html; use the clean URL`);
   }
 }
 
 // ---------- B. vercel.json ----------
 try {
   const v = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
+  if (v.cleanUrls !== true) err('vercel.json: cleanUrls must be true so pages are served without .html');
+  if (v.trailingSlash !== false) err('vercel.json: trailingSlash must be false so /page and /page/ are not two URLs');
   for (const r of v.redirects ?? []) {
     if (r.statusCode !== 301 && r.permanent !== true) err(`vercel.json: redirect ${r.source} is not permanent`);
-    if (!fs.existsSync(path.join(root, r.destination.replace(/^\//, '')))) err(`vercel.json: redirect target missing ${r.destination}`);
+    if (!fileFor(r.destination)) err(`vercel.json: redirect target missing ${r.destination}`);
+    if (/\.html$/.test(r.destination)) err(`vercel.json: redirect ${r.source} lands on ${r.destination}; use the clean URL`);
   }
-  for (const r of v.rewrites ?? []) {
-    if (!fs.existsSync(path.join(root, r.destination.replace(/^\//, '')))) warn(`vercel.json: rewrite target missing ${r.destination}`);
-  }
+  if ((v.rewrites ?? []).length) warn('vercel.json: rewrites are not needed with cleanUrls; remove them');
   if (!(v.redirects ?? []).some((r) => r.source === '/what-we-fix.html')) err('vercel.json: /what-we-fix.html redirect missing');
 } catch (e) { err('vercel.json invalid: ' + e.message); }
 

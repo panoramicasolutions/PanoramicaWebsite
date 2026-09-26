@@ -1,22 +1,10 @@
 {
+  "cleanUrls": true,
+  "trailingSlash": false,
   "redirects": [
-    { "source": "/marketplace.html", "destination": "/services.html", "statusCode": 301 },
-    { "source": "/marketplace", "destination": "/services.html", "statusCode": 301 },
-    { "source": "/what-we-fix.html", "destination": "/services.html", "statusCode": 301 },
-    { "source": "/what-we-fix", "destination": "/services.html", "statusCode": 301 }
-  ],
-  "rewrites": [
-    { "source": "/services", "destination": "/services.html" },
-    { "source": "/email-outreach", "destination": "/email-outreach.html" },
-    { "source": "/goldmine", "destination": "/goldmine.html" },
-    { "source": "/database", "destination": "/database.html" },
-    { "source": "/the-brief", "destination": "/the-brief.html" },
-    { "source": "/revenue-architect", "destination": "/revenue-architect.html" },
-    { "source": "/the-studio", "destination": "/the-studio.html" },
-    { "source": "/diagnostic", "destination": "/diagnostic.html" },
-    { "source": "/insights", "destination": "/insights.html" },
-    { "source": "/article", "destination": "/article.html" },
-    { "source": "/privacy", "destination": "/privacy.html" },
-    { "source": "/terms", "destination": "/terms.html" }
+    { "source": "/marketplace.html", "destination": "/services", "statusCode": 301 },
+    { "source": "/marketplace", "destination": "/services", "statusCode": 301 },
+    { "source": "/what-we-fix.html", "destination": "/services", "statusCode": 301 },
+    { "source": "/what-we-fix", "destination": "/services", "statusCode": 301 }
   ]
 }
