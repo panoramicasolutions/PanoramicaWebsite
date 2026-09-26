@@ -7,7 +7,8 @@ import { createRequire } from 'node:module';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const routes = createRequire(import.meta.url)(path.join(root, 'assets', 'routes.js'));
-const read = (f) => fs.readFileSync(path.join(root, f), 'utf8');
+// git may check files out with Windows line endings (core.autocrlf); the content is what matters.
+const read = (f) => fs.readFileSync(path.join(root, f), 'utf8').replace(/\r\n/g, '\n');
 const SITE = 'https://www.panoramica.solutions';
 
 test('every offer page carries valid Service and FAQPage structured data', () => {

@@ -69,7 +69,10 @@ try {
     if (/\.html$/.test(r.destination)) err(`vercel.json: redirect ${r.source} lands on ${r.destination}; use the clean URL`);
   }
   if ((v.rewrites ?? []).length) warn('vercel.json: rewrites are not needed with cleanUrls; remove them');
-  if (!(v.redirects ?? []).some((r) => r.source === '/what-we-fix.html')) err('vercel.json: /what-we-fix.html redirect missing');
+  for (const moved of ['/what-we-fix', '/marketplace']) {
+    if (!(v.redirects ?? []).some((r) => r.source === moved)) err(`vercel.json: ${moved} redirect missing`);
+  }
+  for (const r of v.redirects ?? []) if (/\.html$/.test(r.source)) err(`vercel.json: ${r.source} never fires, because cleanUrls redirects .html first; declare ${r.source.replace(/\.html$/, '')}`);
 } catch (e) { err('vercel.json invalid: ' + e.message); }
 
 // ---------- C. registry ----------

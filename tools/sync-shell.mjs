@@ -15,7 +15,8 @@ let stale = 0;
 
 for (const f of fs.readdirSync(root).filter((n) => n.endsWith('.html')).sort()) {
   const p = path.join(root, f);
-  const html = fs.readFileSync(p, 'utf8');
+  // Compare on content: git may check files out with Windows line endings (core.autocrlf).
+  const html = fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n');
   if (!hasShell(html)) continue;
   let next = applyShell(html);
   if (hasPosts(next)) next = applyPosts(next);

@@ -1,7 +1,7 @@
 // Local static server that behaves like Vercel does with this repo's vercel.json, so clean URLs
 // and redirects can be tested before deploying: extensionless URLs serve the matching .html file,
 // /page.html redirects (308) to /page, a trailing slash redirects to none, and every redirect
-// declared in vercel.json is applied first.
+// declared in vercel.json is applied after that, in the same order Vercel uses.
 // Usage: node tools/serve.mjs [port]   (default 8940)
 import http from 'node:http';
 import fs from 'node:fs';
@@ -28,13 +28,13 @@ http.createServer((req, res) => {
   try { pathname = decodeURIComponent(url.pathname); } catch { res.writeHead(400).end('Bad request'); return; }
   const redirect = (status, to) => { res.writeHead(status, { Location: to + url.search }).end(); };
 
-  const declared = redirects.get(pathname);
-  if (declared) return redirect(declared.statusCode ?? 308, declared.destination);
-
+  // Same order as Vercel: the clean-URL redirect fires first, then redirects declared in vercel.json.
   if (vercel.cleanUrls) {
     if (pathname === '/index.html') return redirect(308, '/');
     if (pathname.endsWith('.html')) return redirect(308, pathname.slice(0, -'.html'.length));
   }
+  const declared = redirects.get(pathname);
+  if (declared) return redirect(declared.statusCode ?? 308, declared.destination);
   if (vercel.trailingSlash === false && pathname.length > 1 && pathname.endsWith('/')) return redirect(308, pathname.slice(0, -1));
 
   const rel = pathname === '/' ? 'index.html' : pathname.replace(/^\//, '');

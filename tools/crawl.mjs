@@ -63,12 +63,27 @@ for (const f of files) {
 }
 console.log('  checked', legacy, 'pages');
 
-console.log('\nRedirects declared in vercel.json');
+// A moved page may take two permanent hops (/old.html -> /old -> /new), so follow the chain to its end.
+async function follow(start) {
+  const hops = [];
+  let p = start;
+  for (let i = 0; i < 4; i++) {
+    const res = await get(p);
+    if (!PERMANENT.has(res.status)) return { hops, end: p, status: res.status };
+    hops.push(res.status);
+    p = locPath(res.headers.get('location'));
+  }
+  return { hops, end: p, status: 'too many redirects' };
+}
+
+console.log('\nRedirects declared in vercel.json, and the old .html form of each');
 for (const [source, destination] of declared) {
-  const res = await get(source);
-  const good = PERMANENT.has(res.status) && locPath(res.headers.get('location')) === destination;
-  console.log(' ', source.padEnd(24), String(res.status).padEnd(4), good ? `-> ${destination}` : `FAIL ${res.headers.get('location')}`);
-  if (!good) failures++;
+  for (const from of [source, `${source}.html`]) {
+    const { hops, end, status } = await follow(from);
+    const good = hops.length > 0 && end === destination && status === 200;
+    console.log(' ', from.padEnd(24), hops.join(' > ').padEnd(8), good ? `-> ${destination}` : `FAIL ended at ${end} (${status})`);
+    if (!good) failures++;
+  }
 }
 
 console.log(`\nInternal links: ${linkSet.size} unique`);
