@@ -38,7 +38,7 @@ export function renderLlms() {
     .join('\n');
   return `# Panoramica Solutions
 
-> RevOps implementation for early-stage teams. AI-enabled systems built inside your stack, each with a defined scope and a clear price.
+> RevOps implementation for early-stage teams. AI-enabled systems built inside your stack, each with a defined scope. Pricing is on request, except Revenue Architect at £149.
 
 Panoramica Solutions is run by Lorenzo Liviero, a RevOps operator. Client names stay private.
 

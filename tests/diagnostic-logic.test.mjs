@@ -161,7 +161,7 @@ test('result CTAs use the specified labels and resolve to live destinations', ()
     outreach: 'Scope my outreach infrastructure',
     goldmine: 'Check if my CRM is ready',
     database: 'Scope my data foundation',
-    brief: 'See The Brief - £1,000 fixed setup',
+    brief: 'See The Brief',
     studio: 'See Marketing Studio',
     architect: 'See Revenue Architect - live soon'
   };

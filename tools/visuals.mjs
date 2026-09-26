@@ -328,7 +328,7 @@ export const VISUALS = {
       notYet: 'Not yet if your contact data is thin. Start with the data foundation.'
     },
     steps: ['Book a demo call', 'We check the fit against your audience and setup', 'You get a scope and price before any build'],
-    price: { label: 'Pricing', amount: 'Custom scope', scope: 'Priced after a short qualification.', plain: true }
+    price: { label: 'Pricing', amount: 'Custom scope', scope: 'Priced after a short qualification.', plain: true, text: true }
   },
   database: {
     category: 'Data foundation',
@@ -360,7 +360,7 @@ export const VISUALS = {
       notYet: 'Not yet if you have no lawful basis for the data you want to hold.'
     },
     steps: ['Book a demo call', 'We agree the scoping inputs: geography, volume, fields, sources', 'You get a scope and price before any build'],
-    price: { label: 'Pricing', amount: 'Custom scope', scope: 'Record volume, source quality and enrichment depth set the scope.', plain: true }
+    price: { label: 'Pricing', amount: 'Custom scope', scope: 'Record volume, source quality and enrichment depth set the scope.', plain: true, text: true }
   },
   goldmine: {
     category: 'CRM intelligence',
@@ -424,7 +424,7 @@ export const VISUALS = {
       notYet: 'Not yet if you are not on Google Workspace, or have no pipeline in motion.'
     },
     steps: ['Book a demo call', 'We check your calendar, CRM and call history', 'You get a fixed setup and a first live brief'],
-    price: { label: 'Fixed price', amount: '&pound;1,000 <small>fixed setup</small>', scope: 'Setup and first live brief, single team' }
+    price: { label: 'Fixed price', amount: 'Pricing on request', scope: 'Setup and first live brief, single team', text: true }
   },
   architect: {
     category: 'Revenue diagnostic',
@@ -489,7 +489,7 @@ export const VISUALS = {
       notYet: 'Not yet if nobody signs off marketing copy, or you only run one-off campaigns.'
     },
     steps: ['Book a demo call', 'We review your rules and how copy gets signed off', 'You get a fixed build and a first live campaign'],
-    price: { label: 'Fixed price', amount: '&pound;7,500 <small>fixed build</small>', scope: 'Setup and first campaign, checked and approved' }
+    price: { label: 'Fixed price', amount: 'Pricing on request', scope: 'Setup and first campaign, checked and approved', text: true }
   }
 };
 
@@ -498,6 +498,7 @@ const FAQ = {
   outreach: [
     ['Where do the emails send from?', 'From domains and accounts you own. Your outreach does not run through a shared tool.'],
     ['Does a person check the emails?', 'Yes. Rules check each draft for length, banned phrases and required details. A person approves before the first send.'],
+    ['How is it priced?', 'Custom scope, priced after a short qualification. You get a scope and price before any build.'],
     ['Do you guarantee replies or meetings?', 'No. Guaranteed replies, meetings or revenue are not included.'],
     ['What if my contact data is thin?', 'Personalization comes from the database, so thin data means thin emails. When a field is unknown, the email leaves it out instead of guessing. If the data is thin, start with the data foundation.']
   ],
@@ -509,7 +510,7 @@ const FAQ = {
   ],
   goldmine: [
     ['Which CRM does it work with?', 'Pricing applies to HubSpot. Other CRMs are scoped separately.'],
-    ['What do the three depths change?', 'Core is scoring and write-back on a single pipeline, at £6,000. Full Build adds AI synthesis behind record checks and multiple pipelines, at £8,500. Extended adds custom signals and a reporting dashboard, at £11,000.'],
+    ['What do the three depths change?', 'Core is scoring and write-back on a single pipeline. Full Build adds AI synthesis behind record checks and multiple pipelines. Extended adds custom signals and a reporting dashboard. Pricing is quoted by depth, and you get a fixed scope before any build.'],
     ['How do I know why a lead ranks where it does?', 'Every rank shows the signals behind it, and the scoring rules are written so your team can read and check them.'],
     ['How many records do I need?', 'Roughly 10,000 or more contact and deal records, in a CRM your team uses daily. A new or nearly empty CRM is not a fit yet.']
   ],
@@ -517,6 +518,7 @@ const FAQ = {
     ['Which tools does it need?', 'Google Workspace (Calendar and Gmail) is required. HubSpot and Aircall are proven. Other CRMs are scoped on request.'],
     ['Who receives the brief?', 'Your rep only. Nothing is sent to the contact.'],
     ['What if there is little data on a contact?', 'The brief is shorter. No profile is invented.'],
+    ['How is it priced?', 'A fixed price for the setup and your first live brief, for one team. Inquire about pricing to get the figure.'],
     ['Are there running costs?', 'LLM running costs are not part of the setup fee. We confirm them before launch.']
   ],
   architect: [
@@ -529,16 +531,14 @@ const FAQ = {
     ['Can it send the campaigns?', 'No. Sending stays in your email tool. The studio produces, checks and schedules the assets.'],
     ['Does anything publish without approval?', 'No. Your rules run first, and a person approves before anything is published.'],
     ['Can it use my own designs?', 'Yes. Upload an image of a design you like and the studio turns it into a reusable template.'],
+    ['How is it priced?', 'A fixed price for the build and your first checked and approved campaign. Inquire about pricing to get the figure.'],
     ['Does it work for regulated firms?', 'Yes. The rules layer has been proven on FCA COBS 4, and your own brand or compliance rules are set up during the build.']
   ]
 };
 
-// Numeric prices for structured data. An offer with no entry is Custom scope and states no price.
+// Numeric prices for structured data. Only a listed price is stated; every quote-only offer has no entry.
 const LD_PRICE = {
-  goldmine: { low: 6000, high: 11000 },
-  brief: { fixed: 1000 },
-  architect: { fixed: 149 },
-  studio: { fixed: 7500 }
+  architect: { fixed: 149 }
 };
 
 // The primary action on an offer page: a demo call. An offer that is not live yet shows "Live soon" instead.
@@ -546,6 +546,10 @@ const isSoon = (id) => routes.offers[id].live === false;
 const actionLink = (id, cls) => (isSoon(id)
   ? `<span class="${cls} btn--soon">Live soon</span>`
   : `<a class="${cls}" href="${routes.external.book}" target="_blank" rel="noopener">Book a demo call${NEW_TAB}</a>`);
+
+// Offers whose price is not published get an "Inquire about pricing" button: an email with the offer in the subject.
+const isQuote = (id) => routes.offers[id].quote === true;
+const inquireLink = (id, cls) => `<a class="${cls}" href="${routes.inquire(id)}">Inquire about pricing</a>`;
 
 const li = (items) => items.map((t) => `<li>${esc(t)}</li>`).join('\n              ');
 const dirWord = (dir) => (dir === 'down' ? 'lower' : 'higher');
@@ -571,8 +575,11 @@ function renderHero(id) {
             </ul>
           </div>
           <div class="price-line">
-            <span class="chip chip--lime">${esc(offer.price)}</span>
-            ${actionLink(id, 'btn btn--primary')}
+            ${isQuote(id)
+    ? `${actionLink(id, 'btn btn--primary')}
+            ${inquireLink(id, 'btn')}`
+    : `<span class="chip chip--lime">${esc(offer.price)}</span>
+            ${actionLink(id, 'btn btn--primary')}`}
           </div>
         </div>
         <div class="hero-art" aria-hidden="true">
@@ -655,24 +662,24 @@ function renderBuild(id) {
 
 const TIERS = `<div class="mk-price" data-tiers>
             <p class="mk-price__label">Fixed scope, priced by depth</p>
-            <p class="mk-price__amount" data-amount aria-live="polite">&pound;6,000</p>
-            <p class="mk-price__scope" data-scope>Scoring and write-back, single pipeline</p>
+            <p class="mk-price__amount mk-price__amount--text">Pricing on request</p>
+            <p class="mk-price__scope" data-scope aria-live="polite">Scoring and write-back, single pipeline</p>
             <div class="tier-select">
               <div class="tier-select__meter" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
               <div class="tier-select__buttons" role="group" aria-label="Choose a build depth">
-                <button type="button" class="tier-btn" aria-pressed="true" data-price="6000" data-scope="Scoring and write-back, single pipeline"><span>Core</span><small>&pound;6,000</small></button>
-                <button type="button" class="tier-btn" aria-pressed="false" data-price="8500" data-scope="Adds AI synthesis behind record checks, and multiple pipelines"><span>Full Build</span><small>&pound;8,500</small></button>
-                <button type="button" class="tier-btn" aria-pressed="false" data-price="11000" data-scope="Adds custom signals and a reporting dashboard"><span>Extended</span><small>&pound;11,000</small></button>
+                <button type="button" class="tier-btn" aria-pressed="true" data-scope="Scoring and write-back, single pipeline"><span>Core</span><small>Scoring</small></button>
+                <button type="button" class="tier-btn" aria-pressed="false" data-scope="Adds AI synthesis behind record checks, and multiple pipelines"><span>Full Build</span><small>AI synthesis</small></button>
+                <button type="button" class="tier-btn" aria-pressed="false" data-scope="Adds custom signals and a reporting dashboard"><span>Extended</span><small>Custom signals</small></button>
               </div>
             </div>
           </div>
-          <p class="mk-note">&pound;6,000 / &pound;8,500 / &pound;11,000 by depth. Prices apply to HubSpot.</p>`;
+          <p class="mk-note">Pricing is quoted by depth and applies to HubSpot.</p>`;
 
 function priceBlock(v) {
   if (v.price.tiers) return TIERS;
   return `<div class="mk-price">
             <p class="mk-price__label">${esc(v.price.label)}</p>
-            <p class="mk-price__amount">${v.price.amount}</p>
+            <p class="mk-price__amount${v.price.text ? ' mk-price__amount--text' : ''}">${v.price.amount}</p>
             <p class="mk-price__scope${v.price.plain ? ' mk-price__scope--plain' : ''}">${esc(v.price.scope)}</p>
           </div>`;
 }
@@ -703,6 +710,7 @@ function renderFit(id) {
         <article class="fitcard fitcard--price">
           <h3>Price</h3>
           ${priceBlock(v)}
+          ${isQuote(id) ? inquireLink(id, 'btn') : ''}
           <div class="start">
             <p class="start__label">How it starts</p>
             <ol class="start__list">

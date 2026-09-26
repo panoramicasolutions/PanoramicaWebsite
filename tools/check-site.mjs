@@ -136,21 +136,34 @@ if (strict) {
   }
 }
 
-// ---------- F. price consistency (strict) ----------
+// ---------- F. pricing (strict) ----------
+// A price is published only where routes.js lists one (quote: false). Every other offer says
+// "Pricing on request" or "Custom scope", shows no figure, and offers an "Inquire about pricing" button.
 if (strict) {
   const text = (f) => visibleText(pages[f] ?? '').toLowerCase();
+  const listed = Object.values(routes.offers).filter((o) => !o.quote).flatMap((o) => o.price.match(/£\s?\d[\d,]*/g) ?? []).map((x) => x.replace(/\s/g, ''));
   for (const [key, offer] of Object.entries(routes.offers)) {
     const file = routes.pages[offer.page];
-    const price = offer.price.toLowerCase();
     for (const f of [file, 'services.html']) {
-      if (!text(f).includes(price)) err(`price: "${offer.price}" (${key}) missing from ${f}`);
+      if (!text(f).includes(offer.price.toLowerCase())) err(`price: "${offer.price}" (${key}) missing from ${f}`);
+    }
+    if (offer.quote) {
+      if (text(file).includes('£')) err(`price: ${file} is quote-only but shows a figure`);
+      if (!pages[file].includes(`href="mailto:lorenzo@panoramica.solutions?subject=${encodeURIComponent('Pricing inquiry: ' + offer.name)}"`)) err(`price: ${file} has no "Inquire about pricing" button`);
+      if (!text(file).includes('inquire about pricing')) err(`price: ${file} does not say "Inquire about pricing"`);
     }
   }
   for (const f of ['email-outreach.html', 'database.html']) {
-    if (text(f).includes('£')) err(`price: ${f} is custom scope but shows a figure`);
-  }
-  for (const f of ['email-outreach.html', 'database.html']) {
     if (!text(f).includes('custom scope')) err(`price: ${f} does not say Custom scope`);
+  }
+  // No commercial page may show a figure that routes.js does not list, so a price cannot come back by
+  // accident. Articles (which compare other companies' pricing) and the legal pages are not ours to police.
+  const notOurPrices = new Set(['privacy.html', 'terms.html', ...JSON.parse(read('posts.json')).map((post) => `${post.id}.html`)]);
+  for (const f of htmlFiles) {
+    if (isStub(f, pages[f]) || notOurPrices.has(f)) continue;
+    for (const m of visibleText(pages[f]).matchAll(/£\s?\d[\d,]*/g)) {
+      if (!listed.includes(m[0].replace(/\s/g, ''))) err(`price: ${f} shows ${m[0]}, which is not a listed price`);
+    }
   }
 }
 

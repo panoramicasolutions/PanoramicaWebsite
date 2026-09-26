@@ -32,8 +32,8 @@ test('an offer states a structured price only when its page states that price', 
     const html = read(routes.pages[offer.page]);
     const data = JSON.parse(html.match(/<script type="application\/ld\+json">\s*([\s\S]*?)\s*<\/script>/)[1]);
     const offers = data['@graph'].find((g) => g['@type'] === 'Service').offers;
-    if (/custom scope/i.test(offer.price)) assert.equal(offers, undefined, `${id}: Custom scope must not state a price`);
-    else assert.ok(offers, `${id}: fixed price missing from structured data`);
+    if (offer.quote) assert.equal(offers, undefined, `${id}: a quote-only offer must not state a price`);
+    else assert.ok(offers, `${id}: listed price missing from structured data`);
   }
 });
 
@@ -134,4 +134,27 @@ test('URLs are clean: no .html in links, canonicals, structured data or the site
   assert.equal(routes.href('home'), '/');
   assert.equal(routes.href('about'), '/#about');
   assert.equal(routes.href('goldmine'), '/goldmine');
+});
+
+test('only Revenue Architect publishes a price; every other offer says so and offers an "Inquire about pricing" button', () => {
+  const figures = /£\s?\d[\d,]*/g;
+  const shown = (f) => read(f).replace(/<script[\s\S]*?<\/script>/g, '').replace(/&pound;/g, '£').replace(/<[^>]+>/g, ' ');
+  for (const [id, offer] of Object.entries(routes.offers)) {
+    const file = routes.pages[offer.page];
+    const html = read(file);
+    if (offer.quote) {
+      assert.ok(!figures.test(shown(file)), `${id}: shows a figure`);
+      assert.ok(html.includes(`href="${routes.inquire(id)}">Inquire about pricing</a>`), `${id}: no inquiry button`);
+      assert.ok(shown('services.html').includes(offer.price), `${id}: services card does not say "${offer.price}"`);
+    } else {
+      assert.equal(id, 'architect', 'only Revenue Architect is listed');
+      assert.ok(shown(file).includes('£149'), 'Revenue Architect lost its price');
+    }
+  }
+  // The inquiry email names the offer, so a reply arrives with the context.
+  assert.equal(routes.inquire('goldmine'), 'mailto:lorenzo@panoramica.solutions?subject=Pricing%20inquiry%3A%20Goldmine');
+  // Nowhere else may a figure creep back in: the crawler files and the homepage FAQ data carry only £149.
+  for (const f of ['llms.txt', 'sitemap.xml', 'index.html']) {
+    for (const m of read(f).replace(/&pound;/g, '£').matchAll(/£\s?\d[\d,]*/g)) assert.equal(m[0], '£149', `${f}: unexpected figure ${m[0]}`);
+  }
 });

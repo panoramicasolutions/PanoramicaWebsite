@@ -111,7 +111,7 @@
     brief: {
       title: 'Start with The Brief',
       action: 'Pick one recurring external meeting type and list the context a rep needs before it.',
-      cta: { label: 'See The Brief - £1,000 fixed setup', target: 'page:brief' }
+      cta: { label: 'See The Brief', target: 'page:brief' }
     },
     studio: {
       title: 'Start with the campaign approval workflow',
