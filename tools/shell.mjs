@@ -20,12 +20,14 @@ const NAV = [
 ];
 
 const OFFERS = [
-  ['outreach', 'Email outreach infrastructure'],
-  ['database', 'Data foundation'],
   ['goldmine', 'Goldmine'],
   ['brief', 'The Brief'],
-  ['architect', 'Revenue Architect'],
-  ['studio', 'Marketing Studio']
+  ['database', 'Data foundation'],
+  ['outreach', 'Email outreach infrastructure'],
+  ['studio', 'Marketing Studio'],
+  ['custom', 'Custom builds'],
+  ['support', 'Ongoing support'],
+  ['architect', 'Revenue Architect']
 ];
 
 const NEW_TAB = '<span class="sr-only"> (opens in a new tab)</span>';
@@ -94,7 +96,7 @@ export function renderFooter(exists = makeExists()) {
   </div>
   <div class="wrap footer-grid">
     <div>
-      <p class="footer-tag">RevOps implementation for early-stage teams.</p>
+      <p class="footer-tag">AI-enabled RevOps, built, shipped and supported.</p>
     </div>
     <nav aria-label="Services">
       <h2 class="footer-h">Services</h2>

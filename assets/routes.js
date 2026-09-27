@@ -15,6 +15,8 @@
     brief: 'the-brief.html',
     architect: 'revenue-architect.html',
     studio: 'the-studio.html',
+    custom: 'custom-builds.html',
+    support: 'ongoing-support.html',
     diagnostic: 'diagnostic.html',
     about: 'index.html#about',
     insights: 'insights.html',
@@ -39,7 +41,9 @@
     goldmine: { name: 'Goldmine', page: 'goldmine', price: 'Pricing on request', quote: true, cta: 'See Goldmine' },
     brief: { name: 'The Brief', page: 'brief', price: 'Pricing on request', quote: true, cta: 'See The Brief' },
     architect: { name: 'Revenue Architect', page: 'architect', price: '£149 self-serve', quote: false, cta: 'See Revenue Architect', live: false },
-    studio: { name: 'Marketing Studio', page: 'studio', price: 'Pricing on request', quote: true, cta: 'See Marketing Studio' }
+    studio: { name: 'Marketing Studio', page: 'studio', price: 'Pricing on request', quote: true, cta: 'See Marketing Studio' },
+    custom: { name: 'Custom builds', page: 'custom', price: 'Pricing on request', quote: true, cta: 'Scope a custom build' },
+    support: { name: 'Ongoing support', page: 'support', price: 'Pricing on request', quote: true, cta: 'See ongoing support' }
   };
 
   // `pages` holds the file behind each route. `href` is the public, extensionless URL for it:

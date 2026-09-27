@@ -19,7 +19,13 @@ const BAR = (title, meta) => `<div class="mock__bar"><span class="mock__dots" ar
 const N = (n) => `<span class="cite cite--n" aria-label="from field ${n}">${n}</span>`;
 
 // Order here is the order on the services page.
-export const OFFER_ORDER = ['outreach', 'database', 'goldmine', 'brief', 'architect', 'studio'];
+export const OFFER_ORDER = ['goldmine', 'brief', 'database', 'outreach', 'studio', 'custom', 'support', 'architect'];
+
+// How the services page groups them.
+export const FLAGSHIP = 'goldmine';
+const SYSTEM = ['brief', 'database', 'outreach', 'studio'];
+const BEYOND = ['custom', 'support'];
+const SELF_SERVE = ['architect'];
 
 // ---------- direct visual explanations: one per offer, each drawn differently ----------
 
@@ -63,6 +69,7 @@ const SIG = {
                     </div>
                     <p class="queue__why"><strong>Why now</strong>Replied two days ago. Budget confirmed on the last call.</p>
                     <p class="queue__why"><strong>Open with</strong>The integration question they asked.</p>
+                    <p class="queue__why"><strong>Best time</strong>Tuesday morning, from 4 answered calls.</p>
                   </li>
                   <li class="queue__row">
                     <div class="queue__main">
@@ -289,6 +296,74 @@ const SIG = {
             </ol>
           </div>
         </div>
+      </div>`,
+  // A manual process, and the system that replaces it.
+  custom: `<div class="example">
+        ${LABEL}
+        <div class="mock">
+          ${BAR('Custom build', 'Scope, before any build')}
+          <div class="mock__body">
+            <div class="sig__cols">
+              <div class="pane">
+                <p class="pane__title">Today, by hand</p>
+                <ol class="steps-mini">
+                  <li>Export accounts from the CRM</li>
+                  <li>Research each one in browser tabs</li>
+                  <li>Copy what matters into a sheet</li>
+                  <li>Write each follow-up by hand</li>
+                  <li>Update the CRM, when someone remembers</li>
+                </ol>
+              </div>
+              <div class="pane pane--accent">
+                <p class="pane__title">The system we scope</p>
+                <ol class="steps-mini steps-mini--on">
+                  <li>Reads accounts straight from the CRM</li>
+                  <li>Researches each one automatically</li>
+                  <li>Scores and drafts in one pass</li>
+                  <li>A person approves before anything sends</li>
+                  <li>Writes every result back to the CRM</li>
+                </ol>
+              </div>
+            </div>
+            <ol class="rail">
+              <li>${icon('search')}<strong>Map</strong><span>The process as it runs today</span></li>
+              <li>${icon('target')}<strong>Scope</strong><span>What it must do, fixed before we build</span></li>
+              <li>${icon('layers')}<strong>Build</strong><span>Inside your stack, in stages</span></li>
+              <li>${icon('file')}<strong>Hand over</strong><span>Documented, with running costs</span></li>
+              <li>${icon('pulse')}<strong>Support</strong><span>If you want us to stay on</span></li>
+            </ol>
+          </div>
+        </div>
+      </div>`,
+
+  // One support cycle across the systems in place.
+  support: `<div class="example">
+        ${LABEL}
+        <div class="mock">
+          ${BAR('Support cycle', 'Goldmine, The Brief, Data foundation')}
+          <div class="mock__body">
+            <div class="sig__cols">
+              <div class="pane">
+                <p class="pane__title">This cycle</p>
+                <ul class="log">
+                  <li><span class="tag tag--ok">Monitor</span><p>Every scheduled run checked. One failed sync retried and cleared.</p></li>
+                  <li><span class="tag tag--ok">Fix</span><p>A brief was missing a meeting booked from a shared calendar. Fixed and tested.</p></li>
+                  <li><span class="tag tag--warn">Tune</span><p>Ghosting rule moved from three silent channels to four, after the team asked.</p></li>
+                  <li><span class="tag">Extend</span><p>A new signal for webinar attendance, scoped for next cycle.</p></li>
+                </ul>
+              </div>
+              <div class="pane pane--accent">
+                <p class="pane__title">Review with your team</p>
+                <dl class="kv">
+                  <dt>What ran</dt><dd>Every job, with failures and running costs.</dd>
+                  <dt>What changed</dt><dd>The fixes and tuning above, documented.</dd>
+                  <dt>What's next</dt><dd>The improvement you choose for the next cycle.</dd>
+                </dl>
+                <p class="pane__basis">The cadence is agreed with you at the start.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>`
 };
 
@@ -324,7 +399,7 @@ export const VISUALS = {
     needs: ['A database, or the data foundation first', 'Sending domains and DNS access', 'A Google Workspace mailbox for replies', 'Your offer, proof points and examples of your tone'],
     excludes: ['Guaranteed replies, meetings or revenue', 'Buying lists on your behalf', 'Ongoing operation, unless scoped', 'Deliverability fixes, unless scoped'],
     fit: {
-      statements: ['You have a defined market and a list worth writing to', 'You are a founder, fundraising team or small revenue team', 'Research, drafting and follow-up take too much of your week'],
+      statements: ['You have a defined market and a list worth writing to', 'You want outbound that runs on your own domains, not a shared tool', 'Research, drafting and follow-up take too much of your week'],
       notYet: 'Not yet if your contact data is thin. Start with the data foundation.'
     },
     steps: ['Book a demo call', 'We check the fit against your audience and setup', 'You get a scope and price before any build'],
@@ -381,12 +456,12 @@ export const VISUALS = {
     buildLead: 'It reads your CRM, scores on rules your team can read, and writes the result back.',
     build: {
       inputs: [['records', 'Your CRM', 'Deals, contacts, stages, notes'], ['phone', 'Calls and emails', 'Outcomes, replies, ignored sends'], ['transcript', 'Notes and transcripts', 'Sentiment, next-contact dates'], ['search', 'Outside research', 'Web and news. Full Build and up']],
-      engine: [['layers', 'Signal scoring', '0 to 100, with decay, floors and caps'], ['clock', 'Ghosting rules', 'Silence on every channel caps the score'], ['bulb', 'One AI read per lead', 'Why now, openers, objection. Full Build and up']],
-      outputs: [['queue', 'A ranked daily queue', 'Every lead, in order'], ['chat', 'Why now, what to say', 'The angle and the openers'], ['records', 'Scores in your CRM', 'Written back after record checks']],
+      engine: [['layers', 'Signal scoring', '0 to 100, with decay, floors and caps'], ['clock', 'Ghosting rules', 'Silence on every channel caps the score'], ['bulb', 'One AI read per lead', 'Why now, openers, objection. Full Build and up'], ['chat', 'Team objection library', 'Recurring objections and the strongest counter. Full Build and up']],
+      outputs: [['queue', 'A ranked daily queue', 'Every lead, in order'], ['chat', 'Why now, what to say', 'The angle and the openers'], ['calendar', 'Best time to reach them', 'Taken from their own answered calls'], ['records', 'Scores in your CRM', 'Written back after record checks']],
       controls: [['eye', 'Rules you can read', 'Written so your team can check them'], ['shield', 'Record checks', 'Each score verified before anyone sees it'], ['sliders', 'Depth you choose', 'Core, Full Build or Extended']]
     },
-    needs: ['Read and write access to your CRM (HubSpot)', 'A sales lead who owns the pipeline and agrees the scoring rules', 'Call and email history logged in the CRM'],
-    excludes: ['A net-new database build', 'Outcome promises', 'Other CRMs, unless scoped'],
+    needs: ['Read and write access to your CRM (HubSpot, Salesforce and others)', 'A sales lead who owns the pipeline and agrees the scoring rules', 'Call and email history logged in the CRM'],
+    excludes: ['A net-new database build', 'Outcome promises', 'A CRM migration, unless scoped'],
     fit: {
       statements: ['Your sales team has five or more reps', 'You use your CRM daily but do not fully trust it', 'You hold roughly 10,000 or more contact and deal records'],
       notYet: 'Not yet if your CRM is new or nearly empty, or you have fewer than five reps.'
@@ -490,6 +565,72 @@ export const VISUALS = {
     },
     steps: ['Book a demo call', 'We review your rules and how copy gets signed off', 'You get a fixed build and a first live campaign'],
     price: { label: 'Fixed price', amount: 'Pricing on request', scope: 'Setup and first campaign, checked and approved', text: true }
+  },
+  custom: {
+    category: 'Custom build',
+    tagline: 'A revenue system shaped around your process.',
+    cardMetrics: [{ dir: 'down', name: 'Manual work' }, { dir: 'down', name: 'Tools stitched by hand' }],
+    h1: 'Built around how your team actually sells',
+    lead: 'Some revenue problems need their own system. We scope it, build it inside your stack, and hand it over documented, with support after launch if you want it.',
+    actionLabel: 'Book a scoping call',
+    moves: [{ dir: 'down', name: 'Hours of manual revenue work' }, { dir: 'down', name: 'Tools stitched together by hand' }, { dir: 'up', name: 'Visibility across the pipeline' }],
+    points: [
+      ['layers', 'Any part of the revenue process', 'Agents, integrations, internal tools, data pipelines and dashboards.'],
+      ['link', 'Inside your stack', 'Built on your CRM, your cloud and your accounts.'],
+      ['approved', 'Scoped before we build', 'A fixed scope and price agreed up front, then a documented handover.']
+    ],
+    howTitle: 'From a manual process to a system your team runs',
+    howLead: 'We map the process as it runs today, agree what the system has to do, then build and hand it over in stages.',
+    chipsLabel: 'Built with',
+    chips: ['HubSpot', 'Salesforce', 'Attio', 'Google Workspace', 'Aircall', 'Gemini', 'Anthropic', 'Next.js', 'PostgreSQL'],
+    buildLead: 'Every custom build follows the same shape, whatever it does.',
+    build: {
+      inputs: [['records', 'Your systems', 'CRM, inbox, calendar, call data'], ['file', 'Your process', 'How the work is done today'], ['target', 'The outcome', 'What the system has to change']],
+      engine: [['layers', 'The build', 'Agents, integrations, internal tools'], ['shield', 'Checks and approvals', 'Rules, and a person signing off where it matters'], ['eye', 'Readable logic', 'Rules your team can inspect']],
+      outputs: [['approved', 'A working system', 'Running in your stack'], ['report', 'Documentation', 'How it works and how to run it'], ['sliders', 'Running costs', 'Known before launch']],
+      controls: [['lock', 'You own it', 'Your accounts, your code, your data'], ['approve', 'Staged delivery', 'Checked with you at every stage'], ['clock', 'Support after launch', 'Optional ongoing support']]
+    },
+    needs: ['An owner for the process on your side', 'Access to the systems the build touches', 'Time to walk us through the process as it runs today'],
+    excludes: ['Work outside revenue operations', 'Outcome guarantees', 'Hosting on a Panoramica platform: it runs in your accounts'],
+    fit: {
+      statements: ['Part of your revenue process is still manual and repeats every week', 'None of the services fits it as it is', 'You want the system to live in your own stack'],
+      notYet: 'Not yet if the process still changes week to week. Map it first, or start with the free diagnostic.'
+    },
+    steps: ['Book a scoping call', 'We map the process and agree the scope', 'You get a fixed scope and price before any build'],
+    price: { label: 'Pricing', amount: 'Pricing on request', scope: 'Scoped to the process and the systems involved.', plain: true, text: true }
+  },
+  support: {
+    category: 'Ongoing support',
+    tagline: 'Your systems, kept running and improving.',
+    cardMetrics: [{ dir: 'down', name: 'Time to fix' }, { dir: 'up', name: 'Team adoption' }],
+    h1: 'Systems that keep improving after launch',
+    lead: 'After handover we stay on to monitor, fix, tune and extend what we built, on a cadence agreed with you.',
+    actionLabel: 'Book a call',
+    moves: [{ dir: 'down', name: 'Time to fix what breaks' }, { dir: 'up', name: 'Team adoption' }, { dir: 'up', name: 'Fit to how you sell today' }],
+    points: [
+      ['pulse', 'Monitored', 'Runs, failures and running costs watched, not left alone.'],
+      ['sliders', 'Tuned', 'Scoring rules, prompts and checks adjusted as your pipeline changes.'],
+      ['layers', 'Extended', 'New signals, fields and features as the team asks for them.']
+    ],
+    howTitle: 'A regular rhythm, not a ticket queue',
+    howLead: 'Each cycle checks what the systems produced, fixes what broke, and ships the next improvement.',
+    chipsLabel: 'Covers',
+    chips: ['Goldmine', 'The Brief', 'Data foundation', 'Email outreach infrastructure', 'Marketing Studio', 'Custom builds'],
+    buildLead: 'Support covers any system we have built for you.',
+    build: {
+      inputs: [['records', 'Your live systems', 'Everything we built for you'], ['chat', "Your team's requests", 'What they want next'], ['pulse', 'Run history', 'Jobs, failures, costs']],
+      engine: [['eye', 'Monitoring', 'Failures caught and fixed'], ['sliders', 'Tuning', 'Rules and prompts kept current'], ['layers', 'Improvements', 'New signals and features']],
+      outputs: [['report', 'A regular review', 'What ran, what changed, what is next'], ['approved', 'Fixes shipped', 'Tested before they go live'], ['file', 'Updated documentation', 'Kept in step with the system']],
+      controls: [['lock', 'Still yours', 'Everything stays in your accounts'], ['approve', 'You approve changes', 'Nothing major ships unannounced'], ['clock', 'Cadence you choose', 'Agreed at the start']]
+    },
+    needs: ['A system Panoramica has built for you', 'A named owner on your side', 'Access to the systems we support'],
+    excludes: ['New systems from scratch: that is a custom build', 'Guaranteed response times, unless agreed', 'Tools we did not build or integrate'],
+    fit: {
+      statements: ['A Panoramica system is live, or about to be', 'Your pipeline, team or rules change often', 'You want someone accountable for the system after launch'],
+      notYet: 'Not yet if nothing has been built. Start with a service or a custom build.'
+    },
+    steps: ['Book a call', 'We agree what is covered and the cadence', 'Support starts at handover'],
+    price: { label: 'Pricing', amount: 'Pricing on request', scope: 'Priced by the systems covered and the cadence.', plain: true, text: true }
   }
 };
 
@@ -509,7 +650,7 @@ const FAQ = {
     ['Do you cover the whole market?', 'No. Exhaustive market coverage is not promised, and legal or compliance advice is not included.']
   ],
   goldmine: [
-    ['Which CRM does it work with?', 'Pricing applies to HubSpot. Other CRMs are scoped separately.'],
+    ['Which CRM does it work with?', 'HubSpot, Salesforce and others. The quote depends on the depth you choose and on your CRM.'],
     ['What do the three depths change?', 'Core is scoring and write-back on a single pipeline. Full Build adds AI synthesis behind record checks and multiple pipelines. Extended adds custom signals and a reporting dashboard. Pricing is quoted by depth, and you get a fixed scope before any build.'],
     ['How do I know why a lead ranks where it does?', 'Every rank shows the signals behind it, and the scoring rules are written so your team can read and check them.'],
     ['How many records do I need?', 'Roughly 10,000 or more contact and deal records, in a CRM your team uses daily. A new or nearly empty CRM is not a fit yet.']
@@ -533,6 +674,18 @@ const FAQ = {
     ['Can it use my own designs?', 'Yes. Upload an image of a design you like and the studio turns it into a reusable template.'],
     ['How is it priced?', 'A fixed price for the build and your first checked and approved campaign. Inquire about pricing to get the figure.'],
     ['Does it work for regulated firms?', 'Yes. The rules layer has been proven on FCA COBS 4, and your own brand or compliance rules are set up during the build.']
+  ],
+  custom: [
+    ['What can you build?', 'Anything in the revenue process: AI agents, CRM integrations, internal tools, data pipelines and dashboards, built inside your stack.'],
+    ['How is it priced?', 'A fixed scope and price, agreed before any build, based on the process and the systems involved. Inquire about pricing to start.'],
+    ['Who owns what you build?', 'You do. It runs in your accounts, and you get the documentation to run it.'],
+    ['What happens after launch?', 'You run it yourselves, or keep us on through ongoing support.']
+  ],
+  support: [
+    ['What does ongoing support cover?', 'Monitoring, fixes, tuning of rules and prompts, and new features, for the systems we have built for you.'],
+    ['How often do we review?', 'On a cadence agreed with you at the start.'],
+    ['Is it required?', 'No. Every build is handed over documented, so you can run it yourselves. Support is there if you want it.'],
+    ['How is it priced?', 'By the systems covered and the cadence. Inquire about pricing to get the figure.']
   ]
 };
 
@@ -545,7 +698,7 @@ const LD_PRICE = {
 const isSoon = (id) => routes.offers[id].live === false;
 const actionLink = (id, cls) => (isSoon(id)
   ? `<span class="${cls} btn--soon">Live soon</span>`
-  : `<a class="${cls}" href="${routes.external.book}" target="_blank" rel="noopener">Book a demo call${NEW_TAB}</a>`);
+  : `<a class="${cls}" href="${routes.external.book}" target="_blank" rel="noopener">${VISUALS[id].actionLabel || 'Book a demo call'}${NEW_TAB}</a>`);
 
 // Offers whose price is not published get an "Inquire about pricing" button: an email with the offer in the subject.
 const isQuote = (id) => routes.offers[id].quote === true;
@@ -673,7 +826,7 @@ const TIERS = `<div class="mk-price" data-tiers>
               </div>
             </div>
           </div>
-          <p class="mk-note">Pricing is quoted by depth and applies to HubSpot.</p>`;
+          <p class="mk-note">Pricing is quoted by depth and by CRM.</p>`;
 
 function priceBlock(v) {
   if (v.price.tiers) return TIERS;
@@ -786,38 +939,144 @@ function renderBar(id) {
 
 export const renderOfferPage = (id) => [renderHero(id), renderHow(id), renderBuild(id), renderFit(id), renderFaq(id), renderLd(id), renderBar(id)].join('\n\n  ');
 
-// ---------- service cards ----------
+// ---------- service cards, the flagship, and the homepage index ----------
+// Generated blocks, stamped between marker comments by tools/sync-shell.mjs:
+//   <!-- flagship:start --> ... <!-- flagship:end -->            Goldmine, on the homepage and the services page
+//   <!-- services:start --> ... <!-- services:end -->            the grouped services page
+//   <!-- service-index:start --> ... <!-- service-index:end -->  the ruled list of the other services on the homepage
 
-function renderCard(id) {
+function renderCard(id, h = 'h3') {
   const v = VISUALS[id];
   const offer = routes.offers[id];
   const href = routes.href(offer.page);
   const soon = isSoon(id) ? '<span class="tag tag--soon">Live soon</span>' : '';
-  return `      <article class="card card--link mkt-card">
-        <div class="mkt-card__top">
-          <span class="emblem emblem--sm"><img src="assets/mark.svg" alt="" width="62" height="21"></span>
-          <p class="mkt-card__cat">${esc(v.category)}</p>
+  return `        <article class="card card--link mkt-card">
+          <div class="mkt-card__top">
+            <span class="emblem emblem--sm"><img src="assets/mark.svg" alt="" width="62" height="21"></span>
+            <p class="mkt-card__cat">${esc(v.category)}</p>
+          </div>
+          <${h} class="mkt-card__name"><a class="card__link" href="${href}">${esc(offer.name)}</a></${h}>
+          <p class="mkt-card__line">${esc(v.tagline)}</p>
+          <ul class="mkt-card__moves">
+            ${v.cardMetrics.map(moveItem).join('\n            ')}
+          </ul>
+          <p class="mkt-card__price"><span>${esc(offer.price)}</span><span class="mkt-card__end">${soon}<span class="mkt-card__go" aria-hidden="true">&rarr;</span></span></p>
+        </article>`;
+}
+
+// What Goldmine does, in four lines. Each one is true of the current build (see tools/visuals.mjs build map).
+const FLAGSHIP_CAPS = [
+  ['queue', 'A ranked queue, every day', 'Every lead scored on 20+ signals from your CRM, calls, emails and notes.'],
+  ['bulb', 'Why now, and what to say', 'The reason to call, two openers and the objection to expect.'],
+  ['calendar', 'When to reach them', 'Best day and time, from each lead\u2019s own answered calls rather than guessed.'],
+  ['chat', 'What the whole team hears', 'Recurring objections across the book, with the strongest counter.']
+];
+
+const FLAGSHIP_ART = `<div class="flagship__art"><div class="example">
+          ${LABEL}
+          <div class="mock">
+            ${BAR('Goldmine', 'Today\u2019s queue')}
+            <div class="mock__body">
+              <ol class="queue">
+                <li class="queue__row queue__row--open">
+                  <div class="queue__main">
+                    <span class="queue__rank">1</span>
+                    <div class="queue__who"><p class="queue__name">Example Ltd</p></div>
+                    <div class="score"><span class="score__num">92</span><span class="meter"><i style="--v:92%"></i></span></div>
+                  </div>
+                  <p class="queue__why"><strong>Why now</strong>Replied two days ago. Budget confirmed on the last call.</p>
+                  <p class="queue__why"><strong>Open with</strong>The integration question they asked.</p>
+                  <p class="queue__why"><strong>Best time</strong>Tuesday morning, from 4 answered calls.</p>
+                </li>
+                <li class="queue__row">
+                  <div class="queue__main">
+                    <span class="queue__rank">2</span>
+                    <div class="queue__who"><p class="queue__name">Demo Inc</p></div>
+                    <div class="score"><span class="score__num">88</span><span class="meter"><i style="--v:88%"></i></span></div>
+                  </div>
+                </li>
+                <li class="queue__row">
+                  <div class="queue__main">
+                    <span class="queue__rank">3</span>
+                    <div class="queue__who"><p class="queue__name">Sample Co</p></div>
+                    <div class="score"><span class="score__num">61</span><span class="meter"><i style="--v:61%"></i></span></div>
+                  </div>
+                  <p class="queue__why"><span class="tag tag--warn">Three channels silent</span></p>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div></div>`;
+
+export function renderFlagship() {
+  const id = FLAGSHIP;
+  const offer = routes.offers[id];
+  return `<!-- flagship:start -->
+      <article class="flagship" aria-labelledby="flagship-h">
+        <div class="flagship__copy">
+          <p class="eyebrow">Flagship</p>
+          <h2 id="flagship-h">${esc(offer.name)}: know who to call next, and why</h2>
+          <p class="lead">${esc(VISUALS[id].lead)}</p>
+          <ul class="flagship__caps">
+            ${FLAGSHIP_CAPS.map(([ic, t, x]) => `<li><span class="points__icon">${icon(ic)}</span><strong>${esc(t)}</strong><span>${esc(x)}</span></li>`).join('\n            ')}
+          </ul>
+          <div class="btn-row">
+            <a class="btn btn--primary" href="${routes.href(offer.page)}">See ${esc(offer.name)}</a>
+            ${inquireLink(id, 'btn')}
+          </div>
         </div>
-        <h3 class="mkt-card__name"><a class="card__link" href="${href}">${esc(offer.name)}</a></h3>
-        <p class="mkt-card__line">${esc(v.tagline)}</p>
-        <ul class="mkt-card__moves">
-          ${v.cardMetrics.map(moveItem).join('\n          ')}
-        </ul>
-        <p class="mkt-card__price"><span>${esc(offer.price)}</span><span class="mkt-card__end">${soon}<span class="mkt-card__go" aria-hidden="true">&rarr;</span></span></p>
-      </article>`;
+        ${FLAGSHIP_ART}
+      </article>
+      <!-- flagship:end -->`;
 }
 
-export function renderCards() {
-  return `<!-- cards:start -->\n${OFFER_ORDER.map(renderCard).join('\n')}\n      <!-- cards:end -->`;
+export function renderServices() {
+  const group = (id, eyebrow, title, lead, ids, cls) => `<section class="svc-group" aria-labelledby="${id}">
+        <div class="section-head">
+          <p class="eyebrow">${eyebrow}</p>
+          <h2 id="${id}">${title}</h2>
+          <p class="lead">${lead}</p>
+        </div>
+        <div class="mkt-grid ${cls}">
+${ids.map((x) => renderCard(x)).join('\n')}
+        </div>
+      </section>`;
+  const self = SELF_SERVE.map((id) => {
+    const offer = routes.offers[id];
+    const soon = isSoon(id) ? ' <span class="tag tag--soon">Live soon</span>' : '';
+    return `<p class="selfserve"><span class="selfserve__label">Self-serve</span><a class="text-link" href="${routes.href(offer.page)}">${esc(offer.name)}</a><span class="selfserve__line">${esc(VISUALS[id].tagline)} ${esc(offer.price)}.</span>${soon}</p>`;
+  }).join('\n      ');
+  return `<!-- services:start -->
+      ${group('system-h', 'Around it', 'The rest of the revenue system', 'Each one works on its own, and better next to Goldmine.', SYSTEM, 'mkt-grid--four')}
+      ${group('beyond-h', 'Beyond the catalogue', 'Custom builds and ongoing support', 'For the process none of these fits, and for the months after launch.', BEYOND, 'mkt-grid--two')}
+      ${self}
+      <!-- services:end -->`;
 }
 
-const cardsBlock = /<!-- cards:start -->[\s\S]*?<!-- cards:end -->/;
+// The homepage lists every other service as a ruled index, so the flagship above it stays the headline.
+export function renderServiceIndex() {
+  const rows = [...SYSTEM, ...BEYOND].map((id, i) => {
+    const offer = routes.offers[id];
+    return `        <li><a class="index__row" href="${routes.href(offer.page)}"><span class="index__n">${String(i + 1).padStart(2, '0')}</span><span class="index__main"><span class="index__name">${esc(offer.name)}</span><span class="index__desc">${esc(VISUALS[id].tagline)}</span></span><span class="index__price">${esc(offer.price)}</span><span class="index__arrow" aria-hidden="true">&rarr;</span></a></li>`;
+  }).join('\n');
+  return `<!-- service-index:start -->
+      <ul class="index">
+${rows}
+      </ul>
+      <!-- service-index:end -->`;
+}
+
+const BLOCKS = [
+  [/<!-- flagship:start -->[\s\S]*?<!-- flagship:end -->/, renderFlagship],
+  [/<!-- services:start -->[\s\S]*?<!-- services:end -->/, renderServices],
+  [/<!-- service-index:start -->[\s\S]*?<!-- service-index:end -->/, renderServiceIndex]
+];
 const pageBlock = /<!-- offer-page:([a-z]+) -->[\s\S]*?<!-- \/offer-page:\1 -->/g;
 
-export const hasVisuals = (html) => cardsBlock.test(html) || /<!-- offer-page:[a-z]+ -->/.test(html);
+export const hasVisuals = (html) => BLOCKS.some(([re]) => re.test(html)) || /<!-- offer-page:[a-z]+ -->/.test(html);
 
 export function applyVisuals(html) {
-  return html
-    .replace(cardsBlock, () => renderCards())
-    .replace(pageBlock, (_all, id) => `<!-- offer-page:${id} -->\n  ${renderOfferPage(id)}\n  <!-- /offer-page:${id} -->`);
+  let out = html;
+  for (const [re, render] of BLOCKS) out = out.replace(re, () => render());
+  return out.replace(pageBlock, (_all, id) => `<!-- offer-page:${id} -->\n  ${renderOfferPage(id)}\n  <!-- /offer-page:${id} -->`);
 }
