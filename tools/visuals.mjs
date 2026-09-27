@@ -964,13 +964,8 @@ function renderCard(id, h = 'h3') {
         </article>`;
 }
 
-// What Goldmine does, in four lines. Each one is true of the current build (see tools/visuals.mjs build map).
-const FLAGSHIP_CAPS = [
-  ['queue', 'A ranked queue, every day', 'Every lead scored on 20+ signals from your CRM, calls, emails and notes.'],
-  ['bulb', 'Why now, and what to say', 'The reason to call, two openers and the objection to expect.'],
-  ['calendar', 'When to reach them', 'Best day and time, from each lead\u2019s own answered calls rather than guessed.'],
-  ['chat', 'What the whole team hears', 'Recurring objections across the book, with the strongest counter.']
-];
+// One sentence of copy; the example queue beside it shows the rest.
+const FLAGSHIP_LINE = 'Every morning your team gets a ranked call list built from your CRM, calls and emails, with the reason to call each lead and what to open with.';
 
 const FLAGSHIP_ART = `<div class="flagship__art"><div class="example">
           ${LABEL}
@@ -986,7 +981,6 @@ const FLAGSHIP_ART = `<div class="flagship__art"><div class="example">
                   </div>
                   <p class="queue__why"><strong>Why now</strong>Replied two days ago. Budget confirmed on the last call.</p>
                   <p class="queue__why"><strong>Open with</strong>The integration question they asked.</p>
-                  <p class="queue__why"><strong>Best time</strong>Tuesday morning, from 4 answered calls.</p>
                 </li>
                 <li class="queue__row">
                   <div class="queue__main">
@@ -1001,7 +995,6 @@ const FLAGSHIP_ART = `<div class="flagship__art"><div class="example">
                     <div class="queue__who"><p class="queue__name">Sample Co</p></div>
                     <div class="score"><span class="score__num">61</span><span class="meter"><i style="--v:61%"></i></span></div>
                   </div>
-                  <p class="queue__why"><span class="tag tag--warn">Three channels silent</span></p>
                 </li>
               </ol>
             </div>
@@ -1015,13 +1008,10 @@ export function renderFlagship() {
       <article class="flagship" aria-labelledby="flagship-h">
         <div class="flagship__copy">
           <p class="eyebrow">Flagship</p>
-          <h2 id="flagship-h">${esc(offer.name)}: know who to call next, and why</h2>
-          <p class="lead">${esc(VISUALS[id].lead)}</p>
-          <ul class="flagship__caps">
-            ${FLAGSHIP_CAPS.map(([ic, t, x]) => `<li><span class="points__icon">${icon(ic)}</span><strong>${esc(t)}</strong><span>${esc(x)}</span></li>`).join('\n            ')}
-          </ul>
+          <h2 id="flagship-h">${esc(offer.name)} tells your team who to call next</h2>
+          <p class="lead">${esc(FLAGSHIP_LINE)}</p>
           <div class="btn-row">
-            <a class="btn btn--primary" href="${routes.href(offer.page)}">See ${esc(offer.name)}</a>
+            <a class="btn btn--primary" href="${routes.href(offer.page)}">See how ${esc(offer.name)} works</a>
             ${inquireLink(id, 'btn')}
           </div>
         </div>
