@@ -495,9 +495,9 @@ strong { color: var(--ink); font-weight: 600; }
 .stats__label { display: block; margin-bottom: var(--sp-2); font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-3); }
 .stats__value { display: block; font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem); font-weight: 600; line-height: 1.15; letter-spacing: -0.03em; color: var(--ink); text-wrap: balance; }
 @media (min-width: 800px) {
-  .stats { grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--line); }
-  .stats li { padding: var(--sp-6) var(--sp-5); border-bottom: 0; border-left: 1px solid var(--line); }
-  .stats li:first-child { padding-left: 0; border-left: 0; }
+  .stats:not(.stats--hero) { grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--line); }
+  .stats:not(.stats--hero) li { padding: var(--sp-6) var(--sp-5); border-bottom: 0; border-left: 1px solid var(--line); }
+  .stats:not(.stats--hero) li:first-child { padding-left: 0; border-left: 0; }
 }
 
 /* Process flow: numbered nodes joined by a line. */
@@ -1028,10 +1028,9 @@ body:has(.offer-bar) .site-footer { padding-bottom: 5rem; }
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 
-/* ---------- homepage: hero facts, the four steps, the list under the flagship ---------- */
-.hero-facts { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-5); margin: var(--sp-6) 0 0; padding: 0; list-style: none; max-width: none; font-size: var(--fs-small); color: var(--ink-3); }
-.hero-facts li { margin: 0; display: flex; align-items: center; gap: var(--sp-2); }
-.hero-facts li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--lime); }
+/* ---------- homepage: hero stats, the four steps, the list under the flagship ---------- */
+.stats--hero { margin: var(--sp-6) 0 0; max-width: none; border-top: 1px solid var(--line); }
+.stats--hero li { padding: var(--sp-4) 0; border-bottom: 1px solid var(--line); }
 .section-head--after { margin-top: var(--sp-7); margin-bottom: var(--sp-5); }
 @media (min-width: 900px) { .steps--4 { grid-template-columns: repeat(4, 1fr); } }
 .steps--4 p { margin: 0; color: var(--ink-2); }
