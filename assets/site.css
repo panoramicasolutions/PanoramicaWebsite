@@ -1029,8 +1029,14 @@ body:has(.offer-bar) .site-footer { padding-bottom: 5rem; }
 }
 
 /* ---------- homepage: hero stats, the four steps, the list under the flagship ---------- */
-.stats--hero { margin: var(--sp-6) 0 0; max-width: none; border-top: 1px solid var(--line); }
-.stats--hero li { padding: var(--sp-4) 0; border-bottom: 1px solid var(--line); }
+.stats--hero { margin: var(--sp-6) 0 0; max-width: none; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.stats--hero li { padding: var(--sp-4) 0; border-bottom: 0; }
+.stats--hero .stats__value { font-size: 1.0625rem; }
+@media (min-width: 560px) {
+  .stats--hero { grid-template-columns: repeat(3, 1fr); }
+  .stats--hero li { padding: var(--sp-4) var(--sp-4); border-left: 1px solid var(--line); }
+  .stats--hero li:first-child { padding-left: 0; border-left: 0; }
+}
 .section-head--after { margin-top: var(--sp-7); margin-bottom: var(--sp-5); }
 @media (min-width: 900px) { .steps--4 { grid-template-columns: repeat(4, 1fr); } }
 .steps--4 p { margin: 0; color: var(--ink-2); }
