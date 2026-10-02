@@ -6,12 +6,12 @@ Panoramica Solutions is run by Lorenzo Liviero, a RevOps operator. Client names 
 
 ## Services
 
-- [Data foundation](https://www.panoramica.solutions/database): We define who you sell to, then source, enrich, verify, deduplicate and score the companies and contacts, and load them into your CRM. Custom scope.
 - [Goldmine](https://www.panoramica.solutions/goldmine): Goldmine cross-references your CRM history, calls, emails and notes on every lead, adds outside research, and delivers a ranked queue every day. Pricing on request.
-- [Email outreach infrastructure](https://www.panoramica.solutions/email-outreach): A model writes each email from what your database knows about the contact, and sends it from domains and accounts you own. Custom scope.
-- [Marketing Studio](https://www.panoramica.solutions/the-studio): Social images, carousels, PDFs, one-pagers, landing pages and emails, planned as a campaign and held for your approval. Pricing on request.
 - [Discovery Engine](https://www.panoramica.solutions/discovery-engine): Your client answers an adaptive questionnaire before you meet. You get a written brief of how their business works, where it hurts and what to ask. Pricing on request.
 - [The Brief](https://www.panoramica.solutions/the-brief): A brief lands in Gmail before every external meeting: the facts, a behavioral profile of the person, and advice for the call. Pricing on request.
+- [Data foundation](https://www.panoramica.solutions/database): We define who you sell to, then source, enrich, verify, deduplicate and score the companies and contacts, and load them into your CRM. Custom scope.
+- [Email outreach infrastructure](https://www.panoramica.solutions/email-outreach): A model writes each email from what your database knows about the contact, and sends it from domains and accounts you own. Custom scope.
+- [Marketing Studio](https://www.panoramica.solutions/the-studio): Social images, carousels, PDFs, one-pagers, landing pages and emails, planned as a campaign and held for your approval. Pricing on request.
 - [Custom builds](https://www.panoramica.solutions/custom-builds): Some revenue problems need their own system. We scope it, build it inside your stack, and hand it over documented, with support after launch if you want it. Pricing on request.
 - [Ongoing support](https://www.panoramica.solutions/ongoing-support): After handover we stay on to monitor, fix, tune and extend what we built, on a cadence agreed with you. Pricing on request.
 - [Revenue Architect](https://www.panoramica.solutions/revenue-architect): A guided diagnostic that argues with your first answer, then hands you an action plan. £149 self-serve.

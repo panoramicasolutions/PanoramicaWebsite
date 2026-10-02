@@ -20,19 +20,11 @@ const BAR = (title, meta) => `<div class="mock__bar"><span class="mock__dots" ar
 const N = (n) => `<span class="cite cite--n" aria-label="from field ${n}">${n}</span>`;
 
 // Order here is the order on the services page.
-export const OFFER_ORDER = ['database', 'goldmine', 'outreach', 'studio', 'discovery', 'brief', 'custom', 'support', 'architect'];
+export const OFFER_ORDER = ['goldmine', 'discovery', 'brief', 'database', 'outreach', 'studio', 'custom', 'support', 'architect'];
 
 // How the services page groups them.
 export const FLAGSHIP = 'goldmine';
-const SYSTEM = ['brief', 'discovery', 'database', 'outreach', 'studio'];
-// The services page groups every offer by the job it does.
-const GROUPS = [
-  ['Know who to sell to', 'Clean data and a ranked list of who to call.', ['database', 'goldmine']],
-  ['Start conversations', 'Outreach and campaigns written from your own data.', ['outreach', 'studio']],
-  ['Win the meeting', 'Walk in already knowing the client and the person.', ['discovery', 'brief']],
-  ['Built around you', 'For the process none of these fits, and the months after launch.', ['custom', 'support']],
-  ['Do it yourself', 'A diagnostic you run on your own.', ['architect']]
-];
+const SYSTEM = ['discovery', 'brief', 'database', 'outreach', 'studio'];
 const BEYOND = ['custom', 'support'];
 const SELF_SERVE = ['architect'];
 
@@ -1034,33 +1026,20 @@ export function renderFlagship() {
 
 // The services page is one ruled list: every offer on a row, with what it is, what it moves and how it is priced.
 export function renderServices() {
-  let n = 0;
-  const row = (id) => {
+  const rows = OFFER_ORDER.map((id, i) => {
     const v = VISUALS[id];
     const offer = routes.offers[id];
     const flag = id === FLAGSHIP ? ' <span class="tag tag--flag">Flagship</span>' : '';
     const soon = isSoon(id) ? ' <span class="tag tag--soon">Live soon</span>' : '';
-    n += 1;
-    return `          <li><a class="index__row" href="${routes.href(offer.page)}"><span class="index__n">${String(n).padStart(2, '0')}</span><span class="index__main"><span class="index__cat">${esc(v.category)}${flag}</span><span class="index__name">${esc(offer.name)}</span><span class="index__desc">${esc(v.tagline)}</span></span><ul class="mkt-card__moves index__moves">
+    return `        <li><a class="index__row" href="${routes.href(offer.page)}"><span class="index__n">${String(i + 1).padStart(2, '0')}</span><span class="index__main"><span class="index__cat">${esc(v.category)}${flag}</span><span class="index__name">${esc(offer.name)}</span><span class="index__desc">${esc(v.tagline)}</span></span><ul class="mkt-card__moves index__moves">
             ${v.cardMetrics.map(moveItem).join('\n            ')}
           </ul><span class="index__price">${esc(offer.price)}${soon}</span><span class="index__arrow" aria-hidden="true">&rarr;</span></a></li>`;
-  };
-  const slug = (t) => 'svc-' + t.toLowerCase().replace(/[^a-z]+/g, '-');
-  const jump = GROUPS.map(([title, , ids]) => `<a class="svc-jump__link" href="#${slug(title)}"><span class="svc-jump__name">${esc(title)}</span><span class="svc-jump__count">${ids.length} ${ids.length === 1 ? 'service' : 'services'}</span></a>`).join('\n        ');
-  const groups = GROUPS.map(([title, line, ids]) => `<section class="svc-block" id="${slug(title)}" aria-labelledby="${slug(title)}-h">
-        <div class="svc-block__head">
-          <h2 id="${slug(title)}-h">${esc(title)}</h2>
-          <p>${esc(line)}</p>
-        </div>
-        <ul class="index index--services">
-${ids.map(row).join('\n')}
-        </ul>
-      </section>`).join('\n      ');
+  }).join('\n');
   return `<!-- services:start -->
-      <nav class="svc-jump" aria-label="Services by what they do">
-        ${jump}
-      </nav>
-      ${groups}
+      <div class="index-head" aria-hidden="true"><span></span><span>Service</span><span>Built to move</span><span>Pricing</span><span></span></div>
+      <ul class="index index--services">
+${rows}
+      </ul>
       <!-- services:end -->`;
 }
 
