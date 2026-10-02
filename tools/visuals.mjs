@@ -739,9 +739,13 @@ function renderHero(id) {
             ${actionLink(id, 'btn btn--primary')}`}
           </div>
         </div>
-        <div class="hero-art" aria-hidden="true">
+        ${v.video
+    ? `<div class="hero-art hero-art--video">
+          <video class="hero-video" src="${v.video.src}" poster="${v.video.poster}" width="1920" height="1080" autoplay muted loop playsinline controls preload="metadata" aria-label="${esc(v.video.label)}"></video>
+        </div>`
+    : `<div class="hero-art" aria-hidden="true">
           <img class="hero-mark" src="assets/mark.svg" alt="" width="229" height="77">
-        </div>
+        </div>`}
       </div>
       <ul class="points">
         ${v.points.map(([ic, t, x]) => `<li><span class="points__icon">${icon(ic)}</span><strong>${esc(t)}</strong><span>${esc(x)}</span></li>`).join('\n        ')}

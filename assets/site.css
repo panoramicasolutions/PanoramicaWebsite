@@ -371,6 +371,8 @@ strong { color: var(--ink); font-weight: 600; }
   content: ""; position: absolute; inset: -60% auto -60% -30%; width: 220px; z-index: -1;
   background: radial-gradient(closest-side, rgba(220, 238, 106, 0.2), transparent 72%);
 }
+.hero-art--video::before { display: none; }
+.hero-video { display: block; width: 100%; height: auto; border: 1px solid var(--line-2); border-radius: var(--r-md); background: var(--surface); box-shadow: 0 0 80px rgba(220, 238, 106, 0.08); }
 .hero-mark {
   display: block; width: 96px; height: auto;
   transform: rotate(-8deg);
@@ -1054,3 +1056,7 @@ body:has(.offer-bar) .site-footer { padding-bottom: 5rem; }
 .section-head--after { margin-top: var(--sp-7); margin-bottom: var(--sp-5); }
 @media (min-width: 900px) { .steps--4 { grid-template-columns: repeat(4, 1fr); } }
 .steps--4 p { margin: 0; color: var(--ink-2); }
+
+@media (min-width: 800px) {
+  .hero--offer .hero-art--video { min-height: 0; }
+}
