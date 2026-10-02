@@ -725,13 +725,13 @@ function renderHero(id) {
           <p class="eyebrow">${esc(offer.name)}</p>
           <h1 id="hero-h">${esc(v.h1)}</h1>
           <p class="lead">${esc(v.lead)}</p>
-          <div class="moves">
+${v.video ? '' : `          <div class="moves">
             <p class="moves__label">Built to move</p>
             <ul class="moves__list">
               ${v.moves.map(moveItem).join('\n              ')}
             </ul>
           </div>
-          <div class="price-line">
+`}          <div class="price-line">
             ${isQuote(id)
     ? `${actionLink(id, 'btn btn--primary')}
             ${inquireLink(id, 'btn')}`
@@ -945,7 +945,8 @@ function renderBar(id) {
   </div>`;
 }
 
-export const renderOfferPage = (id) => [renderHero(id), renderHow(id), renderBuild(id), renderFit(id), renderFaq(id), renderLd(id), renderBar(id)].join('\n\n  ');
+// An offer with a demo video skips the static "how it works" walkthrough: the video shows it.
+export const renderOfferPage = (id) => [renderHero(id), VISUALS[id].video ? '' : renderHow(id), renderBuild(id), renderFit(id), renderFaq(id), renderLd(id), renderBar(id)].filter(Boolean).join('\n\n  ');
 
 // ---------- service cards, the flagship, and the homepage index ----------
 // Generated blocks, stamped between marker comments by tools/sync-shell.mjs:

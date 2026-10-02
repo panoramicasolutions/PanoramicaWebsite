@@ -55,7 +55,7 @@ export const DISCOVERY_VISUAL = {
   chips: ['Google Calendar booking', 'Your own domain', 'PDF and Markdown export'],
   buildLead: 'Built around your discovery questions, delivered to you as a brief per client.',
   build: {
-    inputs: [['calendar', 'Booking', 'The client picks a time and gets their link'], ['question', 'Adaptive questionnaire', 'Mostly taps, with dictation for longer answers'], ['file', 'Their documents', 'Proposals, price lists, process docs'], ['pen', 'Your call notes', 'Added privately, never shown to the client']],
+    inputs: [['question', 'Adaptive questionnaire', 'Mostly taps, with dictation for longer answers'], ['file', 'Their documents', 'Proposals, price lists, process docs'], ['pen', 'Your call notes', 'Added privately, never shown to the client']],
     engine: [['funnel', 'Branching by business', 'E-commerce, services, SaaS, manufacturing and more'], ['layers', 'Core and deeper questions', 'Depth where the client has it, no dead ends'], ['bulb', 'Brief written from the answers', 'Facts separated from hypotheses']],
     outputs: [['report', 'A brief per client', 'The same structure every time'], ['target', 'Questions for the meeting', 'The ones that unlock a recommendation'], ['mail', 'Emails from your address', 'Invite, copy of answers, notification to you']],
     controls: [['lock', 'A private link per client', 'Only they and you can see their answers'], ['eye', 'Nothing invented', 'Unknowns are listed as missing information'], ['shield', 'Files kept private', 'Uploads are not publicly reachable']]
@@ -71,10 +71,8 @@ export const DISCOVERY_VISUAL = {
 };
 
 export const DISCOVERY_FAQ = [
-  ['Who is it for?', 'Consultants and agencies who run discovery with every new client.'],
   ['How long does it take a client?', 'About 15 minutes. Answers save as they go, and they can share the link with a colleague.'],
   ['Can I change the questions?', 'Yes. The questions, the sections and the structure of the brief are set up around how you work.'],
   ['Who can see a client’s answers?', 'The client, through their private link, and you. Uploaded files are not publicly reachable.'],
-  ['How is it priced?', 'A fixed price for the setup on your domain. Inquire about pricing to get the figure.'],
-  ['Are there running costs?', 'LLM running costs are not part of the setup fee. We confirm them before launch.']
+  ['How is it priced?', 'A fixed price for the setup on your domain. Inquire about pricing to get the figure.']
 ];
