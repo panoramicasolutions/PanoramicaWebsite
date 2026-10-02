@@ -41,6 +41,8 @@ for (const f of htmlFiles) {
   const refs = [...html.matchAll(/\s(?:href|src)="([^"]*)"/g)].map((m) => m[1]);
   for (const ref of refs) {
     if (!ref || /^(https?:|mailto:|tel:|javascript:|data:)/i.test(ref) || ref.includes("'") || ref.includes('${')) continue;
+    // /discovery is rewritten to the discovery app in vercel.json; there is no page file for it here.
+    if (ref === '/discovery' || ref.startsWith('/discovery/')) continue;
     let [target, hash] = ref.split('#');
     target = target.split('?')[0];
     // Clean URLs: a page is linked without ".html" (a redirect stub may still name the page it forwards to).

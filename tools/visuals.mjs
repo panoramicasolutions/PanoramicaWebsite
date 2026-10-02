@@ -942,7 +942,7 @@ export const renderOfferPage = (id) => [renderHero(id), renderHow(id), renderBui
 // ---------- service cards, the flagship, and the homepage index ----------
 // Generated blocks, stamped between marker comments by tools/sync-shell.mjs:
 //   <!-- flagship:start --> ... <!-- flagship:end -->            Goldmine, on the homepage and the services page
-//   <!-- services:start --> ... <!-- services:end -->            the grouped services page
+//   <!-- services:start --> ... <!-- services:end -->            the list of every offer on the services page
 //   <!-- service-index:start --> ... <!-- service-index:end -->  the ruled list of the other services on the homepage
 
 function renderCard(id, h = 'h3') {
@@ -1020,26 +1020,22 @@ export function renderFlagship() {
       <!-- flagship:end -->`;
 }
 
+// The services page is one ruled list: every offer on a row, with what it is, what it moves and how it is priced.
 export function renderServices() {
-  const group = (id, eyebrow, title, lead, ids, cls) => `<section class="svc-group" aria-labelledby="${id}">
-        <div class="section-head">
-          <p class="eyebrow">${eyebrow}</p>
-          <h2 id="${id}">${title}</h2>
-          <p class="lead">${lead}</p>
-        </div>
-        <div class="mkt-grid ${cls}">
-${ids.map((x) => renderCard(x)).join('\n')}
-        </div>
-      </section>`;
-  const self = SELF_SERVE.map((id) => {
+  const rows = OFFER_ORDER.map((id, i) => {
+    const v = VISUALS[id];
     const offer = routes.offers[id];
+    const flag = id === FLAGSHIP ? ' <span class="tag tag--flag">Flagship</span>' : '';
     const soon = isSoon(id) ? ' <span class="tag tag--soon">Live soon</span>' : '';
-    return `<p class="selfserve"><span class="selfserve__label">Self-serve</span><a class="text-link" href="${routes.href(offer.page)}">${esc(offer.name)}</a><span class="selfserve__line">${esc(VISUALS[id].tagline)} ${esc(offer.price)}.</span>${soon}</p>`;
-  }).join('\n      ');
+    return `        <li><a class="index__row" href="${routes.href(offer.page)}"><span class="index__n">${String(i + 1).padStart(2, '0')}</span><span class="index__main"><span class="index__cat">${esc(v.category)}${flag}</span><span class="index__name">${esc(offer.name)}</span><span class="index__desc">${esc(v.tagline)}</span></span><ul class="mkt-card__moves index__moves">
+            ${v.cardMetrics.map(moveItem).join('\n            ')}
+          </ul><span class="index__price">${esc(offer.price)}${soon}</span><span class="index__arrow" aria-hidden="true">&rarr;</span></a></li>`;
+  }).join('\n');
   return `<!-- services:start -->
-      ${group('system-h', 'Around it', 'The rest of the revenue system', 'Each one works on its own, and better next to Goldmine.', SYSTEM, 'mkt-grid--four')}
-      ${group('beyond-h', 'Beyond the catalogue', 'Custom builds and ongoing support', 'For the process none of these fits, and for the months after launch.', BEYOND, 'mkt-grid--two')}
-      ${self}
+      <div class="index-head" aria-hidden="true"><span></span><span>Service</span><span>Built to move</span><span>Pricing</span><span></span></div>
+      <ul class="index index--services">
+${rows}
+      </ul>
       <!-- services:end -->`;
 }
 

@@ -36,4 +36,4 @@ Panoramica Solutions is run by Lorenzo Liviero, a RevOps operator. Client names 
 
 ## Contact
 
-- [Book a call](https://meetings-eu1.hubspot.com/panoramica-solutions)
+- [Book a call](/discovery)

@@ -610,6 +610,21 @@ strong { color: var(--ink); font-weight: 600; }
 .flagship__art .mock__body { padding: var(--sp-4); }
 .flagship__art .queue__row { padding: var(--sp-3) var(--sp-4); }
 
+/* ---------- services page list ---------- */
+
+.index__cat { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-2); font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+.tag--flag { border-color: rgba(220, 238, 106, 0.6); background: var(--lime-wash); color: var(--lime); letter-spacing: 0; text-transform: none; }
+.index__moves { grid-column: 2; }
+.index--services .index__price { flex-wrap: wrap; }
+.index-head { display: none; }
+@media (min-width: 800px) {
+  .index--services .index__row, .index-head { grid-template-columns: 3rem minmax(0, 1.25fr) minmax(0, 1fr) 11rem 2rem; column-gap: var(--sp-5); }
+  .index--services .index__row { align-items: center; }
+  .index__moves { grid-column: auto; }
+  .index-head { display: grid; padding: 0 var(--sp-2) var(--sp-3); font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+  .index-head span:nth-child(4) { text-align: right; }
+}
+
 /* ---------- grouped services page ---------- */
 
 .svc-group { margin-top: var(--sp-8); }
