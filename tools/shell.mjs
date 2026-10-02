@@ -22,6 +22,7 @@ const NAV = [
 const OFFERS = [
   ['goldmine', 'Goldmine'],
   ['brief', 'The Brief'],
+  ['discoveryengine', 'Discovery Engine'],
   ['database', 'Data foundation'],
   ['outreach', 'Email outreach infrastructure'],
   ['studio', 'Marketing Studio'],

@@ -616,13 +616,21 @@ strong { color: var(--ink); font-weight: 600; }
 .tag--flag { border-color: rgba(220, 238, 106, 0.6); background: var(--lime-wash); color: var(--lime); letter-spacing: 0; text-transform: none; }
 .index__moves { grid-column: 2; }
 .index--services .index__price { flex-wrap: wrap; }
-.index-head { display: none; }
+.svc-jump { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin-bottom: var(--sp-7); border: 1px solid var(--line-2); border-radius: var(--r-md); overflow: hidden; background: var(--line-2); }
+.svc-jump__link { display: flex; flex-direction: column; gap: 0.25rem; padding: var(--sp-4); background: var(--surface); color: var(--ink); text-decoration: none; transition: background 0.2s; }
+.svc-jump__link:hover, .svc-jump__link:focus-visible { background: var(--lime-wash); }
+.svc-jump__name { font-weight: 600; letter-spacing: -0.01em; }
+.svc-jump__count { font-size: var(--fs-small); color: var(--ink-3); }
+.svc-block { scroll-margin-top: calc(var(--header-h) + var(--sp-4)); }
+.svc-block + .svc-block { margin-top: var(--sp-7); }
+.svc-block__head { display: grid; gap: var(--sp-2); margin-bottom: var(--sp-4); }
+.svc-block__head h2 { margin: 0; font-size: clamp(1.5rem, 1.3rem + 0.8vw, 2rem); color: var(--lime); }
+.svc-block__head p { margin: 0; color: var(--ink-2); max-width: none; }
 @media (min-width: 800px) {
-  .index--services .index__row, .index-head { grid-template-columns: 3rem minmax(0, 1.25fr) minmax(0, 1fr) 11rem 2rem; column-gap: var(--sp-5); }
-  .index--services .index__row { align-items: center; }
+  .svc-jump { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .svc-block__head { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: baseline; column-gap: var(--sp-6); }
+  .index--services .index__row { grid-template-columns: 3rem minmax(0, 1.25fr) minmax(0, 1fr) 11rem 2rem; column-gap: var(--sp-5); align-items: center; }
   .index__moves { grid-column: auto; }
-  .index-head { display: grid; padding: 0 var(--sp-2) var(--sp-3); font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
-  .index-head span:nth-child(4) { text-align: right; }
 }
 
 /* ---------- grouped services page ---------- */
