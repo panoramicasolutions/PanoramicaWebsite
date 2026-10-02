@@ -619,6 +619,7 @@ strong { color: var(--ink); font-weight: 600; }
 .index__moves { grid-column: 2; }
 .index--services .index__price { flex-wrap: wrap; }
 .index-head { display: none; }
+.index-intro { margin-bottom: var(--sp-6); }
 @media (min-width: 800px) {
   .index-head { display: grid; grid-template-columns: 3rem minmax(0, 1.25fr) minmax(0, 1fr) 11rem 2rem; column-gap: var(--sp-5); padding: 0 var(--sp-2) var(--sp-3); font-size: var(--fs-label); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
   .index-head span:nth-child(4) { text-align: right; }

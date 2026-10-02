@@ -20,12 +20,12 @@ const NAV = [
 ];
 
 const OFFERS = [
-  ['goldmine', 'Goldmine'],
-  ['brief', 'The Brief'],
-  ['discoveryengine', 'Discovery Engine'],
   ['database', 'Data foundation'],
   ['outreach', 'Email outreach infrastructure'],
   ['studio', 'Marketing Studio'],
+  ['goldmine', 'Goldmine'],
+  ['discoveryengine', 'Discovery Engine'],
+  ['brief', 'The Brief'],
   ['custom', 'Custom builds'],
   ['support', 'Ongoing support'],
   ['architect', 'Revenue Architect']

@@ -20,8 +20,9 @@ const LABEL = '';
 const BAR = (title, meta) => `<div class="mock__bar"><span class="mock__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mock__title">${title}</span><span class="mock__meta">${meta}</span></div>`;
 const N = (n) => `<span class="cite cite--n" aria-label="from field ${n}">${n}</span>`;
 
-// Order here is the order on the services page.
-export const OFFER_ORDER = ['goldmine', 'discovery', 'brief', 'database', 'outreach', 'studio', 'custom', 'support', 'architect'];
+// Order here is the order everywhere: the path a lead takes, from a cold list to a signed client.
+export const OFFER_ORDER = ['database', 'outreach', 'studio', 'goldmine', 'discovery', 'brief', 'custom', 'support', 'architect'];
+export const OFFER_INTRO = 'They follow the path from a cold list to a signed client. Start with whichever step is slowest.';
 
 // How the services page groups them.
 export const FLAGSHIP = 'goldmine';
@@ -417,7 +418,7 @@ export const VISUALS = {
     lead: 'We define who you sell to, then source, enrich, verify, deduplicate and score the companies and contacts, and load them into your CRM.',
     moves: [{ dir: 'down', name: 'Duplicate records' }, { dir: 'up', name: 'Required-field completeness' }, { dir: 'down', name: 'Time to route and segment' }],
     points: [
-      ['dig', 'Built, not just cleaned', 'New companies and contacts, sourced against your ideal customer.'],
+      ['dig', 'Built as well as cleaned', 'New companies and contacts, sourced against your ideal customer.'],
       ['layers', 'Enriched to your strategy', 'The fields we add depend on how you sell.'],
       ['shield', 'Verified, not guessed', 'A value is recorded only when sources agree. Otherwise it stays blank.']
     ],
@@ -1035,13 +1036,13 @@ export function renderServices() {
   const rows = OFFER_ORDER.map((id, i) => {
     const v = VISUALS[id];
     const offer = routes.offers[id];
-    const flag = id === FLAGSHIP ? ' <span class="tag tag--flag">Flagship</span>' : '';
     const soon = isSoon(id) ? ' <span class="tag tag--soon">Live soon</span>' : '';
-    return `        <li><a class="index__row" href="${routes.href(offer.page)}"><span class="index__n">${String(i + 1).padStart(2, '0')}</span><span class="index__main"><span class="index__cat">${esc(v.category)}${flag}</span><span class="index__name">${esc(offer.name)}</span><span class="index__desc">${esc(v.tagline)}</span></span><ul class="mkt-card__moves index__moves">
+    return `        <li><a class="index__row" href="${routes.href(offer.page)}"><span class="index__n">${String(i + 1).padStart(2, '0')}</span><span class="index__main"><span class="index__cat">${esc(v.category)}</span><span class="index__name">${esc(offer.name)}</span><span class="index__desc">${esc(v.tagline)}</span></span><ul class="mkt-card__moves index__moves">
             ${v.cardMetrics.map(moveItem).join('\n            ')}
           </ul><span class="index__price">${esc(offer.price)}${soon}</span><span class="index__arrow" aria-hidden="true">&rarr;</span></a></li>`;
   }).join('\n');
   return `<!-- services:start -->
+      <p class="lead index-intro">${esc(OFFER_INTRO)}</p>
       <div class="index-head" aria-hidden="true"><span></span><span>Service</span><span>Built to move</span><span>Pricing</span><span></span></div>
       <ul class="index index--services">
 ${rows}
@@ -1049,11 +1050,12 @@ ${rows}
       <!-- services:end -->`;
 }
 
-// The homepage lists every other service as a ruled index, so the flagship above it stays the headline.
+// The homepage lists every offer as a ruled index, in the same order as the services page.
 export function renderServiceIndex() {
-  const rows = [...SYSTEM, ...BEYOND].map((id, i) => {
+  const rows = OFFER_ORDER.map((id, i) => {
     const offer = routes.offers[id];
-    return `        <li><a class="index__row" href="${routes.href(offer.page)}"><span class="index__n">${String(i + 1).padStart(2, '0')}</span><span class="index__main"><span class="index__name">${esc(offer.name)}</span><span class="index__desc">${esc(VISUALS[id].tagline)}</span></span><span class="index__price">${esc(offer.price)}</span><span class="index__arrow" aria-hidden="true">&rarr;</span></a></li>`;
+    const soon = isSoon(id) ? ' <span class="tag tag--soon">Live soon</span>' : '';
+    return `        <li><a class="index__row" href="${routes.href(offer.page)}"><span class="index__n">${String(i + 1).padStart(2, '0')}</span><span class="index__main"><span class="index__name">${esc(offer.name)}</span><span class="index__desc">${esc(VISUALS[id].tagline)}</span></span><span class="index__price">${esc(offer.price)}${soon}</span><span class="index__arrow" aria-hidden="true">&rarr;</span></a></li>`;
   }).join('\n');
   return `<!-- service-index:start -->
       <ul class="index">

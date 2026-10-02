@@ -57,7 +57,7 @@ export const DISCOVERY_VISUAL = {
   build: {
     inputs: [['question', 'Adaptive questionnaire', 'Mostly taps, with dictation for longer answers'], ['file', 'Their documents', 'Proposals, price lists, process docs'], ['pen', 'Your call notes', 'Added privately, never shown to the client']],
     engine: [['funnel', 'Branching by business', 'E-commerce, services, SaaS, manufacturing and more'], ['layers', 'Core and deeper questions', 'Depth where the client has it, no dead ends'], ['bulb', 'Brief written from the answers', 'Facts separated from hypotheses']],
-    outputs: [['report', 'A brief per client', 'The same structure every time'], ['target', 'Questions for the meeting', 'The ones that unlock a recommendation'], ['mail', 'Emails from your address', 'Invite, copy of answers, notification to you']],
+    outputs: [['report', 'A brief per client', 'The same structure every time'], ['target', 'Questions for the meeting', 'The ones a recommendation depends on'], ['mail', 'Emails from your address', 'Invite, copy of answers, notification to you']],
     controls: [['lock', 'A private link per client', 'Only they and you can see their answers'], ['eye', 'Nothing invented', 'Unknowns are listed as missing information'], ['shield', 'Files kept private', 'Uploads are not publicly reachable']]
   },
   needs: ['Your discovery questions, or ours as a starting point', 'A booking calendar', 'Your logo and domain'],
