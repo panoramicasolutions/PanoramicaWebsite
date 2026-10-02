@@ -38,7 +38,7 @@ export const DISCOVERY_SIG = (LABEL, BAR) => `<div class="example">
 export const DISCOVERY_VISUAL = {
   category: 'Client discovery',
   // A product demo plays in the hero in place of the brand mark.
-  video: { src: 'assets/video/discovery-engine.mp4', poster: 'assets/video/discovery-engine.jpg', label: 'A 30 second demo of the Discovery Engine' },
+  video: { src: 'assets/video/discovery-engine.mp4', poster: 'assets/video/discovery-engine.jpg', label: 'A 30 second demo of the Discovery Engine', replacesHow: true },
   tagline: 'Clients brief you before the first meeting.',
   cardMetrics: [{ dir: 'down', name: 'Discovery calls' }, { dir: 'down', name: 'Prep time' }],
   h1: 'Start every engagement already knowing the client',

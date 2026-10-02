@@ -444,6 +444,7 @@ export const VISUALS = {
   },
   goldmine: {
     category: 'CRM intelligence',
+    video: { src: 'assets/video/goldmine.mp4', poster: 'assets/video/goldmine.jpg', label: 'A 30 second demo of Goldmine' },
     tagline: 'A ranked call list, every day.',
     cardMetrics: [{ dir: 'up', name: 'Connectivity rate' }, { dir: 'down', name: 'Deal cycle time' }],
     h1: 'Know who to call next, and why',
@@ -947,8 +948,8 @@ function renderBar(id) {
   </div>`;
 }
 
-// An offer with a demo video skips the static "how it works" walkthrough: the video shows it.
-export const renderOfferPage = (id) => [renderHero(id), VISUALS[id].video ? '' : renderHow(id), renderBuild(id), renderFit(id), renderFaq(id), renderLd(id), renderBar(id)].filter(Boolean).join('\n\n  ');
+// An offer whose demo video is marked replacesHow skips the static "how it works" walkthrough.
+export const renderOfferPage = (id) => [renderHero(id), VISUALS[id].video?.replacesHow ? '' : renderHow(id), renderBuild(id), renderFit(id), renderFaq(id), renderLd(id), renderBar(id)].filter(Boolean).join('\n\n  ');
 
 // ---------- service cards, the flagship, and the homepage index ----------
 // Generated blocks, stamped between marker comments by tools/sync-shell.mjs:
