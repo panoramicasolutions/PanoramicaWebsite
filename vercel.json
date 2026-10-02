@@ -4,5 +4,9 @@
   "redirects": [
     { "source": "/marketplace", "destination": "/services", "statusCode": 301 },
     { "source": "/what-we-fix", "destination": "/services", "statusCode": 301 }
+  ],
+  "rewrites": [
+    { "source": "/discovery", "destination": "https://panoramica-discovery.vercel.app/discovery" },
+    { "source": "/discovery/:path*", "destination": "https://panoramica-discovery.vercel.app/discovery/:path*" }
   ]
 }

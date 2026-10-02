@@ -26,7 +26,7 @@
   };
 
   var external = {
-    book: 'https://meetings-eu1.hubspot.com/panoramica-solutions',
+    book: '/discovery',
     linkedin: 'https://www.linkedin.com/in/lorenzo-liviero/',
     architectApp: 'https://revenue-architect-one.vercel.app/chat.html',
     email: 'mailto:lorenzo@panoramica.solutions'
