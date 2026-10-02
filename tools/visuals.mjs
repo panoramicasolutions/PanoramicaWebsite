@@ -15,7 +15,8 @@ import { icon } from './icons.mjs';
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const escAttr = (s) => esc(s).replace(/"/g, '&quot;');
 const NEW_TAB = '<span class="sr-only"> (opens in a new tab)</span>';
-const LABEL = '<p class="example__label">Example - not client data.</p>';
+// Sample mock-ups carry no banner. They use plainly fictional names (Example Ltd, Demo Inc).
+const LABEL = '';
 const BAR = (title, meta) => `<div class="mock__bar"><span class="mock__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mock__title">${title}</span><span class="mock__meta">${meta}</span></div>`;
 const N = (n) => `<span class="cite cite--n" aria-label="from field ${n}">${n}</span>`;
 
@@ -725,13 +726,13 @@ function renderHero(id) {
           <p class="eyebrow">${esc(offer.name)}</p>
           <h1 id="hero-h">${esc(v.h1)}</h1>
           <p class="lead">${esc(v.lead)}</p>
-${v.video ? '' : `          <div class="moves">
+          <div class="moves">
             <p class="moves__label">Built to move</p>
             <ul class="moves__list">
               ${v.moves.map(moveItem).join('\n              ')}
             </ul>
           </div>
-`}          <div class="price-line">
+          <div class="price-line">
             ${isQuote(id)
     ? `${actionLink(id, 'btn btn--primary')}
             ${inquireLink(id, 'btn')}`

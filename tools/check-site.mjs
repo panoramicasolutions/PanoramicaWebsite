@@ -128,16 +128,6 @@ if (strict) {
   }
 }
 
-// ---------- G. samples must be labelled (strict) ----------
-if (strict) {
-  for (const f of htmlFiles) {
-    const h = pages[f];
-    const samples = (h.match(/class="example"/g) || []).length;
-    const labels = (h.match(/<p class="example__label">Example - not client data\.<\/p>/g) || []).length;
-    if (samples !== labels) err(`${f}: ${samples} sample block(s) but ${labels} correct label(s)`);
-  }
-}
-
 // ---------- F. pricing (strict) ----------
 // A price is published only where routes.js lists one (quote: false). Every other offer says
 // "Pricing on request" or "Custom scope", shows no figure, and offers an "Inquire about pricing" button.
