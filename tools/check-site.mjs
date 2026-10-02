@@ -70,7 +70,8 @@ try {
     if (!fileFor(r.destination)) err(`vercel.json: redirect target missing ${r.destination}`);
     if (/\.html$/.test(r.destination)) err(`vercel.json: redirect ${r.source} lands on ${r.destination}; use the clean URL`);
   }
-  if ((v.rewrites ?? []).length) warn('vercel.json: rewrites are not needed with cleanUrls; remove them');
+  // The only rewrites allowed are the ones that hand /discovery to the discovery app.
+  if ((v.rewrites ?? []).some((r) => !/^\/discovery(\/|$)/.test(r.source))) warn('vercel.json: rewrites are not needed with cleanUrls; remove them');
   for (const moved of ['/what-we-fix', '/marketplace']) {
     if (!(v.redirects ?? []).some((r) => r.source === moved)) err(`vercel.json: ${moved} redirect missing`);
   }
